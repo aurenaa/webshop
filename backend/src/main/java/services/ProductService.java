@@ -35,9 +35,7 @@ public class ProductService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Collection<Product> getProducts() {
 	    ProductDAO dao = (ProductDAO) ctx.getAttribute("productDAO");
-	    System.out.println("DAO: " + dao);
 	    Collection<Product> products = dao.findAll();
-	    System.out.println("Products found: " + products.size());
 	    return products;
 	}
 }
