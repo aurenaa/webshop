@@ -5,6 +5,7 @@ import LoginPage from "./pages/LoginPage/LoginPage";
 import ProductPage from './pages/ProductPage/ProductPage';
 import SignUpPage from './pages/SignUpPage/SignUpPage';
 import AddProductPage from './pages/AddProductPage/AddProductPage';
+import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthorizeProvider } from "./contexts/AuthorizeContext";
 
 
@@ -19,7 +20,14 @@ function App() {
             <Route path="/login" element={<LoginPage />} />       
             <Route path="/products/:id" element={<ProductPage />} />
             <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/add-product" element={<AddProductPage />} />
+            <Route
+              path="/add-product"
+              element={
+                <ProtectedRoute>
+                  <AddProductPage />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </HashRouter>
       </AuthorizeProvider>
