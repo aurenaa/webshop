@@ -2,6 +2,7 @@ import './App.css';
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import MainPage from './pages/MainPage/MainPage';
 import LoginPage from "./pages/LoginPage/LoginPage";
+import ProductPage from './pages/ProductPage/ProductPage';
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthorizeProvider } from "./contexts/AuthorizeContext";
 
@@ -13,7 +14,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/mainpage" />} />
             <Route path="/mainpage" element={<MainPage />} />
-            <Route path="/login" element={<LoginPage />} />          
+            <Route path="/login" element={<LoginPage />} />       
+            <Route path="/products/:id" element={<ProductPage />} />
           </Routes>
         </HashRouter>
       </AuthorizeProvider>

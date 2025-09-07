@@ -21,14 +21,26 @@ export default function MainPage() {
   };
 
   return (
-    <div className="main-page">
-      <div className="header">
-        <h1 className="site-name">WebShop</h1>
-        <button onClick={handleClick} className="login-button">Login</button>
+  <div className="main-page">
+    <nav className="navbar navbar-expand-lg navbar-light bg-light px-3 position-relative">
+      <span className="navbar-brand">WebShop</span>
+
+      <div className="position-absolute start-50 translate-middle-x d-flex">
+        <input
+          className="form-control me-2"
+          type="search"
+          placeholder="Search"
+          aria-label="Search"
+        />
+        <button className="btn btn-outline-success" type="submit">Search</button>
       </div>
-      <div className="products-table">
-          <ProductTable products={products} /> 
-      </div>
+
+      <button onClick={handleClick} className="btn btn-primary ms-auto">Login</button>
+    </nav>
+
+    <div className="products-table mt-3">
+      <ProductTable products={products} />
     </div>
+  </div>
   );
 }
