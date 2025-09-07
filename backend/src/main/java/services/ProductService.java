@@ -6,6 +6,7 @@ import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -37,5 +38,14 @@ public class ProductService {
 	    ProductDAO dao = (ProductDAO) ctx.getAttribute("productDAO");
 	    Collection<Product> products = dao.findAll();
 	    return products;
+	}
+	
+	@GET
+	@Path("/{id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Product getProductById(@PathParam("id") String id) {
+	    ProductDAO dao = (ProductDAO) ctx.getAttribute("productDAO");
+	    Product product = dao.findProduct(id);
+	    return product;
 	}
 }

@@ -5,6 +5,10 @@
     font-size: 16px;
 }
 
+.container h1 {
+  cursor: pointer;
+}
+
 .form-border {
   display: flex;
   flex-direction: column;
