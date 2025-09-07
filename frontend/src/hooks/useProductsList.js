@@ -6,10 +6,9 @@ export function useProductsList() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/WebShopREST/rest/products/");
+      const response = await axios.get("http://localhost:8081/WebShopAppREST/rest/mainpage/");
       setProducts(response.data);
     } catch (error) {
-      console.error(error);
     }
   };
 

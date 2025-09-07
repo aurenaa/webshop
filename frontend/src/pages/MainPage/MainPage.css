@@ -30,10 +30,5 @@
 }
 
 .login-button:hover {
-  padding: 0.5rem;
-  border: none;
-  height: 30px;
-  border-radius: 0.25rem;
   background-color: #026ada;
-  color: white;
 }
