@@ -1,6 +1,7 @@
 import { useState, useReducer } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthorize } from "../../contexts/AuthorizeContext";
+import { useProducts } from "../../contexts/ProductsContext";
 import axios from "axios";
 import { productsReducer, productActions } from "../MainPage/productsReducer";
 import "./AddProductPage.css";
@@ -9,7 +10,7 @@ export default function AddProductPage() {
     const navigate = useNavigate();
     const { isLoggedIn } = useAuthorize();
 
-    const [products, dispatch] = useReducer(productsReducer, []);
+    const { dispatch } = useProducts();
     const [selectedProduct, setSelectedProduct] = useState({
         name: "",
         price: "",
@@ -33,7 +34,7 @@ export default function AddProductPage() {
             selectedProduct
     );
 
-      dispatch({ type: productActions.ADD, payload: response.data });
+    dispatch({ type: "ADD", payload: response.data });
 
       setMessage("Listing added.");
       navigate("/"); 
