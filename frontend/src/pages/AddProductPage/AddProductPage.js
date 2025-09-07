@@ -10,7 +10,6 @@ export default function AddProductPage() {
     const { isLoggedIn } = useAuthorize();
 
     const [products, dispatch] = useReducer(productsReducer, []);
-    const [mode, setMode] = useState("CREATE");
     const [selectedProduct, setSelectedProduct] = useState({
         name: "",
         price: "",
@@ -29,10 +28,10 @@ export default function AddProductPage() {
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:8081/WebShopAppREST/rest/products",
-        selectedProduct
-      );
+        const response = await axios.post(
+            "http://localhost:8081/WebShopAppREST/rest/mainpage/", 
+            selectedProduct
+    );
 
       dispatch({ type: productActions.ADD, payload: response.data });
 

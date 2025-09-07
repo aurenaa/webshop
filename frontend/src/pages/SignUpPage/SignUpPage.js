@@ -40,9 +40,9 @@ export default function SignUpPage() {
     }
   }
 
-  const handleHomeClick = () => { 
-    navigate('/mainPage'); 
-  };
+    const handleHomeClick = () => { 
+        navigate('/mainPage'); 
+    };
 
     return (
     <div className="container">

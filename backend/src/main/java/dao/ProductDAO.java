@@ -3,12 +3,16 @@ package dao;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Date;
 import java.util.StringTokenizer;
 
 import beans.Product;
+import beans.User;
 
 public class ProductDAO {
 	
@@ -70,4 +74,42 @@ public class ProductDAO {
 		}
 	}
 	
+	public Product save(Product product) {
+	    int maxId = -1;
+	    for (String id : products.keySet()) {
+	        int idNum = Integer.parseInt(id);
+	        if (idNum > maxId) maxId = idNum;
+	    }
+	    int newId = maxId + 1;
+	    product.setId(String.valueOf(newId));
+	    
+	    if (product.getDatePosted() == null) {
+	        product.setDatePosted(new Date());
+	    }
+	    
+	    products.put(product.getId(), product);
+	    return product;
+	}
+
+	public void addProduct(Product product, String contextPath) {
+	    try {
+	        File file = new File(contextPath + "/products.txt");
+	        try (PrintWriter out = new PrintWriter(new FileWriter(file, true))) {
+	            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	            String dateStr = sdf.format(product.getDatePosted());
+
+	            out.println(String.format("%s;%s;%s;%s;%.2f;%s;%s", // %.2f za cenu
+	            	    product.getId(),
+	            	    product.getName(),
+	            	    product.getDescription(),
+	            	    product.getCategory(),
+	            	    product.getPrice(), 
+	            	    product.getSaleType(),
+	            	    dateStr
+	            ));
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}
 }
