@@ -1,0 +1,81 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 16px;
+}
+
+.form-border {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgb(198, 198, 198);
+  padding: 20px;
+  border-radius: 5px;
+  width: fit-content;
+}
+
+.form-border > div:first-child {
+    align-self: flex-start;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form > div:nth-child(2) {
+    align-self: flex-start;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.8em;
+  margin-bottom: 5px;
+}
+
+button {
+  margin-top: 15px;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 18px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #026ada;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    font-size: 16px;
+}
+
+.login-form > div:first-child, p:nth-child(2) {
+    align-self: flex-start;
+    font-weight: bold;
+}
+
+.login-form > p:nth-child(2) {
+    align-self: flex-start;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.message {
+    font-size: 10px;
+    margin-left: 12px;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+}
