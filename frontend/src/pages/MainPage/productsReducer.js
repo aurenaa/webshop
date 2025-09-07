@@ -1,7 +1,3 @@
-// productsReducer.js
-// Ovaj fajl sadrži reducer funkciju za upravljanje listom proizvoda u React aplikaciji.
-// Reducer se koristi sa useReducer hook-om i omogućava centralizovano upravljanje stanjima (dodavanje, izmena, brisanje, setovanje proizvoda).
-
 export const productActions = {
   SET: "SET",
   ADD: "ADD",
