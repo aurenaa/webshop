@@ -9,7 +9,6 @@ export default function ProductTable({ products }) {
     <table className="tabel">
       <thead>
         <tr>
-          <th>ID</th>
           <th>Name</th>
           <th>Price</th>
           <th>Category</th>
@@ -19,7 +18,6 @@ export default function ProductTable({ products }) {
       <tbody>
         {products.map((p) => (
           <tr key={p.id}>
-            <td>{p.id}</td>
             <td>{p.name}</td>
             <td>{p.price}</td>
             <td>{p.category}</td>

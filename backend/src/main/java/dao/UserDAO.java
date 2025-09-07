@@ -3,6 +3,8 @@ package dao;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +42,15 @@ public class UserDAO {
 	    return users.containsKey(username);
 	}
 	
+	public boolean emailExists(String email) {
+	    for (User user : users.values()) {
+	        if (user.getEmail().equalsIgnoreCase(email)) {
+	            return true;
+	        }
+	    }
+	    return false;
+	}
+	
 	private void loadUsers(String contextPath) {
 		BufferedReader in = null;
 		try {
@@ -53,14 +64,14 @@ public class UserDAO {
 					continue;
 				st = new StringTokenizer(line, ";");
 				while (st.hasMoreTokens()) {
-					String firstName = st.nextToken().trim();
-					String lastName = st.nextToken().trim();
-					String username = st.nextToken().trim();
-					String email = st.nextToken().trim();
-					String phoneNumber = st.nextToken().trim();
-					String password = st.nextToken().trim();
+	                String firstName = st.nextToken().trim();
+	                String lastName = st.nextToken().trim();
+	                String username = st.nextToken().trim();
+	                String email = st.nextToken().trim();
+	                String phoneNumber = st.nextToken().trim();
+	                String password = st.nextToken().trim();
 					
-					users.put(username, new User(firstName, lastName, username, email, phoneNumber, password));
+					users.put(username, new User(firstName, lastName, username, email, phoneNumber, password, "BUYER", false));
 				}
 				
 			}
@@ -74,5 +85,27 @@ public class UserDAO {
 				catch (Exception e) { }
 			}
 		}
+	}
+	
+	public void registerUser(User user, String contextPath) {
+	    try {
+	        File file = new File(contextPath + "/users.txt");
+
+	        try (PrintWriter out = new PrintWriter(new FileWriter(file, true))) {
+	            out.println(String.format("%s;%s;%s;%s;%s;%s",
+	                user.getFirstName(),
+	                user.getLastName(), 
+	                user.getUsername(),
+	                user.getEmail(),
+	                user.getPhoneNumber(),
+	                user.getPassword()
+	            ));
+	        }
+
+	        users.put(user.getUsername(), user);
+
+	    } catch (Exception ex) {
+	        ex.printStackTrace();
+	    }
 	}
 }

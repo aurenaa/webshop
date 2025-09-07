@@ -36,6 +36,7 @@ input {
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 0.8em;
+  margin-bottom: 5px;
 }
 
 button {
@@ -72,4 +73,9 @@ button:hover {
 .message {
     font-size: 10px;
     margin-left: 12px;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
 }

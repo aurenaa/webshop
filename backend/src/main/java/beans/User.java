@@ -1,6 +1,7 @@
 package beans;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class User implements Serializable {
 	
@@ -10,19 +11,46 @@ public class User implements Serializable {
 	private String email;
 	private String phoneNumber;
 	private String password;
-	
+    private Date birthDate;        
+    private String profilePicture; 
+    private String description;   
+    private String role;          
+    private boolean blocked; 
+    
 	public User() {
 	}
 
-	public User(String firstName, String lastName, String username, String email, String phoneNumber, String password) {
-		super();
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.username = username;
-		this.email = email;
-		this.phoneNumber = phoneNumber;
-		this.password = password;
+	//for registration
+	public User(String firstName, String lastName, String username, String email, 
+	            String phoneNumber, String password, String role, boolean blocked) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.username = username;
+    this.email = email;
+    this.phoneNumber = phoneNumber;
+    this.password = password;
+    this.role = role;
+    this.blocked = blocked;
+    this.birthDate = null;
+    this.profilePicture = null;
+    this.description = null;
 	}
+	
+    public User(String firstName, String lastName, String username, String email, 
+	            String phoneNumber, String password, Date birthDate, 
+	            String profilePicture, String description, String role, boolean blocked) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.username = username;
+    this.email = email;
+    this.phoneNumber = phoneNumber;
+    this.password = password;
+    this.birthDate = birthDate;
+    this.profilePicture = profilePicture;
+    this.description = description;
+    this.role = role;
+    this.blocked = blocked;
+    }
 
 	public String getFirstName() {
 		return firstName;
@@ -71,6 +99,45 @@ public class User implements Serializable {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+	
+    public Date getBirthDate() { 
+    	return birthDate; 
+    }
+    
+    public void setBirthDate(Date birthDate) { 
+    	this.birthDate = birthDate; 
+    }
+
+    public String getProfilePicture() { 
+    	return profilePicture; 
+    }
+    
+    public void setProfilePicture(String profilePicture) {
+    	this.profilePicture = profilePicture; 
+    }
+
+    public String getDescription() { 
+    	return description;
+    }
+    
+    public void setDescription(String description) { 
+    	this.description = description;
+    }
+
+    public String getRole() { 
+    	return role; 
+    }
+    public void setRole(String role) { 
+    	this.role = role; 
+    }
+
+    public boolean isBlocked() { 
+    	return blocked; 
+    }
+    
+    public void setBlocked(boolean blocked) { 
+    	this.blocked = blocked; 
+    }
 
 	@Override
 	public int hashCode() {

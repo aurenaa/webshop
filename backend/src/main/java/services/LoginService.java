@@ -46,6 +46,28 @@ public class LoginService {
 		return Response.status(200).build();
 	}
 	
+	@POST
+	@Path("/register")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response register(User user, @Context HttpServletRequest request) {
+	    UserDAO userDao = (UserDAO) ctx.getAttribute("userDAO");
+	    
+	    if (userDao.usernameExists(user.getUsername())) {
+	        return Response.status(400).entity("Username already exists").build();
+	    }
+	    
+	    if (userDao.emailExists(user.getEmail())) {
+	        return Response.status(400).entity("Email already exists").build();
+	    }
+	    
+	    userDao.registerUser(user, ctx.getRealPath(""));
+	    
+	    request.getSession().setAttribute("user", user);
+	    
+	    return Response.status(201).entity("User registered successfully").build();
+	}
+	
 	@GET
 	@Path("/check-username/{username}")
 	@Produces(MediaType.APPLICATION_JSON)
