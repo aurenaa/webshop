@@ -92,6 +92,7 @@ public class UserDAO {
 	        File file = new File(contextPath + "/users.txt");
 
 	        try (PrintWriter out = new PrintWriter(new FileWriter(file, true))) {
+	        	out.println();
 	            out.println(String.format("%s;%s;%s;%s;%s;%s",
 	                user.getFirstName(),
 	                user.getLastName(), 

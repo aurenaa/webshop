@@ -79,5 +79,4 @@ public class LoginService {
 	            .entity("{\"exists\": " + exists + "}")
 	            .build();
 	}
-	
 }
