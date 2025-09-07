@@ -88,9 +88,13 @@ export default function LoginPage() {
     }
   };
 
+  const handleHomeClick = () => { 
+    navigate('/mainPage'); 
+  };
+
   return (
       <div className="container">
-        <h1>WebShop</h1>
+        <h1 onClick={handleHomeClick}>WebShop</h1>
         <div className="form-border">
           {step === 1 ? (
             <div className="form">
