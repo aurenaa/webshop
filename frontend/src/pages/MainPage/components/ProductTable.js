@@ -29,7 +29,7 @@ export default function ProductTable({ products }) {
             <td>{p.name}</td>
             <td>{p.price}</td>
             <td>{p.category}</td>
-            <td>{p.datePosted}</td>
+            <td>{new Date(p.datePosted).toLocaleDateString()}</td>
           </tr>
         ))}
       </tbody>

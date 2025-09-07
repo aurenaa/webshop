@@ -1,24 +1,20 @@
 import { useEffect, useReducer, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { productActions, productsReducer } from "./productsReducer";
-import axios from "axios";
+import { useProducts } from "../../contexts/ProductsContext";
 import ProductTable from "./components/ProductTable";
 import { useProductsList } from "../../hooks/useProductsList";
 import "./MainPage.css";
 
 export default function MainPage() {
   const [mode, setMode] = useState("BROWSE");
-  const [products, dispatch] = useReducer(productsReducer, []);
+  const { products, dispatch } = useProducts();
   const productsList = useProductsList() || [];
   const navigate = useNavigate();
 
   useEffect(() => {
-    dispatch({type: productActions.SET, payload: productsList});
+    dispatch({ type: "SET", payload: productsList });
   }, [productsList]);
-
-  const handleClick = () => {
-    navigate('/login');
-  };
 
   return (
   <div className="main-page">
@@ -34,8 +30,18 @@ export default function MainPage() {
         />
         <button className="btn btn-outline-success" type="submit">Search</button>
       </div>
-
-      <button onClick={handleClick} className="btn btn-primary ms-auto">Login</button>
+      
+      <div className="d-flex align-items-center ms-auto">
+        <button onClick={() => navigate("/add-product")} className="btn btn-success me-2">Add a Listing</button>
+        <button onClick={() => navigate("/signup")} className="btn btn-outline-primary me-2">Sign Up</button>
+        <span 
+          onClick={() => navigate("/login")} 
+          className="nav-link" 
+          style={{ cursor: "pointer" }}
+        >
+          Log in
+        </span>
+      </div>
     </nav>
 
     <div className="products-table mt-3">
