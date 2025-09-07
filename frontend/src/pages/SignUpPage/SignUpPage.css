@@ -5,11 +5,8 @@
     font-size: 16px;
 }
 
-.container h1 {
-  cursor: pointer;
-}
-
 .form-border {
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
   border: 1px solid rgb(198, 198, 198);

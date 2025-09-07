@@ -34,8 +34,18 @@ export default function MainPage() {
         />
         <button className="btn btn-outline-success" type="submit">Search</button>
       </div>
-
-      <button onClick={handleClick} className="btn btn-primary ms-auto">Login</button>
+      
+      <div className="d-flex align-items-center ms-auto">
+        <button onClick={() => navigate("/add-product")} className="btn btn-success me-2">Add a Listing</button>
+        <button onClick={() => navigate("/signup")} className="btn btn-outline-primary me-2">Sign Up</button>
+        <span 
+          onClick={() => navigate("/login")} 
+          className="nav-link" 
+          style={{ cursor: "pointer" }}
+        >
+          Log in
+        </span>
+      </div>
     </nav>
 
     <div className="products-table mt-3">
