@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.StringTokenizer;
 
 import beans.Product;
+import dto.ProductUpdateDTO;
 
 public class ProductDAO {
 	
@@ -122,5 +123,33 @@ public class ProductDAO {
 	public Product deleteProduct(String id)
 	{
 		return products.remove(id);
+	}
+	
+	public Product updateProduct(String id, ProductUpdateDTO updated)
+	{
+		Product p = products.containsKey(id) ? products.get(id) : null;
+		
+		if(updated.getName() != null)
+		{
+			p.setName(updated.getName());
+		}
+		if(updated.getDescription() != null)
+		{
+			p.setDescription(updated.getDescription());
+		}
+		if(updated.getCategory() != null)
+		{
+			p.setCategory(updated.getCategory());
+		}
+		if(updated.getPrice() != null)
+		{
+			p.setPrice(updated.getPrice());
+		}
+		if(updated.getSaleType() != null)
+		{
+			p.setSaleType(updated.getSaleType());
+		}
+		
+		return p;
 	}
 }
