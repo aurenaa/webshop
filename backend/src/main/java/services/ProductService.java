@@ -67,18 +67,8 @@ public class ProductService {
 	@DELETE
 	@Path("/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response deleteProductById(@PathParam("id") String id)
-	{
+	public Product deleteProduct(@PathParam("id") String id) {
 		ProductDAO dao = (ProductDAO) ctx.getAttribute("productDAO");
-		Product product = dao.deleteProduct(id);
-		
-		if (product != null)
-		{
-			return Response.ok(product).build();
-		}
-		else
-		{
-			return Response.status(404).entity("Product not found.").build();
-		}
+		return dao.deleteProduct(id);
 	}
 }

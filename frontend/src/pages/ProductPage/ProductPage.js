@@ -14,6 +14,19 @@ export default function ProductPage() {
         navigate('/mainPage');
     };
 
+    const handleDeleteClick = async () =>
+    {
+        try
+        {
+            await axios.delete(`http://localhost:8080/WebShopAppREST/rest/mainpage/${id}`);
+            navigate('/mainPage');
+        }
+        catch (err)
+        {
+            console.error("Error deleting product", err);
+        }
+    };
+
     const { id } = useParams();     
     const [product, setProduct] = useState(null);
 
@@ -68,7 +81,7 @@ export default function ProductPage() {
                 <p><strong>Sale type:</strong> {product.saleType === "FIXED_PRICE" ? "Fixed price" : "Auction"}</p>
                 <div className="buttons">
                     <button className="btn btn-primary me-2">Edit</button>
-                    <button className="btn btn-danger">Delete</button>
+                    <button onClick={handleDeleteClick} className="btn btn-danger">Delete</button>
                 </div>
             </div>
         </div>
