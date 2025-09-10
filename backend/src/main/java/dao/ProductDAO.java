@@ -118,5 +118,9 @@ public class ProductDAO {
 	        e.printStackTrace();
 	    }
 	}
-
+	
+	public Product deleteProduct(String id)
+	{
+		return products.remove(id);
+	}
 }

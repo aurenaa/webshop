@@ -30,7 +30,7 @@ export default function AddProductPage() {
 
     try {
         const response = await axios.post(
-            "http://localhost:8081/WebShopAppREST/rest/mainpage/", 
+            "http://localhost:8080/WebShopAppREST/rest/mainpage/", 
             selectedProduct
     );
 

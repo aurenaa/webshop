@@ -21,7 +21,7 @@ export default function ProductPage() {
         const fetchProduct = async () => {
         try {
             const response = await axios.get(
-            `http://localhost:8081/WebShopAppREST/rest/mainpage/${id}`
+            `http://localhost:8080/WebShopAppREST/rest/mainpage/${id}`
             );
             setProduct(response.data);
         } catch (err) {
