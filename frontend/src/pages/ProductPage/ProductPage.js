@@ -27,8 +27,42 @@ export default function ProductPage() {
         }
     };
 
+    const handleEditClick = () =>
+    {
+        setEditedProduct({...product});
+        setIsEditing(true);
+    }
+
     const { id } = useParams();     
     const [product, setProduct] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedProduct, setEditedProduct] = useState(null);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setEditedProduct((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleSaveClick = async () => {
+        try {
+            console.log("PATCH payload:", editedProduct);
+            const response = await axios.patch(
+            `http://localhost:8080/WebShopAppREST/rest/mainpage/${id}`,
+            editedProduct,
+            { headers: { "Content-Type": "application/json" } }
+            );
+            console.log("Response:", response.data);
+            setProduct(response.data);
+            setIsEditing(false);
+        } catch (err) {
+            console.error("Error updating product", err);
+        }
+    };
+
+    const handleCancelClick = () => {
+        setIsEditing(false);
+        setEditedProduct(null);
+    };
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -73,16 +107,69 @@ export default function ProductPage() {
             <div className="image-gallery"></div>
             <div className="image"></div>
             <div className="product-info">
-                <h2>{product.name}</h2>
-                <p><strong>Price:</strong> {product.price} RSD</p>
-                <p><strong>Category:</strong> {product.category}</p>
-                <p>{product.description}</p>
-                <p><strong>Date posted:</strong> {new Date(product.datePosted).toLocaleDateString()}</p>
-                <p><strong>Sale type:</strong> {product.saleType === "FIXED_PRICE" ? "Fixed price" : "Auction"}</p>
-                <div className="buttons">
-                    <button className="btn btn-primary me-2">Edit</button>
-                    <button onClick={handleDeleteClick} className="btn btn-danger">Delete</button>
-                </div>
+                
+
+                {isEditing ? (
+                        <>
+                            <p><strong>Name:</strong>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={editedProduct.name}
+                                    onChange={handleChange}
+                                />
+                            </p>
+                            <p><strong>Price:</strong> 
+                                <input
+                                    type="number"
+                                    name="price"
+                                    value={editedProduct.price}
+                                    onChange={handleChange}
+                                /> RSD
+                            </p>
+                            <p><strong>Category:</strong> 
+                                <input
+                                    type="text"
+                                    name="category"
+                                    value={editedProduct.category}
+                                    onChange={handleChange}
+                                />
+                            </p>
+                            <textarea
+                                name="description"
+                                value={editedProduct.description}
+                                onChange={handleChange}
+                            />
+                            <p><strong>Date posted:</strong> {new Date(product.datePosted).toLocaleDateString()}</p>
+                            <p><strong>Sale type:</strong> 
+                                <select
+                                    name="saleType"
+                                    value={editedProduct.saleType}
+                                    onChange={handleChange}
+                                >
+                                    <option value="FIXED_PRICE">Fixed price</option>
+                                    <option value="AUCTION">Auction</option>
+                                </select>
+                            </p>
+                            <div className="buttons">
+                                <button onClick={handleSaveClick} className="btn btn-success me-2">Save</button>
+                                <button onClick={handleCancelClick} className="btn btn-secondary">Cancel</button>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <h2>{product.name}</h2>
+                            <p><strong>Price:</strong> {product.price} RSD</p>
+                            <p><strong>Category:</strong> {product.category}</p>
+                            <p>{product.description}</p>
+                            <p><strong>Date posted:</strong> {new Date(product.datePosted).toLocaleDateString()}</p>
+                            <p><strong>Sale type:</strong> {product.saleType === "FIXED_PRICE" ? "Fixed price" : "Auction"}</p>
+                            <div className="buttons">
+                                <button onClick={handleEditClick} className="btn btn-primary me-2">Edit</button>
+                                <button onClick={handleDeleteClick} className="btn btn-danger">Delete</button>
+                            </div>
+                        </>
+                    )}
             </div>
         </div>
     </div>

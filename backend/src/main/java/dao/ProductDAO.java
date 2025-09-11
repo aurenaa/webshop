@@ -125,6 +125,18 @@ public class ProductDAO {
 		return products.remove(id);
 	}
 	
+	public Product updateProducts(String id, Product product) {
+		Product p = products.containsKey(id) ? products.get(id) : null;
+		if (p == null) {
+			return save(product);
+		} else {
+			p.setName(product.getName());
+			p.setPrice(product.getPrice());
+		}
+		
+		return p;
+	}
+	
 	public Product updateProduct(String id, ProductUpdateDTO updated)
 	{
 		Product p = products.containsKey(id) ? products.get(id) : null;

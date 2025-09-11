@@ -9,12 +9,12 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.PATCH;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import beans.Product;
 import dao.ProductDAO;
@@ -74,11 +74,19 @@ public class ProductService {
 		return dao.deleteProduct(id);
 	}
 	
+	@PUT
+	@Path("/{id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Product putProduct(@PathParam("id") String id, Product product) {
+		ProductDAO dao = (ProductDAO) ctx.getAttribute("productDAO");
+		return dao.updateProducts(id, product);
+	}
+	
 	@PATCH
 	@Path("/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response patchProduct(@PathParam("id") String id, ProductUpdateDTO updates) {
+	public Product patchProduct(@PathParam("id") String id, ProductUpdateDTO updates) {
 	    ProductDAO dao = (ProductDAO) ctx.getAttribute("productDAO");
 	    Product product = dao.findProduct(id);
 
@@ -97,9 +105,8 @@ public class ProductService {
 	    if (updates.getSaleType() != null) {
 	        product.setSaleType(updates.getSaleType());
 	    }
-
 	    
-	    return Response.ok(product).build();
+	    return product;
 	}
 	
 }
