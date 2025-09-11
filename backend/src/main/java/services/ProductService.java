@@ -71,7 +71,7 @@ public class ProductService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Product deleteProduct(@PathParam("id") String id) {
 		ProductDAO dao = (ProductDAO) ctx.getAttribute("productDAO");
-		return dao.deleteProduct(id);
+		return dao.deleteProduct(id, ctx.getRealPath(""));
 	}
 	
 	@PUT
@@ -79,7 +79,7 @@ public class ProductService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Product putProduct(@PathParam("id") String id, Product product) {
 		ProductDAO dao = (ProductDAO) ctx.getAttribute("productDAO");
-		return dao.updateProducts(id, product);
+		return dao.updateProducts(id, product, ctx.getRealPath(""));
 	}
 	
 	@PATCH
@@ -105,6 +105,9 @@ public class ProductService {
 	    if (updates.getSaleType() != null) {
 	        product.setSaleType(updates.getSaleType());
 	    }
+	    
+	    String contextPath = ctx.getRealPath("");
+	    dao.editFileProduct(product, contextPath);
 	    
 	    return product;
 	}
