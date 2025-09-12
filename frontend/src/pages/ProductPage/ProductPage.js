@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAuthorize } from "../../contexts/AuthorizeContext";
 import axios from "axios";
 import "./ProductPage.css";
 
@@ -13,6 +14,8 @@ export default function ProductPage() {
     const handleHomeClick = () => {
         navigate('/mainPage');
     };
+
+    const { isLoggedIn } = useAuthorize();
 
     const handleDeleteClick = async () =>
     {
@@ -165,8 +168,14 @@ export default function ProductPage() {
                             <p><strong>Date posted:</strong> {new Date(product.datePosted).toLocaleDateString()}</p>
                             <p><strong>Sale type:</strong> {product.saleType === "FIXED_PRICE" ? "Fixed price" : "Auction"}</p>
                             <div className="buttons">
-                                <button onClick={handleEditClick} className="btn btn-primary me-2">Edit</button>
-                                <button onClick={handleDeleteClick} className="btn btn-danger">Delete</button>
+                                {
+                                    isLoggedIn && (
+                                        <>  
+                                            <button onClick={handleEditClick} className="btn btn-primary me-2">Edit</button>
+                                            <button onClick={handleDeleteClick} className="btn btn-danger">Delete</button>
+                                        </>
+                                    )
+                                }
                             </div>
                         </>
                     )}
