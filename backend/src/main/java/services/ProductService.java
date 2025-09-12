@@ -88,27 +88,10 @@ public class ProductService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Product patchProduct(@PathParam("id") String id, ProductUpdateDTO updates) {
 	    ProductDAO dao = (ProductDAO) ctx.getAttribute("productDAO");
-	    Product product = dao.findProduct(id);
-
-	    if (updates.getName() != null) {
-	        product.setName(updates.getName());
-	    }
-	    if (updates.getDescription() != null) {
-	        product.setDescription(updates.getDescription());
-	    }
-	    if (updates.getCategory() != null) {
-	        product.setCategory(updates.getCategory());
-	    }
-	    if (updates.getPrice() != null) {
-	        product.setPrice(updates.getPrice());
-	    }
-	    if (updates.getSaleType() != null) {
-	        product.setSaleType(updates.getSaleType());
-	    }
-	    
 	    String contextPath = ctx.getRealPath("");
-	    dao.editFileProduct(product, contextPath);
+	    Product product = dao.updateProduct(id, updates, contextPath);
 	    
+	    dao.editFileProduct(product, contextPath);
 	    return product;
 	}
 	
