@@ -7,6 +7,9 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.PATCH;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -15,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 
 import beans.Product;
 import dao.ProductDAO;
+import dto.ProductUpdateDTO;
 
 
 @Path("/mainpage")
@@ -61,4 +65,51 @@ public class ProductService {
 	    Product product = dao.findProduct(id);
 	    return product;
 	}
+	
+	@DELETE
+	@Path("/{id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Product deleteProduct(@PathParam("id") String id) {
+		ProductDAO dao = (ProductDAO) ctx.getAttribute("productDAO");
+		return dao.deleteProduct(id, ctx.getRealPath(""));
+	}
+	
+	@PUT
+	@Path("/{id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Product putProduct(@PathParam("id") String id, Product product) {
+		ProductDAO dao = (ProductDAO) ctx.getAttribute("productDAO");
+		return dao.updateProducts(id, product, ctx.getRealPath(""));
+	}
+	
+	@PATCH
+	@Path("/{id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Product patchProduct(@PathParam("id") String id, ProductUpdateDTO updates) {
+	    ProductDAO dao = (ProductDAO) ctx.getAttribute("productDAO");
+	    Product product = dao.findProduct(id);
+
+	    if (updates.getName() != null) {
+	        product.setName(updates.getName());
+	    }
+	    if (updates.getDescription() != null) {
+	        product.setDescription(updates.getDescription());
+	    }
+	    if (updates.getCategory() != null) {
+	        product.setCategory(updates.getCategory());
+	    }
+	    if (updates.getPrice() != null) {
+	        product.setPrice(updates.getPrice());
+	    }
+	    if (updates.getSaleType() != null) {
+	        product.setSaleType(updates.getSaleType());
+	    }
+	    
+	    String contextPath = ctx.getRealPath("");
+	    dao.editFileProduct(product, contextPath);
+	    
+	    return product;
+	}
+	
 }

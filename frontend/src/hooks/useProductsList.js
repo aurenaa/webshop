@@ -6,7 +6,7 @@ export function useProductsList() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get("http://localhost:8081/WebShopAppREST/rest/mainpage/");
+      const response = await axios.get("http://localhost:8080/WebShopAppREST/rest/mainpage/");
       setProducts(response.data);
     } catch (error) {
     }

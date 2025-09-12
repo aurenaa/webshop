@@ -7,12 +7,15 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Date;
 import java.util.StringTokenizer;
 
 import beans.Product;
+import dto.ProductUpdateDTO;
 
 public class ProductDAO {
 	
@@ -118,5 +121,133 @@ public class ProductDAO {
 	        e.printStackTrace();
 	    }
 	}
+	
+	public void deleteFileProduct(String productId, String contextPath) {
+	    File file = new File(contextPath + "/products.txt");
 
+	    try {
+	        List<String> lines = new ArrayList<>();
+
+	        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+	            String line;
+	            while ((line = reader.readLine()) != null) {
+	                if (line.trim().isEmpty()) continue;
+
+	                String[] parts = line.split(";");
+	                if (!parts[0].equals(productId)) {
+	                    lines.add(line);
+	                }
+	            }
+	        }
+	        try (PrintWriter writer = new PrintWriter(new FileWriter(file, false))) {
+	            for (String l : lines) {
+	                writer.println(l);
+	            }
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}
+	
+	public Product deleteProduct(String id, String contextPath)
+	{
+		Product removed = products.remove(id);
+		if (removed != null) {
+	        deleteFileProduct(id, contextPath);
+	    }
+	    return removed;
+		
+	}
+	
+	public void editFileProduct(Product updatedProduct, String contextPath) {
+	    File file = new File(contextPath + "/products.txt");
+
+	    try {
+	        List<String> lines = new ArrayList<>();
+
+	        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+	            String line;
+	            while ((line = reader.readLine()) != null) {
+	                if (line.trim().isEmpty()) continue;
+
+	                String[] parts = line.split(";");
+	                if (parts[0].equals(updatedProduct.getId())) {
+	                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	                    String dateStr = sdf.format(updatedProduct.getDatePosted());
+
+	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s",
+	                            updatedProduct.getId(),
+	                            updatedProduct.getName(),
+	                            updatedProduct.getDescription(),
+	                            updatedProduct.getCategory(),
+	                            updatedProduct.getPrice(),
+	                            updatedProduct.getSaleType(),
+	                            dateStr
+	                    );
+	                    lines.add(newLine);
+	                } else {
+	                    lines.add(line);
+	                }
+	            }
+	        }
+
+	        try (PrintWriter writer = new PrintWriter(new FileWriter(file, false))) {
+	            for (String l : lines) {
+	                writer.println(l);
+	            }
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}
+	
+	public Product updateProducts(String id, Product product, String contextPath) {
+		Product p = products.containsKey(id) ? products.get(id) : null;
+		if (p == null) {
+			return save(product);
+		} else {
+			p.setName(product.getName());
+	        p.setDescription(product.getDescription());
+	        p.setCategory(product.getCategory());
+	        p.setPrice(product.getPrice());
+	        p.setSaleType(product.getSaleType());
+	        p.setDatePosted(product.getDatePosted());
+			
+			editFileProduct(p, contextPath);
+		}
+		
+		return p;
+	}
+	
+	public Product updateProduct(String id, ProductUpdateDTO updated, String contextPath)
+	{
+		Product p = products.containsKey(id) ? products.get(id) : null;
+		
+		if(updated.getName() != null)
+		{
+			p.setName(updated.getName());
+		}
+		if(updated.getDescription() != null)
+		{
+			p.setDescription(updated.getDescription());
+		}
+		if(updated.getCategory() != null)
+		{
+			p.setCategory(updated.getCategory());
+		}
+		if(updated.getPrice() != null)
+		{
+			p.setPrice(updated.getPrice());
+		}
+		if(updated.getSaleType() != null)
+		{
+			p.setSaleType(updated.getSaleType());
+		}
+		
+		editFileProduct(p, contextPath);
+		
+		return p;
+	}
 }

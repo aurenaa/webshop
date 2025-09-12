@@ -21,7 +21,7 @@ export default function LoginPage() {
     }
 
     try {
-      await axios.post("http://localhost:8081/WebShopAppREST/rest/login", {
+      await axios.post("http://localhost:8080/WebShopAppREST/rest/login", {
         username,
         password,
       });

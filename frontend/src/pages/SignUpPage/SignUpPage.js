@@ -23,7 +23,7 @@ export default function SignUpPage() {
     }
 
     try {
-      await axios.post("http://localhost:8081/WebShopAppREST/rest/register", {
+      await axios.post("http://localhost:8080/WebShopAppREST/rest/register", {
         firstName,
         lastName,
         username,
