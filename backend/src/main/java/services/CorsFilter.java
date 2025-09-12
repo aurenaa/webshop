@@ -44,6 +44,6 @@ public class CorsFilter implements ContainerRequestFilter, ContainerResponseFilt
                 "Accept-Version, Content-MD5, CSRF-Token, Content-Type");
         }
 
-        response.getHeaders().add("Access-Control-Allow-Origin", "*");
+        response.getHeaders().add("Access-Control-Allow-Origin", "http://localhost:3000");
     }
 }
