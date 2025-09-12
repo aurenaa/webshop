@@ -206,8 +206,9 @@ public class ProductDAO {
 	public Product updateProducts(String id, Product product, String contextPath) {
 		Product p = products.containsKey(id) ? products.get(id) : null;
 		if (p == null) {
-			return save(product);
+			return null;
 		} else {
+			p.setId(id);
 			p.setName(product.getName());
 	        p.setDescription(product.getDescription());
 	        p.setCategory(product.getCategory());
