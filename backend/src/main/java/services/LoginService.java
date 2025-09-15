@@ -82,4 +82,16 @@ public class LoginService {
 	            .entity("{\"exists\": " + exists + "}")
 	            .build();
 	}
+	
+	@GET
+	@Path("/users/{id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getUserById(@PathParam("id") String id) {
+	    UserDAO userDao = (UserDAO) ctx.getAttribute("userDAO");
+	    User user = userDao.findById(id);
+	    if (user == null) {
+	        return Response.status(404).entity("User not found").build();
+	    }
+	    return Response.ok().entity(user).build();
+	}
 }

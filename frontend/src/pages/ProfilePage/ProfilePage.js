@@ -1,25 +1,17 @@
-import { useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import { useProducts } from "../../contexts/ProductsContext";
-import ProductTable from "./components/ProductTable";
-import { useProductsList } from "../../hooks/useProductsList";
 import { useAuthorize } from "../../contexts/AuthorizeContext";
-import "./MainPage.css";
+import { useUser } from "../../contexts/UserContext";
+import "./ProfilePage.css";
 
-export default function MainPage() {
-  const { products, dispatch } = useProducts();
-  const productsList = useProductsList() || [];
+export default function ProfilePage() {
+  const { user } = useUser();
   const navigate = useNavigate();
   const { isLoggedIn, logout } = useAuthorize();
-  useEffect(() => {
-    dispatch({ type: "SET", payload: productsList });
-  }, [productsList]);
-
-  return (
+return (
     <div className="main-page">
       <nav className="navbar navbar-expand-lg navbar-light bg-light px-3 position-relative">
         <span className="navbar-brand">WebShop</span>
-
+        
         <div className="position-absolute start-50 translate-middle-x d-flex">
           <input
             className="form-control me-2"
@@ -49,7 +41,10 @@ export default function MainPage() {
           </>
         ) : (
           <>
-            <button onClick={() => navigate("/signup")} className="btn btn-outline-primary me-2">
+            <button 
+              onClick={() => navigate("/signup")} 
+              className="btn btn-outline-primary me-2"
+            >
               Sign Up
             </button>
             <span 
@@ -75,9 +70,46 @@ export default function MainPage() {
         )}
       </div>
       </nav>
-      <div className="products-table mt-3">
-        <ProductTable products={products} />
-      </div>
+    <div className="profile">
+        <div className="profile-container">
+            <div className="left">
+            <div className="basic-info">
+                <img src="/icons/account_circle.png" alt="User" className="account"/>
+                <div className="username-email">
+                <p>{user.username}</p>
+                <p>{user.email}</p>
+                </div>
+            </div>
+            <div className="user-info-row">
+                <div className="user-info">
+                <label>First Name</label>
+                <div className="user-field">{user.firstName}</div>
+                </div>
+                <div className="user-info">
+                <label>Last Name</label>
+                <div className="user-field">{user.lastName}</div>
+                </div>
+            </div>
+            <div className="user-info-row">
+                <div className="user-info">
+                <label>Phone Number</label>
+                <div className="user-field">{user.phoneNumber}</div>
+                </div>
+                <div className="user-info">
+                <label>Date of Birth</label>
+                <div className="user-field">{user?.birthDate || "Optional"}</div>
+                </div>
+            </div>
+            <div className="user-description">
+                <label>Description</label>
+                <div className="description-field">{user?.description || "Optional"}</div>
+            </div>
+            </div>
+            <div className="right">
+            <button className="btn btn-outline-primary edit-btn">Edit</button>
+            </div>
+        </div>
+        </div>
     </div>
   );
 }
