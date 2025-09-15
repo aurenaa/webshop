@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuthorize } from "../../contexts/AuthorizeContext";
 import axios from "axios";
 import "./LoginPage.css";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { setIsLoggedIn } = useAuthorize();
+  const { setIsLoggedIn, login } = useAuthorize();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -21,11 +21,13 @@ export default function LoginPage() {
     }
 
     try {
-      await axios.post("http://localhost:8080/WebShopAppREST/rest/login", {
-        username,
-        password,
-      });
-      
+      const response = await axios.post(
+        "http://localhost:8080/WebShopAppREST/rest/login",
+        { username, password }
+      );
+
+      login(response.data.userId);
+
       setIsLoggedIn(true);
       navigate("/");
     } catch (error) {

@@ -10,6 +10,7 @@ public class Product {
     private double price;
     private SaleType saleType;
     private Date datePosted;
+    private String sellerId;
 
     public enum SaleType {
     	FIXED_PRICE,
@@ -20,7 +21,7 @@ public class Product {
         this.datePosted = new Date();
     }
 
-    public Product(String id, String name, String description, String category, double price, SaleType saleType) {
+    public Product(String id, String name, String description, String category, double price, SaleType saleType, String sellerId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -28,9 +29,10 @@ public class Product {
         this.price = price;
         this.saleType = saleType;
         this.datePosted = new Date();
+        this.sellerId = sellerId;
     }
     
-    public Product(String id, String name, String description, String category, double price, SaleType saleType, Date datePosted) {
+    public Product(String id, String name, String description, String category, double price, SaleType saleType, Date datePosted, String sellerId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -38,6 +40,7 @@ public class Product {
         this.price = price;
         this.saleType = saleType;
         this.datePosted = datePosted;
+        this.sellerId = sellerId;
     }
 
     public String getId() {
@@ -94,5 +97,13 @@ public class Product {
 
     public void setDatePosted(Date datePosted) {
         this.datePosted = datePosted;
+    }
+    
+    public String getSellerId() {
+    	return this.sellerId;
+    }
+    
+    public void setSellerId(String sellerId) {
+    	this.sellerId = sellerId;
     }
 }

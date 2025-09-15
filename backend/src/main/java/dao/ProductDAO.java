@@ -43,7 +43,7 @@ public class ProductDAO {
 			File file = new File(contextPath + "/products.txt");
 			System.out.println(file.getCanonicalPath());
 			in = new BufferedReader(new FileReader(file));
-			String line, id = "", name = "", price = "", description = "", category = "", saleType = "", datePosted = "";
+			String line, id = "", name = "", price = "", description = "", category = "", saleType = "", datePosted = "", sellerId = "";
 			StringTokenizer st;
 			
 			while ((line = in.readLine()) != null) {
@@ -59,13 +59,17 @@ public class ProductDAO {
 					price = st.nextToken().trim();
 					saleType = st.nextToken().trim();
 					datePosted = st.nextToken().trim();
+					sellerId = st.nextToken().trim();
+					
+				    if (id.isEmpty() || name.isEmpty() || price.isEmpty() || saleType.isEmpty())
+				        continue;
 				}
 				
 	            Product.SaleType saleEnum = Product.SaleType.valueOf(saleType);  
 	            Date date = java.sql.Date.valueOf(datePosted);
 
 	            products.put(id, new Product(id, name, description, category,
-	                    Double.parseDouble(price), saleEnum, date));
+	                    Double.parseDouble(price), saleEnum, date, sellerId));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -104,14 +108,15 @@ public class ProductDAO {
 	            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	            String dateStr = sdf.format(product.getDatePosted());
 
-	            String line = String.format("%s;%s;%s;%s;%.2f;%s;%s",
+	            String line = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s",
 	                product.getId(),
 	                product.getName(),
 	                product.getDescription(),
 	                product.getCategory(),
 	                product.getPrice(), 
 	                product.getSaleType(),
-	                dateStr
+	                dateStr,
+	                product.getSellerId()
 	            );
 
 	            out.println(); 
@@ -176,14 +181,15 @@ public class ProductDAO {
 	                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	                    String dateStr = sdf.format(updatedProduct.getDatePosted());
 
-	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s",
+	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s",
 	                            updatedProduct.getId(),
 	                            updatedProduct.getName(),
 	                            updatedProduct.getDescription(),
 	                            updatedProduct.getCategory(),
 	                            updatedProduct.getPrice(),
 	                            updatedProduct.getSaleType(),
-	                            dateStr
+	                            dateStr,
+	                            updatedProduct.getSellerId()
 	                    );
 	                    lines.add(newLine);
 	                } else {

@@ -17,7 +17,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import beans.Product;
+import beans.User;
 import dao.ProductDAO;
+import dao.UserDAO;
 import dto.ProductUpdateDTO;
 
 
@@ -51,9 +53,16 @@ public class ProductService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Product newProduct(Product p) {
-	    ProductDAO dao = (ProductDAO) ctx.getAttribute("productDAO");
-	    Product product = dao.save(p);
-	    dao.addProduct(product, ctx.getRealPath(""));
+	    ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
+	    UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
+	    Product product = productDAO.save(p);
+	    productDAO.addProduct(product, ctx.getRealPath(""));
+	    
+	    User user = userDAO.findById(p.getSellerId());
+	    if (user != null) {
+	    	userDAO.addProductId(user, product.getId());
+	    	userDAO.editFileUser(user, ctx.getRealPath(""));
+	    }
 	    return product;
 	}
 	
@@ -71,7 +80,17 @@ public class ProductService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Product deleteProduct(@PathParam("id") String id) {
 		ProductDAO dao = (ProductDAO) ctx.getAttribute("productDAO");
-		return dao.deleteProduct(id, ctx.getRealPath(""));
+		UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
+
+		Product product = dao.findProduct(id);
+	    if (product != null) {
+	        dao.deleteProduct(id, ctx.getRealPath(""));
+	        User owner = userDAO.findById(product.getSellerId());
+	        if (owner != null) {
+	            userDAO.removeProductId(owner, product.getId(), ctx.getRealPath(""));
+	        }
+	    }
+	    return product;
 	}
 	
 	@PUT
