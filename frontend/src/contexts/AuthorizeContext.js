@@ -8,7 +8,14 @@ export function useAuthorize() {
 
 export function AuthorizeProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const value = { isLoggedIn, setIsLoggedIn };
+  const [userId, setUserId] = useState(null);
+
+  const login = (id) => {
+    setIsLoggedIn(true);
+    setUserId(id);
+  };
+
+  const value = { isLoggedIn, setIsLoggedIn , userId, login };
 
   return (
     <AuthorizeContext.Provider value={value}>

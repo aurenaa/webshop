@@ -5,12 +5,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
 import beans.User;
+import beans.User.Role;
 
 public class UserDAO {
 	private Map<String, User> users = new HashMap<>();
@@ -23,19 +26,21 @@ public class UserDAO {
 		loadUsers(contextPath);
 	}
 	
-	public User find(String username, String password) {
-		if (!users.containsKey(username)) {
-			return null;
-		}
-		User user = users.get(username);
-		if (!user.getPassword().equals(password)) {
-			return null;
-		}
-		return user;
+	public User findById(String id) {
+		return users.containsKey(id) ? users.get(id) : null;
 	}
 	
 	public Collection<User> findAll() {
 		return users.values();
+	}
+	
+	public User findByUsernameAndPassword(String username, String password) {
+	    for (User u : users.values()) {
+	        if (u.getUsername().equals(username) && u.getPassword().equals(password)) {
+	            return u;
+	        }
+	    }
+	    return null;
 	}
 	
 	public boolean usernameExists(String username) {
@@ -64,6 +69,7 @@ public class UserDAO {
 					continue;
 				st = new StringTokenizer(line, ";");
 				while (st.hasMoreTokens()) {
+				    String id = st.nextToken().trim();
 	                String firstName = st.nextToken().trim();
 	                String lastName = st.nextToken().trim();
 	                String username = st.nextToken().trim();
@@ -71,9 +77,24 @@ public class UserDAO {
 	                String phoneNumber = st.nextToken().trim();
 	                String password = st.nextToken().trim();
 					
-					users.put(username, new User(firstName, lastName, username, email, phoneNumber, password, "BUYER", false));
-				}
-				
+	                String roleStr = st.nextToken().trim();
+	                String blockedStr = st.nextToken().trim();
+
+	                Role role = Role.valueOf(roleStr);
+	                boolean blocked = Boolean.parseBoolean(blockedStr);
+
+	                List<String> productList = new ArrayList<>();
+	                if (st.hasMoreTokens()) {
+	                    String productsStr = st.nextToken().trim();
+	                    if (!productsStr.isEmpty()) {
+	                        for (String productId : productsStr.split("\\|")) {
+	                            productList.add(productId);
+	                        }
+	                    }
+	                }
+
+	                users.put(id, new User(id, firstName, lastName, username, email, phoneNumber, password, role, blocked, productList));
+				}				
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -90,23 +111,97 @@ public class UserDAO {
 	public void registerUser(User user, String contextPath) {
 	    try {
 	        File file = new File(contextPath + "/users.txt");
-
+	        String productsStr = user.getProductList() != null ? String.join("|", user.getProductList()) : "";
+	        
 	        try (PrintWriter out = new PrintWriter(new FileWriter(file, true))) {
 	        	out.println();
-	            out.println(String.format("%s;%s;%s;%s;%s;%s",
+	            out.println(String.format("%s;%s;%s;%s;%s;%s;%s;%s;%b;%s",
+	            	user.getId(),
 	                user.getFirstName(),
 	                user.getLastName(), 
 	                user.getUsername(),
 	                user.getEmail(),
 	                user.getPhoneNumber(),
-	                user.getPassword()
+	                user.getPassword(),
+	                user.getRole(),
+	                user.isBlocked(),
+	                productsStr
 	            ));
 	        }
-
-	        users.put(user.getUsername(), user);
 
 	    } catch (Exception ex) {
 	        ex.printStackTrace();
 	    }
 	}
+	
+	public User save(User user) {
+	    int maxId = -1;
+	    for (String id : users.keySet()) {
+	        int idNum = Integer.parseInt(id);
+	        if (idNum > maxId) maxId = idNum;
+	    }
+	    int newId = maxId + 1;
+	    user.setId(String.valueOf(newId));
+	    
+	    users.put(user.getId(), user);
+		return user;
+	}
+	
+	public void addProductId(User user, String productId) {
+        if (user.getProductList() == null) {
+            user.setProductList(new ArrayList<>());
+        }
+        user.getProductList().add(productId);
+
+        if (user.getRole() == Role.BUYER) {
+            user.setRole(Role.SELLER);
+        }
+	}
+
+    public void editFileUser(User user, String contextPath) {
+        File file = new File(contextPath + "/users.txt");
+        try {
+            List<String> lines = new ArrayList<>();
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.trim().isEmpty()) continue;
+
+                    String[] parts = line.split(";");
+                    if (parts[0].equals(user.getId())) {
+                        String productsStr = String.join("|", user.getProductList());
+                        String newLine = String.format("%s;%s;%s;%s;%s;%s;%s;%s;%b;%s",
+                                user.getId(),
+                                user.getFirstName(),
+                                user.getLastName(),
+                                user.getUsername(),
+                                user.getEmail(),
+                                user.getPhoneNumber(),
+                                user.getPassword(),
+                                user.getRole(),
+                                user.isBlocked(),
+                                productsStr
+                        );
+                        lines.add(newLine);
+                    } else {
+                        lines.add(line);
+                    }
+                }
+            }
+            try (PrintWriter writer = new PrintWriter(new FileWriter(file, false))) {
+                for (String l : lines) {
+                    writer.println(l);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void removeProductId(User user, String productId, String contextPath) {
+        if (user.getProductList() != null) {
+            user.getProductList().remove(productId);
+            editFileUser(user, contextPath);
+        }
+    }
 }

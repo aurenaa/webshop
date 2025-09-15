@@ -38,29 +38,32 @@ public class LoginService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response login(User user, @Context HttpServletRequest request) {
 		UserDAO userDao = (UserDAO) ctx.getAttribute("userDAO");
-		User loggedUser = userDao.find(user.getUsername(), user.getPassword());
+		User loggedUser = userDao.findByUsernameAndPassword(user.getUsername(), user.getPassword());
 		if (loggedUser == null) {
 			return Response.status(400).entity("Invalid username and/or password").build();
 		}
 		request.getSession().setAttribute("user", loggedUser);
-		return Response.status(200).build();
+	    return Response.ok()
+                .entity("{\"userId\": \"" + loggedUser.getId() + "\"}")
+                .build();
 	}
 	
 	@POST
 	@Path("/register")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response register(User user, @Context HttpServletRequest request) {
+	public Response register(User u, @Context HttpServletRequest request) {
 	    UserDAO userDao = (UserDAO) ctx.getAttribute("userDAO");
 	    
-	    if (userDao.usernameExists(user.getUsername())) {
+	    if (userDao.usernameExists(u.getUsername())) {
 	        return Response.status(400).entity("Username already exists").build();
 	    }
 	    
-	    if (userDao.emailExists(user.getEmail())) {
+	    if (userDao.emailExists(u.getEmail())) {
 	        return Response.status(400).entity("Email already exists").build();
 	    }
 	    
+	    User user = userDao.save(u);
 	    userDao.registerUser(user, ctx.getRealPath(""));
 	    
 	    request.getSession().setAttribute("user", user);
