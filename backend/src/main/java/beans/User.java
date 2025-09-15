@@ -1,10 +1,15 @@
 package beans;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
 
 public class User implements Serializable {
 	
+	public enum Role { BUYER, SELLER, ADMINISTRATOR }
+	private String id;
 	private String firstName;
 	private String lastName;
 	private String username;
@@ -14,44 +19,54 @@ public class User implements Serializable {
     private Date birthDate;        
     private String profilePicture; 
     private String description;   
-    private String role;          
+    private Role role;          
     private boolean blocked; 
+    private List<String> productList;
     
 	public User() {
 	}
 
 	//for registration
-	public User(String firstName, String lastName, String username, String email, 
-	            String phoneNumber, String password, String role, boolean blocked) {
-    this.firstName = firstName;
-    this.lastName = lastName;
-    this.username = username;
-    this.email = email;
-    this.phoneNumber = phoneNumber;
-    this.password = password;
-    this.role = role;
-    this.blocked = blocked;
-    this.birthDate = null;
-    this.profilePicture = null;
-    this.description = null;
+	public User(String id, String firstName, String lastName, String username, String email, String phoneNumber, String password, Role role, boolean blocked, List<String> productList) {
+	    this.id = id;
+		this.firstName = firstName;
+	    this.lastName = lastName;
+	    this.username = username;
+	    this.email = email;
+	    this.phoneNumber = phoneNumber;
+	    this.password = password;
+	    this.role = Role.BUYER;
+	    this.blocked = blocked;
+	    this.birthDate = null;
+	    this.profilePicture = null;
+	    this.description = null;
+	    this.productList = productList != null ? productList : new ArrayList<>();
 	}
-	
-    public User(String firstName, String lastName, String username, String email, 
-	            String phoneNumber, String password, Date birthDate, 
-	            String profilePicture, String description, String role, boolean blocked) {
-    this.firstName = firstName;
-    this.lastName = lastName;
-    this.username = username;
-    this.email = email;
-    this.phoneNumber = phoneNumber;
-    this.password = password;
-    this.birthDate = birthDate;
-    this.profilePicture = profilePicture;
-    this.description = description;
-    this.role = role;
-    this.blocked = blocked;
+
+    public User(String id, String firstName, String lastName, String username, String email, String phoneNumber, String password, Date birthDate, String profilePicture, String description, Role role, boolean blocked, List<String> productList) {
+	    this.id = id;
+    	this.firstName = firstName;
+	    this.lastName = lastName;
+	    this.username = username;
+	    this.email = email;
+	    this.phoneNumber = phoneNumber;
+	    this.password = password;
+	    this.birthDate = birthDate;
+	    this.profilePicture = profilePicture;
+	    this.description = description;
+	    this.role = role;
+	    this.blocked = blocked;
+	    this.productList = productList;
+    }
+    
+    public String getId() {
+    	return id;
     }
 
+    public void setId(String id) {
+    	this.id = id;
+    }
+    
 	public String getFirstName() {
 		return firstName;
 	}
@@ -124,10 +139,10 @@ public class User implements Serializable {
     	this.description = description;
     }
 
-    public String getRole() { 
+    public Role getRole() { 
     	return role; 
     }
-    public void setRole(String role) { 
+    public void setRole(Role role) { 
     	this.role = role; 
     }
 
@@ -138,6 +153,15 @@ public class User implements Serializable {
     public void setBlocked(boolean blocked) { 
     	this.blocked = blocked; 
     }
+    
+    public void setProductList(ArrayList<String> productList) {
+    	this.productList = productList;
+    }
+    
+	public List<String> getProductList() {
+	    return productList;
+	}
+	
 
 	@Override
 	public int hashCode() {

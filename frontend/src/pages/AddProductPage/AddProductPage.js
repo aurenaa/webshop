@@ -1,14 +1,13 @@
-import { useState, useReducer } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthorize } from "../../contexts/AuthorizeContext";
 import { useProducts } from "../../contexts/ProductsContext";
 import axios from "axios";
-import { productsReducer, productActions } from "../MainPage/productsReducer";
 import "./AddProductPage.css";
 
 export default function AddProductPage() {
     const navigate = useNavigate();
-    const { isLoggedIn } = useAuthorize();
+    const { isLoggedIn, userId } = useAuthorize();
 
     const { dispatch } = useProducts();
     const [selectedProduct, setSelectedProduct] = useState({
@@ -29,9 +28,11 @@ export default function AddProductPage() {
     }
 
     try {
+        const productToSend = { ...selectedProduct, sellerId: userId };
+        console.log("Posting product:", productToSend);
         const response = await axios.post(
             "http://localhost:8080/WebShopAppREST/rest/mainpage/", 
-            selectedProduct
+            productToSend
     );
 
     dispatch({ type: "ADD", payload: response.data });
