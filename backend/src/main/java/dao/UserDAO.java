@@ -93,8 +93,20 @@ public class UserDAO {
 	                        }
 	                    }
 	                }
+	                java.util.Date birthDate = null;
+	                if (st.hasMoreTokens()) {
+	                    String birthDateStr = st.nextToken().trim();
+	                    if (!birthDateStr.isEmpty()) {
+	                        birthDate = java.sql.Date.valueOf(birthDateStr); // yyyy-MM-dd format
+	                    }
+	                }
 
-	                users.put(id, new User(id, firstName, lastName, username, email, phoneNumber, password, role, blocked, productList));
+	                String description = "";
+	                if (st.hasMoreTokens()) {
+	                    description = st.nextToken().trim();
+	                }
+
+	                users.put(id, new User(id, firstName, lastName, username, email, phoneNumber, password, role, blocked, productList, birthDate, description));
 				}				
 			}
 		} catch (Exception ex) {
@@ -171,7 +183,9 @@ public class UserDAO {
                     String[] parts = line.split(";");
                     if (parts[0].equals(user.getId())) {
                         String productsStr = String.join("|", user.getProductList());
-                        String newLine = String.format("%s;%s;%s;%s;%s;%s;%s;%s;%b;%s",
+                        String birthDateStr = user.getBirthDate() != null ? user.getBirthDate().toString() : "";
+                        String descriptionStr = user.getDescription() != null ? user.getDescription() : "";
+                        String newLine = String.format("%s;%s;%s;%s;%s;%s;%s;%s;%b;%s;%s;%s",
                                 user.getId(),
                                 user.getFirstName(),
                                 user.getLastName(),
@@ -181,7 +195,9 @@ public class UserDAO {
                                 user.getPassword(),
                                 user.getRole(),
                                 user.isBlocked(),
-                                productsStr
+                                productsStr,
+                                birthDateStr,
+                                descriptionStr
                         );
                         lines.add(newLine);
                     } else {

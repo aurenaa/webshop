@@ -59,6 +59,23 @@ public class User implements Serializable {
 	    this.productList = productList;
     }
     
+    public User(String id, String firstName, String lastName, String username, String email, String phoneNumber,
+            String password, Role role, boolean blocked, List<String> productList, Date birthDate, String description) {
+    this.id = id;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.username = username;
+    this.email = email;
+    this.phoneNumber = phoneNumber;
+    this.password = password;
+    this.role = role;
+    this.blocked = blocked;
+    this.productList = productList != null ? productList : new ArrayList<>();
+    this.birthDate = birthDate;
+    this.description = description;
+    this.profilePicture = null;
+}
+    
     public String getId() {
     	return id;
     }
