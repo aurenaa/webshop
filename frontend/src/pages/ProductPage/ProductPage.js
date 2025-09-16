@@ -86,26 +86,42 @@ export default function ProductPage() {
 
     return (
     <div className="main-page">
-        <nav className="navbar navbar-expand-lg navbar-light bg-light px-3 position-relative">
-            <span
-                onClick={handleHomeClick}
-                className="navbar-brand"
-                style={{ cursor: "pointer" }}
-            >WebShop</span>
+            <nav className="navbar navbar-expand-lg navbar-light bg-light px-3 position-relative">
+                <span onClick={() => navigate("/mainpage")} className="navbar-brand">WebShop</span>
 
-            <div className="position-absolute start-50 translate-middle-x d-flex">
-                <input
-                className="form-control me-2"
-                type="search"
-                placeholder="Search"
-                aria-label="Search"
+                <div className="position-absolute start-50 translate-middle-x d-flex">
+                <input className="form-control me-2"
+                        type="search"
+                        placeholder="Search"
+                        aria-label="Search"
                 />
                 <button className="btn btn-outline-success" type="submit">Search</button>
+                </div>
+                
+            <div className="d-flex align-items-center ms-auto">
+            <button onClick={() => navigate("/add-product")} className="btn btn-success me-2">Add a Listing</button>
+                {isLoggedIn ? (
+                <>
+                    <img className="cart" src="/icons/shopping_cart.png" alt="Cart" onClick={() => navigate("/cart")}/>
+                    <div className="dropdown">
+                        <button className="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img className="menu" src="/icons/menu.png" alt="Menu"/>
+                        </button>
+                        <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li><a className="dropdown-item" onClick={() => navigate("/profile")}>My account</a></li>
+                        <li><a className="dropdown-item" href="#">My listings</a></li>
+                        <li><a className="dropdown-item" href="#">Log out</a></li>
+                        </ul>
+                    </div>
+                </>
+                ) : (
+                <>
+                    <button onClick={() => navigate("/signup")} className="btn btn-outline-primary me-2">Sign Up</button>
+                    <span onClick={() => navigate("/login")} className="nav-link" style={{ cursor: "pointer" }}>Log in</span>
+                </>
+                )}
             </div>
-
-            <button onClick={handleClick} className="btn btn-primary ms-auto">Login</button>
         </nav>
-
         <div className="body">
             <div className="image-gallery"></div>
             <div className="image"></div>

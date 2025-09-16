@@ -312,7 +312,6 @@ public class UserDAO {
         return u;
     }
     
-
     public String saveProfileImage(String userId, InputStream fileInputStream, String fileName, String contextPath) throws IOException {
         File uploadDir = new File(contextPath + "/images/profiles");
             if (!uploadDir.exists()) {

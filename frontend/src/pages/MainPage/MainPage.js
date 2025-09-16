@@ -4,16 +4,24 @@ import { useProducts } from "../../contexts/ProductsContext";
 import ProductTable from "./components/ProductTable";
 import { useProductsList } from "../../hooks/useProductsList";
 import { useAuthorize } from "../../contexts/AuthorizeContext";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import "./MainPage.css";
 
 export default function MainPage() {
   const { products, dispatch } = useProducts();
   const productsList = useProductsList() || [];
   const navigate = useNavigate();
-  const { isLoggedIn, logout } = useAuthorize();
+  const { isLoggedIn, setIsLoggedIn, logout } = useAuthorize();
+
   useEffect(() => {
     dispatch({ type: "SET", payload: productsList });
   }, [productsList]);
+
+    const handleLogout = () => {
+        setIsLoggedIn(false);
+        navigate('/mainpage');
+    };
 
   return (
     <div className="main-page">
@@ -21,11 +29,10 @@ export default function MainPage() {
         <span className="navbar-brand">WebShop</span>
 
         <div className="position-absolute start-50 translate-middle-x d-flex">
-          <input
-            className="form-control me-2"
-            type="search"
-            placeholder="Search"
-            aria-label="Search"
+          <input className="form-control me-2"
+                 type="search"
+                 placeholder="Search"
+                 aria-label="Search"
           />
           <button className="btn btn-outline-success" type="submit">Search</button>
         </div>
@@ -34,36 +41,27 @@ export default function MainPage() {
       <button onClick={() => navigate("/add-product")} className="btn btn-success me-2">Add a Listing</button>
         {isLoggedIn ? (
           <>
-            <img 
-              src="/icons/shopping_cart.png" 
-              alt="Cart" 
-              style={{ width: "30px", height: "30px", marginRight: "15px", cursor: "pointer" }}
-              onClick={() => navigate("/cart")}
-            />
-            <img 
-              src="/icons/account_circle.png" 
-              alt="User" 
-              style={{ width: "30px", height: "30px", cursor: "pointer" }}
-              onClick={() => navigate("/profile")}
-            />
+            <img className="cart" src="/icons/shopping_cart.png" alt="Cart" onClick={() => navigate("/cart")}/>
+            <div className="dropdown">
+                <button className="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                  <img className="menu" src="/icons/menu.png" alt="Menu"/>
+                </button>
+                <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <li><a className="dropdown-item" onClick={() => navigate("/profile")}>My account</a></li>
+                  <li><a className="dropdown-item" onClick={() => navigate("/listingpage")}>My listings</a></li>
+                  <li><a className="dropdown-item" onClick={handleLogout}>Log out</a></li>
+                </ul>
+              </div>
           </>
         ) : (
           <>
             <button onClick={() => navigate("/signup")} className="btn btn-outline-primary me-2">
               Sign Up
             </button>
-            <span 
-              onClick={() => navigate("/login")}
-              className="nav-link" 
-              style={{ cursor: "pointer" }}
-            >
+            <span onClick={() => navigate("/login")} className="nav-link" style={{ cursor: "pointer" }}>
               Log in
             </span>
           </>
-        )}
-        {isLoggedIn && ( <span onClick={() => { logout(); navigate("/");}} className="nav-link ms-3" style={{ cursor: "pointer" }}>
-            Log out
-          </span>
         )}
       </div>
       </nav>
