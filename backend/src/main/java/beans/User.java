@@ -58,9 +58,8 @@ public class User implements Serializable {
 	    this.blocked = blocked;
 	    this.productList = productList;
     }
-    
     public User(String id, String firstName, String lastName, String username, String email, String phoneNumber,
-            String password, Role role, boolean blocked, List<String> productList, LocalDate birthDate, String description) {
+            String password, Role role, boolean blocked, List<String> productList, LocalDate birthDate, String description, String profilePicture) {
     this.id = id;
     this.firstName = firstName;
     this.lastName = lastName;
@@ -73,7 +72,7 @@ public class User implements Serializable {
     this.productList = productList != null ? productList : new ArrayList<>();
     this.birthDate = birthDate;
     this.description = description;
-    this.profilePicture = null;
+    this.profilePicture = profilePicture;
 }
     
     public String getId() {

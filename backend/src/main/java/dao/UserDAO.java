@@ -2,8 +2,12 @@ package dao;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -155,8 +159,13 @@ public class UserDAO {
 	                    }
 	                }
 	            }
-
-	            users.put(id, new User(id, firstName, lastName, username, email, phoneNumber, password, role, blocked, productList, birthDate, description));
+	            
+	            String profilePicture = "";
+	            if (tokens.length > 12 && !tokens[12].trim().isEmpty()) {
+	                profilePicture = tokens[12].trim();
+	            }
+	            
+	            users.put(id, new User(id, firstName, lastName, username, email, phoneNumber, password, role, blocked, productList, birthDate, description, profilePicture));
 	        }
 	    } catch (Exception ex) {
 	        ex.printStackTrace();
@@ -236,10 +245,10 @@ public class UserDAO {
 	                if (parts[0].equals(user.getId())) {
 	                    String productsStr = user.getProductList() != null ? 
 	                        String.join("|", user.getProductList()) : "";
-	                    String birthDateStr = user.getBirthDate() != null ? 
-	                        user.getBirthDate().toString() : "";
-	                    String descriptionStr = user.getDescription() != null ? 
-	                        user.getDescription() : "";
+	                    
+	                    String birthDateStr = user.getBirthDate() != null ? user.getBirthDate().toString() : "";
+	                    String descriptionStr = user.getDescription() != null ? user.getDescription() : "";
+	                    String profilePictureStr = user.getProfilePicture() != null ? user.getProfilePicture() : "";
 	                    
 	                    String newLine = String.format("%s;%s;%s;%s;%s;%s;%s;%s;%b;%s;%s;%s",
 	                        user.getId(),
@@ -253,7 +262,8 @@ public class UserDAO {
 	                        user.isBlocked(),             
 	                        birthDateStr,   
 	                        descriptionStr,
-	                        productsStr
+	                        productsStr,
+	                        profilePictureStr
 	                    );
 	                    lines.add(newLine);
 	                } else {
@@ -301,4 +311,37 @@ public class UserDAO {
 
         return u;
     }
+    
+
+    public String saveProfileImage(String userId, InputStream fileInputStream, String fileName, String contextPath) throws IOException {
+        File uploadDir = new File(contextPath + "/images/profiles");
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+
+            String ext = "";
+            int dotIndex = fileName.lastIndexOf('.');
+            if (dotIndex > 0) {
+                ext = fileName.substring(dotIndex);
+            }
+            String newFileName = "user_" + userId + ext;
+
+            File outputFile = new File(uploadDir, newFileName);
+
+            try (OutputStream out = new FileOutputStream(outputFile)) {
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                    out.write(buffer, 0, bytesRead);
+                }
+            }
+
+            User u = users.get(userId);
+            if (u != null) {
+                u.setProfilePicture(newFileName); 
+                editFileUser(u, contextPath); 
+            }
+
+            return newFileName;
+        }
 }

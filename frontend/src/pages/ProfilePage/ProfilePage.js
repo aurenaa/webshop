@@ -197,7 +197,11 @@ export default function ProfilePage() {
             ) : (
               <div className="basic-info-container">
                 <div className="left-column">
-                  <img src="/icons/account_circle.png" alt="User" className="account"/>
+                  <img 
+                    src={user.profileImage ? `/images/profiles/${user.profileImage}` : "/icons/account_circle.png"} 
+                    alt="User" 
+                    className="account"
+                  />
                   <div className="username-email">
                     <p>{user.username}</p>
                     <p>{user.email}</p>
