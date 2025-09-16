@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useProducts } from "../../contexts/ProductsContext";
 import ProductTable from "./components/ProductTable";
@@ -30,33 +30,43 @@ export default function MainPage() {
           <button className="btn btn-outline-success" type="submit">Search</button>
         </div>
         
-        <div className="d-flex align-items-center ms-auto">
-          <button onClick={() => navigate("/add-product")} className="btn btn-success me-2">Add a Listing</button>
-          {!isLoggedIn && (
-            <button 
-              onClick={() => navigate("/signup")} 
-              className="btn btn-outline-primary me-2"
-            >
+    <div className="d-flex align-items-center ms-auto">
+      <button onClick={() => navigate("/add-product")} className="btn btn-success me-2">Add a Listing</button>
+        {isLoggedIn ? (
+          <>
+            <img 
+              src="/icons/shopping_cart.png" 
+              alt="Cart" 
+              style={{ width: "30px", height: "30px", marginRight: "15px", cursor: "pointer" }}
+              onClick={() => navigate("/cart")}
+            />
+            <img 
+              src="/icons/account_circle.png" 
+              alt="User" 
+              style={{ width: "30px", height: "30px", cursor: "pointer" }}
+              onClick={() => navigate("/profile")}
+            />
+          </>
+        ) : (
+          <>
+            <button onClick={() => navigate("/signup")} className="btn btn-outline-primary me-2">
               Sign Up
             </button>
-          )}
-          <span 
-            onClick={() => {
-              if (isLoggedIn) {
-                logout();
-                navigate("/");
-              } else {
-                navigate("/login");
-              }
-            }}
-            className="nav-link" 
-            style={{ cursor: "pointer" }}
-          >
-            {isLoggedIn ? "Log out" : "Log in"}
+            <span 
+              onClick={() => navigate("/login")}
+              className="nav-link" 
+              style={{ cursor: "pointer" }}
+            >
+              Log in
+            </span>
+          </>
+        )}
+        {isLoggedIn && ( <span onClick={() => { logout(); navigate("/");}} className="nav-link ms-3" style={{ cursor: "pointer" }}>
+            Log out
           </span>
-        </div>
+        )}
+      </div>
       </nav>
-
       <div className="products-table mt-3">
         <ProductTable products={products} />
       </div>
