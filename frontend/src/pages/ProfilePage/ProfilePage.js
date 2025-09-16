@@ -28,7 +28,17 @@ export default function ProfilePage() {
   };
 
   const handleEditClick = () => {
-    setEditedUser({ ...user });
+    setEditedUser({ 
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        username: user.username || "",
+        email: user.email || "",
+        phoneNumber: user.phoneNumber || "",
+        birthDate: user.birthDate || "",
+        description: user.description || "",
+        password: "",
+        currentPassword: ""
+      });
     setIsEditing(true);
   };
 
@@ -54,6 +64,11 @@ export default function ProfilePage() {
           { headers: { "Content-Type": "multipart/form-data" } }
         );
       }
+
+      const payload = {
+        description: editedUser.description
+      };
+
       if (
         (editedUser.username !== user.username ||
         editedUser.email !== user.email ||
@@ -63,10 +78,12 @@ export default function ProfilePage() {
         setMessage("Please enter your current password to change username, email, or password.");
         return;
       }
+
       const response = await axios.patch(
         `http://localhost:8080/WebShopAppREST/rest/users/${user.id}`,
-        editedUser
+        payload
       );
+
       setUser(response.data);
       setMessage("Profile updated successfully!");
       setIsEditing(false);

@@ -1,4 +1,4 @@
-1;Sony TV;Sony brand TV, 51 cm screen size;Electronics;22000;FIXED_PRICE;2025-09-01
-2;Sony Camera;Sony digital camera;Electronics;32000;FIXED_PRICE;2025-09-02
-3;Samsung Monitor;Samsung 17" monitor;Electronics;35000;AUCTION;2025-09-03
-4;Pioneer DVD;Pioneer DVD writer;Electronics;7100;FIXED_PRICE;2025-09-04
+1;Sony TV;Sony brand TV, 55 cm screen size;Electronics;22000;FIXED_PRICE;2025-09-01;1
+2;Sony Camera;Sony digital camera;Electronics;32000;FIXED_PRICE;2025-09-02;2
+3;Samsung Monitor;Samsung 17" monitor;Electronics;35000;AUCTION;2025-09-03;2
+4;Pioneer DVD;Pioneer DVD writer;Electronics;7100;FIXED_PRICE;2025-09-04;2

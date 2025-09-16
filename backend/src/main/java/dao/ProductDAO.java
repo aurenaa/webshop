@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Date;
-import java.util.StringTokenizer;
 
 import beans.Product;
 import dto.ProductUpdateDTO;
@@ -38,49 +37,50 @@ public class ProductDAO {
 	}
 	
 	private void loadProducts(String contextPath) {
-		BufferedReader in = null;
-		try {
-			File file = new File(contextPath + "/products.txt");
-			System.out.println(file.getCanonicalPath());
-			in = new BufferedReader(new FileReader(file));
-			String line, id = "", name = "", price = "", description = "", category = "", saleType = "", datePosted = "", sellerId = "";
-			StringTokenizer st;
-			
-			while ((line = in.readLine()) != null) {
-				line = line.trim();
-				if (line.equals("") || line.indexOf('#') == 0)
-					continue;
-				st = new StringTokenizer(line, ";");
-				while (st.hasMoreTokens()) {
-					id = st.nextToken().trim();
-					name = st.nextToken().trim();
-					description = st.nextToken().trim();
-					category = st.nextToken().trim();
-					price = st.nextToken().trim();
-					saleType = st.nextToken().trim();
-					datePosted = st.nextToken().trim();
-					sellerId = st.nextToken().trim();
-					
-				    if (id.isEmpty() || name.isEmpty() || price.isEmpty() || saleType.isEmpty())
-				        continue;
-				}
-				
-	            Product.SaleType saleEnum = Product.SaleType.valueOf(saleType);  
+	    BufferedReader in = null;
+	    try {
+	        File file = new File(contextPath + "/products.txt");
+	        System.out.println(file.getCanonicalPath());
+	        in = new BufferedReader(new FileReader(file));
+	        String line;
+
+	        while ((line = in.readLine()) != null) {
+	            line = line.trim();
+	            if (line.equals("") || line.startsWith("#"))
+	                continue;
+
+	            String[] tokens = line.split(";");
+	            if (tokens.length < 8) {
+	                System.out.println("Skipping: " + line);
+	                continue;
+	            }
+
+	            String id = tokens[0].trim();
+	            String name = tokens[1].trim();
+	            String description = tokens[2].trim();
+	            String category = tokens[3].trim();
+	            String price = tokens[4].trim();
+	            String saleType = tokens[5].trim();
+	            String datePosted = tokens[6].trim();
+	            String sellerId = tokens[7].trim();
+
+	            if (id.isEmpty() || name.isEmpty() || price.isEmpty() || saleType.isEmpty())
+	                continue;
+
+	            Product.SaleType saleEnum = Product.SaleType.valueOf(saleType);
 	            Date date = java.sql.Date.valueOf(datePosted);
 
-	            products.put(id, new Product(id, name, description, category,
-	                    Double.parseDouble(price), saleEnum, date, sellerId));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if ( in != null ) {
-				try {
-					in.close();
-				}
-				catch (Exception e) { }
-			}
-		}
+	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId));
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    } finally {
+	        if (in != null) {
+	            try {
+	                in.close();
+	            } catch (Exception e) { }
+	        }
+	    }
 	}
 	
 	public Product save(Product product) {

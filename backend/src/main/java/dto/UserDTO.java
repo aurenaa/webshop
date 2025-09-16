@@ -1,6 +1,6 @@
 package dto;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class UserDTO {
 	private String firstName;
@@ -9,7 +9,7 @@ public class UserDTO {
 	private String email;
 	private String phoneNumber;
 	private String password;
-    private Date birthDate;        
+    private LocalDate birthDate;        
     private String description; 
     
     public String getFirstName() {
@@ -60,11 +60,11 @@ public class UserDTO {
 		this.password = password;
 	}
 	
-    public Date getBirthDate() { 
+    public LocalDate getBirthDate() { 
     	return birthDate; 
     }
     
-    public void setBirthDate(Date birthDate) { 
+    public void setBirthDate(LocalDate birthDate) { 
     	this.birthDate = birthDate; 
     }
     
