@@ -106,7 +106,7 @@ return (
             </div>
             </div>
             <div className="right">
-            <button className="btn btn-outline-primary edit-btn">Edit</button>
+            <button onClick={() => navigate("/profile-edit")} className="btn btn-outline-primary edit-btn">Edit</button>
             </div>
         </div>
         </div>

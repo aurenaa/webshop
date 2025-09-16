@@ -10,6 +10,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthorizeProvider } from "./contexts/AuthorizeContext";
 import { ProductsProvider } from "./contexts/ProductsContext";
 import { UserProvider } from "./contexts/UserContext";
+import EditProfilePage from './pages/EditProfilePage/EditProfilePage';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
                 <Route path="/products/:id" element={<ProductPage />} />
                 <Route path="/signup" element={<SignUpPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/profile-edit" element={<EditProfilePage />} />
                 <Route
                   path="/add-product"
                   element={

@@ -61,15 +61,7 @@ export default function MainPage() {
             </span>
           </>
         )}
-        {isLoggedIn && (
-          <span 
-            onClick={() => {
-              logout();
-              navigate("/");
-            }}
-            className="nav-link ms-3" 
-            style={{ cursor: "pointer" }}
-          >
+        {isLoggedIn && ( <span onClick={() => { logout(); navigate("/");}} className="nav-link ms-3" style={{ cursor: "pointer" }}>
             Log out
           </span>
         )}

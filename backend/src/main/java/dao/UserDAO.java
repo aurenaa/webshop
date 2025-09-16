@@ -14,6 +14,7 @@ import java.util.StringTokenizer;
 
 import beans.User;
 import beans.User.Role;
+import dto.UserDTO;
 
 public class UserDAO {
 	private Map<String, User> users = new HashMap<>();
@@ -203,5 +204,35 @@ public class UserDAO {
             user.getProductList().remove(productId);
             editFileUser(user, contextPath);
         }
+    }
+    
+    public User updateUser(String id, UserDTO updated, String contextPath) {
+    	User u = users.containsKey(id) ? users.get(id) : null;
+    	if (updated.getUsername() != null) {
+    		u.setUsername(updated.getUsername());
+    	}
+    	if (updated.getFirstName() != null) {
+    		u.setFirstName(updated.getFirstName());
+    	}
+    	if (updated.getLastName() != null) {
+    		u.setLastName(updated.getLastName());
+    	}
+    	if (updated.getEmail() != null) {
+    		u.setEmail(updated.getEmail());
+    	}
+    	if (updated.getPhoneNumber() != null) {
+    		u.setPhoneNumber(updated.getPhoneNumber());
+    	}
+    	if (updated.getPassword() != null) {
+    		u.setPassword(updated.getPassword());
+    	}
+    	if (updated.getBirthDate() != null) {
+    		u.setBirthDate(updated.getBirthDate());
+    	}
+    	if (updated.getDescription() != null) {
+    		u.setDescription(updated.getDescription());
+    	}
+    	editFileUser(u, contextPath);
+    	return u;
     }
 }
