@@ -2,7 +2,7 @@ package beans;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -16,7 +16,7 @@ public class User implements Serializable {
 	private String email;
 	private String phoneNumber;
 	private String password;
-    private Date birthDate;        
+    private LocalDate birthDate;        
     private String profilePicture; 
     private String description;   
     private Role role;          
@@ -43,7 +43,7 @@ public class User implements Serializable {
 	    this.productList = productList != null ? productList : new ArrayList<>();
 	}
 
-    public User(String id, String firstName, String lastName, String username, String email, String phoneNumber, String password, Date birthDate, String profilePicture, String description, Role role, boolean blocked, List<String> productList) {
+    public User(String id, String firstName, String lastName, String username, String email, String phoneNumber, String password, LocalDate birthDate, String profilePicture, String description, Role role, boolean blocked, List<String> productList) {
 	    this.id = id;
     	this.firstName = firstName;
 	    this.lastName = lastName;
@@ -58,6 +58,23 @@ public class User implements Serializable {
 	    this.blocked = blocked;
 	    this.productList = productList;
     }
+    
+    public User(String id, String firstName, String lastName, String username, String email, String phoneNumber,
+            String password, Role role, boolean blocked, List<String> productList, LocalDate birthDate, String description, String profilePicture) {
+    this.id = id;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.username = username;
+    this.email = email;
+    this.phoneNumber = phoneNumber;
+    this.password = password;
+    this.role = role;
+    this.blocked = blocked;
+    this.productList = productList != null ? productList : new ArrayList<>();
+    this.birthDate = birthDate;
+    this.description = description;
+    this.profilePicture = profilePicture;
+}
     
     public String getId() {
     	return id;
@@ -115,12 +132,12 @@ public class User implements Serializable {
 		this.password = password;
 	}
 	
-    public Date getBirthDate() { 
+    public LocalDate getBirthDate() { 
     	return birthDate; 
     }
     
-    public void setBirthDate(Date birthDate) { 
-    	this.birthDate = birthDate; 
+    public void setBirthDate(LocalDate date) { 
+    	this.birthDate = date; 
     }
 
     public String getProfilePicture() { 
