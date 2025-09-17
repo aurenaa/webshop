@@ -221,15 +221,15 @@ public class UserDAO {
 		return user;
 	}
 	
-	public void addProductId(User user, String productId) {
+	public void addProductId(User user, String productId, String contextPath) {
         if (user.getProductList() == null) {
             user.setProductList(new ArrayList<>());
         }
         user.getProductList().add(productId);
-
-        if (user.getRole() == Role.BUYER) {
-            user.setRole(Role.SELLER);
-        }
+        editFileUser(user, contextPath);
+        //if (user.getRole() == Role.BUYER) {
+        //    user.setRole(Role.SELLER);
+        //}
 	}
 
 	public void editFileUser(User user, String contextPath) {
@@ -243,9 +243,7 @@ public class UserDAO {
 
 	                String[] parts = line.split(";");
 	                if (parts[0].equals(user.getId())) {
-	                    String productsStr = user.getProductList() != null ? 
-	                        String.join("|", user.getProductList()) : "";
-	                    
+	                    String productsStr = user.getProductList() != null ? String.join("|", user.getProductList()) : "";	                   
 	                    String birthDateStr = user.getBirthDate() != null ? user.getBirthDate().toString() : "";
 	                    String descriptionStr = user.getDescription() != null ? user.getDescription() : "";
 	                    String profilePictureStr = user.getProfilePicture() != null ? user.getProfilePicture() : "";
@@ -289,18 +287,39 @@ public class UserDAO {
     }
     
     public User updateUser(String id, UserDTO updated, String contextPath) {
-        System.out.println("updateUser called for id: " + id);
         User u = users.get(id);
         if (u == null) {
-            System.out.println("User not found!");
             return null; 
         }
 
         if (updated.getDescription() != null) {
-            System.out.println("Updating description: " + updated.getDescription());
             u.setDescription(updated.getDescription());
         }
+        
+        if (updated.getFirstName() != null) {
+        	u.setFirstName(updated.getFirstName());
+        }
+        
+        if (updated.getLastName() != null) {
+        	u.setLastName(updated.getLastName());
+        }
 
+        if (updated.getUsername() != null) {
+        	u.setUsername(updated.getUsername());
+        }
+        
+        if (updated.getPhoneNumber() != null) {
+        	u.setPhoneNumber(updated.getPhoneNumber());
+        }
+        
+        if (updated.getBirthDate() != null) {
+        	u.setBirthDate(updated.getBirthDate());
+        }
+
+        if (updated.getPassword() != null) {
+        	u.setPassword(updated.getPassword());
+        }
+        
         try {
             editFileUser(u, contextPath);
             System.out.println("File updated successfully.");
@@ -312,7 +331,6 @@ public class UserDAO {
         return u;
     }
     
-
     public String saveProfileImage(String userId, InputStream fileInputStream, String fileName, String contextPath) throws IOException {
         File uploadDir = new File(contextPath + "/images/profiles");
             if (!uploadDir.exists()) {
@@ -343,5 +361,5 @@ public class UserDAO {
             }
 
             return newFileName;
-        }
+     }
 }

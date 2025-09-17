@@ -1,12 +1,7 @@
 package services;
 
-import java.io.InputStream;
-import java.nio.file.Paths;
-
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
@@ -16,8 +11,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import beans.User;
+import dao.ProductDAO;
 import dao.UserDAO;
+import dto.AuctionEndDTO;
 import dto.UserDTO;
 
 import javax.servlet.annotation.MultipartConfig;
@@ -31,9 +29,12 @@ public class UserService {
 
     @PostConstruct
     public void init() {
+        String contextPath = ctx.getRealPath("");
         if (ctx.getAttribute("userDAO") == null) {
-            String contextPath = ctx.getRealPath("");
             ctx.setAttribute("userDAO", new UserDAO(contextPath));
+        }
+        if (ctx.getAttribute("productDAO") == null) {
+            ctx.setAttribute("productDAO", new ProductDAO(contextPath));
         }
     }
     
@@ -62,6 +63,29 @@ public class UserService {
     }
     
     @PATCH
+    @Path("/{productId}/endAuction")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response endAuction(@PathParam("productId") String productId, AuctionEndDTO dto) {
+    	System.out.println("END AUCTION CALLED for product " + productId);
+    	System.out.println("Seller: " + dto.getSellerId() + ", Buyer: " + dto.getBuyerId());
+    	System.out.println("ProductDAO from context: " + ctx.getAttribute("productDAO"));
+        String sellerId = dto.getSellerId();
+        String buyerId = dto.getBuyerId();
+    	UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
+    	ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
+    	
+    	User seller = userDAO.findById(sellerId);
+    	User buyer = userDAO.findById(buyerId);
+		
+    	userDAO.removeProductId(seller, productId, ctx.getRealPath(""));
+    	userDAO.addProductId(buyer, productId, ctx.getRealPath(""));
+    	productDAO.statusSold(productId, ctx.getRealPath(""));
+    	return Response.status(201).entity("Auction ended successfully").build();
+    }
+    
+    /*
+    @PATCH
     @Path("/{id}/upload-image")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
@@ -84,4 +108,5 @@ public class UserService {
                            .entity("Failed to upload image").build();
         }
     }
+     */
 }

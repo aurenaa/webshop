@@ -58,6 +58,7 @@ public class User implements Serializable {
 	    this.blocked = blocked;
 	    this.productList = productList;
     }
+    
     public User(String id, String firstName, String lastName, String username, String email, String phoneNumber,
             String password, Role role, boolean blocked, List<String> productList, LocalDate birthDate, String description, String profilePicture) {
     this.id = id;
