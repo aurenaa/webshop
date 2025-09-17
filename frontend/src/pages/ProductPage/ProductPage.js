@@ -6,15 +6,6 @@ import "./ProductPage.css";
 
 export default function ProductPage() {
     const navigate = useNavigate();
-
-    const handleClick = () => {
-        navigate('/login');
-    };
-
-    const handleHomeClick = () => {
-        navigate('/mainPage');
-    };
-
     const { isLoggedIn } = useAuthorize();
 
     const handleDeleteClick = async () =>
@@ -65,6 +56,15 @@ export default function ProductPage() {
     const handleCancelClick = () => {
         setIsEditing(false);
         setEditedProduct(null);
+    };
+
+    const handleAuctionClick = () => {
+        if (product.saleType == "FIXED_PRICE") {
+            console.log("Not available");
+        }
+        else {
+            console.log("Let me check");
+        }
     };
 
     useEffect(() => {
@@ -125,47 +125,25 @@ export default function ProductPage() {
         <div className="body">
             <div className="image-gallery"></div>
             <div className="image"></div>
-            <div className="product-info">
-                
-
+            <div className="product-info">            
                 {isEditing ? (
                         <>
-                            <p><strong>Name:</strong>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={editedProduct.name}
-                                    onChange={handleChange}
-                                />
+                            <p> 
+                                <strong>Name:</strong>
+                                <input type="text" name="name" value={editedProduct.name}onChange={handleChange}/>
                             </p>
-                            <p><strong>Price:</strong> 
-                                <input
-                                    type="number"
-                                    name="price"
-                                    value={editedProduct.price}
-                                    onChange={handleChange}
-                                /> RSD
+                            <p>
+                                <strong>Price:</strong> 
+                                <input type="number" name="price" value={editedProduct.price} onChange={handleChange}/> RSD
                             </p>
-                            <p><strong>Category:</strong> 
-                                <input
-                                    type="text"
-                                    name="category"
-                                    value={editedProduct.category}
-                                    onChange={handleChange}
-                                />
+                            <p>
+                                <strong>Category:</strong> 
+                                <input type="text" name="category" value={editedProduct.category} onChange={handleChange}/>
                             </p>
-                            <textarea
-                                name="description"
-                                value={editedProduct.description}
-                                onChange={handleChange}
-                            />
+                            <textarea name="description" value={editedProduct.description} onChange={handleChange}/>
                             <p><strong>Date posted:</strong> {new Date(product.datePosted).toLocaleDateString()}</p>
                             <p><strong>Sale type:</strong> 
-                                <select
-                                    name="saleType"
-                                    value={editedProduct.saleType}
-                                    onChange={handleChange}
-                                >
+                                <select name="saleType" value={editedProduct.saleType} onChange={handleChange}>
                                     <option value="FIXED_PRICE">Fixed price</option>
                                     <option value="AUCTION">Auction</option>
                                 </select>
@@ -189,6 +167,7 @@ export default function ProductPage() {
                                         <>  
                                             <button onClick={handleEditClick} className="btn btn-primary me-2">Edit</button>
                                             <button onClick={handleDeleteClick} className="btn btn-danger">Delete</button>
+                                            <button onClick={handleAuctionClick} className="btn btn-primary">End auction</button>
                                         </>
                                     )
                                 }

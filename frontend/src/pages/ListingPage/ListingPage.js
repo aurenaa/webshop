@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useProducts } from "../../contexts/ProductsContext";
 import { useProductsList } from "../../hooks/useProductsList";
 import { useAuthorize } from "../../contexts/AuthorizeContext";
+import { useUser } from "../../contexts/UserContext";
 import ProductTable from "../MainPage/components/ProductTable";
 import "./ListingPage.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -10,6 +11,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 export default function ListingPage() {
   const { products, dispatch } = useProducts();
+  const { user } = useUser();
   const productsList = useProductsList() || [];
   const navigate = useNavigate();
   const { isLoggedIn, setIsLoggedIn, logout } = useAuthorize();
@@ -17,6 +19,8 @@ export default function ListingPage() {
   useEffect(() => {
     dispatch({ type: "SET", payload: productsList });
   }, [productsList]);
+
+  const userProducts = isLoggedIn ? products.filter(p => p.sellerId === user.id) : [];
    
     return (
        <div className="main-page">
@@ -56,16 +60,28 @@ export default function ListingPage() {
                 )}
             </div>
         </nav>
-        <div className="container text-center">
-            {Array.from({ length: Math.ceil(products.length / 3) }).map((_, rowIndex) => (
-                <div className="row row-cols-auto mb-3" key={rowIndex}>
-                    {products.slice(rowIndex * 3, rowIndex * 3 + 3).map((product, colIndex) => (
-                        <div className="col" key={colIndex}>
-                            <ProductTable products={[product]}/> 
+        <div className="text-bg-light p-3 custom-box">       
+            <div className="container text-center">
+                {userProducts.length > 0 ? (
+                <>
+                    {Array.from({ length: Math.ceil(products.length / 3) }).map((_, rowIndex) => (
+                        <div className="row row-cols-auto mb-3" key={rowIndex}>
+                            {userProducts.slice(rowIndex * 3, rowIndex * 3 + 3).map((product, colIndex) => (
+                                <div className="col" key={colIndex}>
+                                    <ProductTable products={[product]}/> 
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
-            ))}
+                    ))}            
+                </>
+                ) : (
+                <>
+                    <h2>You have no active listings</h2>
+                    <p>Click on the "Add listings" button to start selling.</p>
+                    <button onClick={() => navigate("/add-product")} className="btn btn-success me-2">Add a Listing</button>
+                </> 
+                )}
+            </div>
         </div>
     </div>
     );
