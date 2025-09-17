@@ -15,6 +15,7 @@ import java.util.Date;
 
 import beans.Bid;
 import beans.Product;
+import beans.Product.Status;
 import dto.ProductUpdateDTO;
 
 public class ProductDAO {
@@ -194,6 +195,14 @@ public class ProductDAO {
 	    return removed;
 	}
 	
+	public void statusSold(String id, String contextPath) {
+	    Product product = findProduct(id);
+	    if (product != null) {
+	        product.setStatus(Status.SOLD);
+	        editFileProduct(product, contextPath);
+	    }
+	}
+	
 	public void editFileProduct(Product updatedProduct, String contextPath) {
 	    File file = new File(contextPath + "/products.txt");
 
@@ -260,7 +269,6 @@ public class ProductDAO {
 	    }
 	}
 	
-	/*
 	public Product updateProducts(String id, Product product, String contextPath) {
 		Product p = products.containsKey(id) ? products.get(id) : null;
 		if (p == null) {
@@ -279,8 +287,7 @@ public class ProductDAO {
 		
 		return p;
 	}
-	*/
-	
+
 	public Product updateProduct(String id, ProductUpdateDTO updated, String contextPath)
 	{
 		Product p = products.containsKey(id) ? products.get(id) : null;

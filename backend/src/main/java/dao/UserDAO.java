@@ -221,15 +221,15 @@ public class UserDAO {
 		return user;
 	}
 	
-	public void addProductId(User user, String productId) {
+	public void addProductId(User user, String productId, String contextPath) {
         if (user.getProductList() == null) {
             user.setProductList(new ArrayList<>());
         }
         user.getProductList().add(productId);
-
-        if (user.getRole() == Role.BUYER) {
-            user.setRole(Role.SELLER);
-        }
+        editFileUser(user, contextPath);
+        //if (user.getRole() == Role.BUYER) {
+        //    user.setRole(Role.SELLER);
+        //}
 	}
 
 	public void editFileUser(User user, String contextPath) {
@@ -361,5 +361,5 @@ public class UserDAO {
             }
 
             return newFileName;
-        }
+     }
 }

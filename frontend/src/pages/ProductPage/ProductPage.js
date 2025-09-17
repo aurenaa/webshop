@@ -61,10 +61,36 @@ export default function ProductPage() {
     const handleAuctionClick = () => {
         if (product.saleType == "FIXED_PRICE") {
             console.log("Not available");
+            return;
         }
-        else {
-            console.log("Let me check");
+
+        if (!product.bids || product.bids.length === 0) {
+        alert("No bids to finalize auction.");
+        return;
         }
+
+        const offers = product.bids.map(b => b.offer);
+        const maxOffer = Math.max(...offers);
+        const auctionWinner = product.bids.find(b => b.offer == maxOffer);
+
+        const endAuction = async () => {
+            try
+            {
+                await axios.patch(
+                `http://localhost:8080/WebShopAppREST/rest/users/${product.id}/endAuction`,
+                {
+                    sellerId: product.sellerId,
+                    buyerId: auctionWinner.buyerId
+                }
+            );
+                navigate('/mainPage');
+            }
+            catch (err)
+            {
+                console.error("Error ending auction", err);
+            }
+        }
+        endAuction();
     };
 
     useEffect(() => {

@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 
-import beans.User.Role;
-
 public class Product {
     private String id;
     private String name;
