@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Date;
 
+import beans.Bid;
 import beans.Product;
 import dto.ProductUpdateDTO;
 
@@ -50,7 +51,7 @@ public class ProductDAO {
 	                continue;
 
 	            String[] tokens = line.split(";");
-	            if (tokens.length < 8) {
+	            if (tokens.length < 9) {
 	                System.out.println("Skipping: " + line);
 	                continue;
 	            }
@@ -63,14 +64,30 @@ public class ProductDAO {
 	            String saleType = tokens[5].trim();
 	            String datePosted = tokens[6].trim();
 	            String sellerId = tokens[7].trim();
-
+	            String status = tokens[8].trim();
+	            
+	            List<Bid> bids = new ArrayList<>();
+	            if (tokens.length > 9 && !tokens[9].trim().isEmpty()) {
+	                String bidsStr = tokens[9].trim();
+	                String[] bidsArr = bidsStr.split("\\|");
+	                for (String b : bidsArr) {
+	                    String[] bidTokens = b.split(":");
+	                    if (bidTokens.length == 2) {
+	                        String buyerId = bidTokens[0].trim();
+	                        double offer = Double.parseDouble(bidTokens[1].trim());
+	                        bids.add(new Bid(offer, buyerId)); 
+	                    }
+	                }
+	            }
+                
 	            if (id.isEmpty() || name.isEmpty() || price.isEmpty() || saleType.isEmpty())
 	                continue;
 
 	            Product.SaleType saleEnum = Product.SaleType.valueOf(saleType);
+	            Product.Status statusEnum = Product.Status.valueOf(status);
 	            Date date = java.sql.Date.valueOf(datePosted);
 
-	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId));
+	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId, statusEnum, bids));
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -107,8 +124,19 @@ public class ProductDAO {
 	            
 	            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	            String dateStr = sdf.format(product.getDatePosted());
-
-	            String line = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s",
+	            if (product.getStatus() == null) product.setStatus(Product.Status.PROCESSING);
+	            if (product.getBids() == null) product.setBids(new ArrayList<>());
+	            
+	            String bidsStr = "";
+	            if (!product.getBids().isEmpty()) {
+	                List<String> bidTokens = new ArrayList<>();
+	                for (Bid b : product.getBids()) {
+	                    bidTokens.add(b.getBuyerId() + ":" + b.getOffer());
+	                }
+	                bidsStr = String.join("|", bidTokens);
+	            }
+	            
+	            String line = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s",
 	                product.getId(),
 	                product.getName(),
 	                product.getDescription(),
@@ -116,7 +144,9 @@ public class ProductDAO {
 	                product.getPrice(), 
 	                product.getSaleType(),
 	                dateStr,
-	                product.getSellerId()
+	                product.getSellerId(),
+	                product.getStatus(),
+	                bidsStr
 	            );
 
 	            out.println(); 
@@ -162,7 +192,6 @@ public class ProductDAO {
 	        deleteFileProduct(id, contextPath);
 	    }
 	    return removed;
-		
 	}
 	
 	public void editFileProduct(Product updatedProduct, String contextPath) {
@@ -180,8 +209,17 @@ public class ProductDAO {
 	                if (parts[0].equals(updatedProduct.getId())) {
 	                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	                    String dateStr = sdf.format(updatedProduct.getDatePosted());
-
-	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s",
+	                    
+	                    String bidsStr = "";
+	                    if (updatedProduct.getBids() != null && !updatedProduct.getBids().isEmpty()) {
+	                        List<String> bidTokens = new ArrayList<>();
+	                        for (Bid b : updatedProduct.getBids()) {
+	                            bidTokens.add(b.getBuyerId() + ":" + b.getOffer());
+	                        }
+	                        bidsStr = String.join("|", bidTokens);
+	                    }
+	                    
+	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s",
 	                            updatedProduct.getId(),
 	                            updatedProduct.getName(),
 	                            updatedProduct.getDescription(),
@@ -189,7 +227,9 @@ public class ProductDAO {
 	                            updatedProduct.getPrice(),
 	                            updatedProduct.getSaleType(),
 	                            dateStr,
-	                            updatedProduct.getSellerId()
+	                            updatedProduct.getSellerId(),
+	                            updatedProduct.getStatus(),
+	                            bidsStr
 	                    );
 	                    lines.add(newLine);
 	                } else {
@@ -209,6 +249,18 @@ public class ProductDAO {
 	    }
 	}
 	
+	public void addBid(String productId, Bid bid, String contextPath) {
+	    Product p = products.get(productId);
+	    if (p != null) {
+	        if (p.getBids() == null) {
+	            p.setBids(new ArrayList<>());
+	        }
+	        p.getBids().add(bid);
+	        editFileProduct(p, contextPath);
+	    }
+	}
+	
+	/*
 	public Product updateProducts(String id, Product product, String contextPath) {
 		Product p = products.containsKey(id) ? products.get(id) : null;
 		if (p == null) {
@@ -227,6 +279,7 @@ public class ProductDAO {
 		
 		return p;
 	}
+	*/
 	
 	public Product updateProduct(String id, ProductUpdateDTO updated, String contextPath)
 	{

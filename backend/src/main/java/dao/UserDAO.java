@@ -243,9 +243,7 @@ public class UserDAO {
 
 	                String[] parts = line.split(";");
 	                if (parts[0].equals(user.getId())) {
-	                    String productsStr = user.getProductList() != null ? 
-	                        String.join("|", user.getProductList()) : "";
-	                    
+	                    String productsStr = user.getProductList() != null ? String.join("|", user.getProductList()) : "";	                   
 	                    String birthDateStr = user.getBirthDate() != null ? user.getBirthDate().toString() : "";
 	                    String descriptionStr = user.getDescription() != null ? user.getDescription() : "";
 	                    String profilePictureStr = user.getProfilePicture() != null ? user.getProfilePicture() : "";
@@ -289,18 +287,39 @@ public class UserDAO {
     }
     
     public User updateUser(String id, UserDTO updated, String contextPath) {
-        System.out.println("updateUser called for id: " + id);
         User u = users.get(id);
         if (u == null) {
-            System.out.println("User not found!");
             return null; 
         }
 
         if (updated.getDescription() != null) {
-            System.out.println("Updating description: " + updated.getDescription());
             u.setDescription(updated.getDescription());
         }
+        
+        if (updated.getFirstName() != null) {
+        	u.setFirstName(updated.getFirstName());
+        }
+        
+        if (updated.getLastName() != null) {
+        	u.setLastName(updated.getLastName());
+        }
 
+        if (updated.getUsername() != null) {
+        	u.setUsername(updated.getUsername());
+        }
+        
+        if (updated.getPhoneNumber() != null) {
+        	u.setPhoneNumber(updated.getPhoneNumber());
+        }
+        
+        if (updated.getBirthDate() != null) {
+        	u.setBirthDate(updated.getBirthDate());
+        }
+
+        if (updated.getPassword() != null) {
+        	u.setPassword(updated.getPassword());
+        }
+        
         try {
             editFileUser(u, contextPath);
             System.out.println("File updated successfully.");
