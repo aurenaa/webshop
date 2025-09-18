@@ -229,14 +229,10 @@ public class UserDAO {
         }
         user.getProductList().add(productId);
         editFileUser(user, contextPath);
-        //if (user.getRole() == Role.BUYER) {
-        //    user.setRole(Role.SELLER);
-        //}
 	}
 
 	public void editFileUser(User user, String contextPath) {
 	    File file = new File(contextPath + "/users.txt");
-	    System.out.println("Editing users file: " + file.getAbsolutePath());
 
 	    try {
 	        List<String> lines = new ArrayList<>();
@@ -251,13 +247,6 @@ public class UserDAO {
 	                    String birthDateStr = user.getBirthDate() != null ? user.getBirthDate().toString() : "";
 	                    String descriptionStr = user.getDescription() != null ? user.getDescription() : "";
 	                    String profilePictureStr = user.getProfilePicture() != null ? user.getProfilePicture() : "";
-
-	                    System.out.println("Updating user line:");
-	                    System.out.println("ID: " + user.getId());
-	                    System.out.println("Profile picture: " + profilePictureStr);
-	                    System.out.println("Products: " + productsStr);
-	                    System.out.println("Description: " + descriptionStr);
-	                    System.out.println("BirthDate: " + birthDateStr);
 
 	                    String newLine = String.format("%s;%s;%s;%s;%s;%s;%s;%s;%b;%s;%s;%s;%s",
 	                        user.getId(),
@@ -287,9 +276,7 @@ public class UserDAO {
 	                writer.println(l);
 	            }
 	        }
-	        System.out.println("Users file successfully updated.");
 	    } catch (Exception e) {
-	        System.out.println("Exception during editFileUser: " + e.getMessage());
 	        e.printStackTrace();
 	    }
 	}
@@ -362,15 +349,10 @@ public class UserDAO {
             while ((bytesRead = fileInputStream.read(buffer)) != -1) out.write(buffer, 0, bytesRead);
         }
 
-        System.out.println("Saved file: " + outputFile.getAbsolutePath());
-
         User u = users.get(userId);
         if (u != null) {
             u.setProfilePicture(newFileName);
-            System.out.println("Set profile picture for user: " + userId + " -> " + newFileName);
             editFileUser(u, contextPath);
-        } else {
-            System.out.println("User not found: " + userId);
         }
 
         return newFileName;

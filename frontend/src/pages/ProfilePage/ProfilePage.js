@@ -8,7 +8,7 @@ import "./ProfilePage.css";
 export default function ProfilePage() {
   const { user, setUser } = useUser();
   const navigate = useNavigate();
-  const { isLoggedIn, logout } = useAuthorize();
+  const { isLoggedIn, logout, setIsLoggedIn } = useAuthorize();
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState(null);
@@ -50,6 +50,11 @@ export default function ProfilePage() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEditedUser((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    navigate('/mainpage');
   };
 
   const handleSaveClick = async () => {
@@ -116,8 +121,17 @@ export default function ProfilePage() {
       <button onClick={() => navigate("/add-product")} className="btn btn-success me-2">Add a Listing</button>
         {isLoggedIn ? (
           <>
-            <img src="/icons/shopping_cart.png" alt="Cart" style={{ width: "30px", height: "30px", marginRight: "15px", cursor: "pointer" }} onClick={() => navigate("/cart")}/>
-            <img src="/icons/account_circle.png" alt="User" style={{ width: "30px", height: "30px", cursor: "pointer" }} onClick={() => navigate("/profile")}/>
+            <img className="cart" src="/icons/shopping_cart.png" alt="Cart" onClick={() => navigate("/cart")}/>
+            <div className="dropdown">
+                <button className="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                  <img className="menu" src="/icons/menu.png" alt="Menu"/>
+                </button>
+                <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <li><a className="dropdown-item" onClick={() => navigate("/profile")}>My account</a></li>
+                  <li><a className="dropdown-item" onClick={() => navigate("/listingpage")}>My listings</a></li>
+                  <li><a className="dropdown-item" onClick={handleLogout}>Log out</a></li>
+                </ul>
+              </div>
           </>
         ) : (
           <>
@@ -128,17 +142,6 @@ export default function ProfilePage() {
               Log in
             </span>
           </>
-        )}
-        {isLoggedIn && (
-          <span onClick={() => {
-              logout();
-              navigate("/");
-            }}
-            className="nav-link ms-3" 
-            style={{ cursor: "pointer" }}
-          >
-            Log out
-          </span>
         )}
       </div>
         </nav>

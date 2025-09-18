@@ -39,7 +39,7 @@ public class User implements Serializable {
 	    this.email = email;
 	    this.phoneNumber = phoneNumber;
 	    this.password = password;
-	    this.role = Role.BUYER;
+	    this.role = role;
 	    this.blocked = blocked;
 	    this.birthDate = null;
 	    this.profilePicture = null;

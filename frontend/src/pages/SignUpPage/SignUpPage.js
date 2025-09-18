@@ -13,11 +13,12 @@ export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
+  const [type, setType] = useState("");
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    if (!username || !firstName || !lastName || !email || !phone || !password) {
+    if (!username || !firstName || !lastName || !email || !phone || !password || !type) {
       setMessage("Please fill all fields.");
       return;
     }
@@ -30,7 +31,7 @@ export default function SignUpPage() {
         email,
         phoneNumber: phone,
         password,
-        role: "BUYER",
+        type,
         blocked: false
       });
 
@@ -50,6 +51,14 @@ export default function SignUpPage() {
       <div className="form-border">
         <form className="register-form" onSubmit={handleRegister}>
           <h3>Register</h3>
+          <div className="user-type-selector">
+            <button type="button" onClick={() => setType("BUYER")} className={`type-button ${type === "BUYER" ? "active" : ""}`}>
+              Buyer
+            </button>
+            <button type="button" onClick={() => setType("SELLER")} className={`type-button ${type === "SELLER" ? "active" : ""}`}>
+              Seller
+            </button>
+          </div>
           <input
             type="text"
             value={username}
