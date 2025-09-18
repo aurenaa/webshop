@@ -60,7 +60,7 @@ public class ProductService {
 	    
 	    User user = userDAO.findById(p.getSellerId());
 	    if (user != null) {
-	    	userDAO.addProductId(user, product.getId());
+	    	userDAO.addProductId(user, product.getId(), ctx.getRealPath(""));
 	    	userDAO.editFileUser(user, ctx.getRealPath(""));
 	    }
 	    return product;

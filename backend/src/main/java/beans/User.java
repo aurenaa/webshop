@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.json.bind.annotation.JsonbDateFormat;
+
 
 public class User implements Serializable {
 	
@@ -16,6 +18,8 @@ public class User implements Serializable {
 	private String email;
 	private String phoneNumber;
 	private String password;
+	
+    @JsonbDateFormat(value = "yyyy-MM-dd")
     private LocalDate birthDate;        
     private String profilePicture; 
     private String description;   
@@ -136,8 +140,16 @@ public class User implements Serializable {
     	return birthDate; 
     }
     
-    public void setBirthDate(LocalDate date) { 
-    	this.birthDate = date; 
+    public void setBirthDate(String birthDateStr) {
+        if (birthDateStr == null || birthDateStr.isEmpty()) {
+            this.birthDate = null;
+        } else {
+            this.birthDate = LocalDate.parse(birthDateStr);
+        }
+    }
+    
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
     }
 
     public String getProfilePicture() { 

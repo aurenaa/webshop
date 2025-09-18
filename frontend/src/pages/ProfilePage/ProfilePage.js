@@ -22,9 +22,8 @@ export default function ProfilePage() {
   }, [user]);
 
   const handleProfileImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setProfileImage(e.target.files[0]);
-    }
+    const file = e.target.files[0];
+    if (file) setProfileImage(file);
   };
 
   const handleEditClick = () => {
@@ -55,39 +54,44 @@ export default function ProfilePage() {
 
   const handleSaveClick = async () => {
     try {
+      let updatedProfileImage = editedUser.profileImage;
+
       if (profileImage) {
         const formData = new FormData();
         formData.append("profileImage", profileImage);
-        await axios.patch(
-          `http://localhost:8080/WebShopAppREST/rest/users/${user.id}/upload-image`,
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
+        formData.append("id", user.id);
+
+        const res = await axios.post(
+          "http://localhost:8080/WebShopAppREST/users/upload-image",
+          formData
         );
+
+        updatedProfileImage = res.data.profileImage;
       }
 
       const payload = {
-        description: editedUser.description
+        firstName: editedUser.firstName,
+        lastName: editedUser.lastName,
+        username: editedUser.username,
+        email: editedUser.email,
+        phoneNumber: editedUser.phoneNumber,
+        birthDate: editedUser.birthDate || null,
+        description: editedUser.description,
+        password: editedUser.password && editedUser.password !== "" ? editedUser.password : undefined,
       };
-
-      if (
-        (editedUser.username !== user.username ||
-        editedUser.email !== user.email ||
-        (editedUser.password && editedUser.password !== "")) &&
-        !editedUser.currentPassword
-      ) {
-        setMessage("Please enter your current password to change username, email, or password.");
-        return;
-      }
 
       const response = await axios.patch(
         `http://localhost:8080/WebShopAppREST/rest/users/${user.id}`,
         payload
       );
 
-      setUser(response.data);
+      setUser({ ...response.data, profileImage: updatedProfileImage });
+      setEditedUser({ ...response.data, profileImage: updatedProfileImage });
+
       setMessage("Profile updated successfully!");
       setIsEditing(false);
       setProfileImage(null);
+
     } catch (error) {
       console.error(error);
       setMessage("Failed to update profile.");
@@ -197,11 +201,11 @@ export default function ProfilePage() {
             ) : (
               <div className="basic-info-container">
                 <div className="left-column">
-                  <img 
-                    src={user.profileImage ? `/images/profiles/${user.profileImage}` : "/icons/account_circle.png"} 
-                    alt="User" 
-                    className="account"
-                  />
+                <img
+                  src={editedUser?.profileImage ? `http://localhost:8080/WebShopAppREST/images/profiles/${editedUser.profileImage}` : "/icons/account_circle.png"}
+                  alt="User"
+                  className="account"
+                />
                   <div className="username-email">
                     <p>{user.username}</p>
                     <p>{user.email}</p>
