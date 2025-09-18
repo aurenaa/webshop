@@ -1,0 +1,50 @@
+.header {
+    background-color: rgb(238, 238, 238);
+    display: flex;
+    justify-content: start;
+    gap: 20px;
+    height: 80px;
+}
+
+.username {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.user-img {
+    margin-left: 30px;
+    width: 60px;
+    height: 60px;
+}
+
+.profile-details {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 160px;
+    margin-right: 60px;
+    margin-top: 10px;
+}
+
+.profile-click {
+    cursor: pointer;
+    font-weight: bolder;
+    color: gray;
+}
+
+.profile-click:hover {
+    color: black;
+    transform: translate(1px);
+}
+
+.profile-click.active {
+  color: black;
+}
+
+.search-img {
+    width: 25px;
+    height: 25px;
+}
+
+.tabel {
+    margin-left: 30px;
+}

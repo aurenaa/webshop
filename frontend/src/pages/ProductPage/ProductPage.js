@@ -134,12 +134,12 @@ export default function ProductPage() {
                 <span onClick={() => navigate("/mainpage")} className="navbar-brand">WebShop</span>
 
                 <div className="position-absolute start-50 translate-middle-x d-flex">
-                <input className="form-control me-2"
-                        type="search"
-                        placeholder="Search"
-                        aria-label="Search"
-                />
-                <button className="btn btn-outline-success" type="submit">Search</button>
+                    <input className="form-control me-2"
+                            type="search"
+                            placeholder="Search"
+                            aria-label="Search"
+                    />
+                    <button className="btn btn-outline-success" type="submit">Search</button>
                 </div>
                 
             <div className="d-flex align-items-center ms-auto">
