@@ -14,8 +14,13 @@ export default function ListingPage() {
   const { user } = useUser();
   const productsList = useProductsList() || [];
   const navigate = useNavigate();
-  const { isLoggedIn, setIsLoggedIn, logout } = useAuthorize();
+  const { isLoggedIn, setIsLoggedIn } = useAuthorize();
 
+	const handleLogout = () => {
+    setIsLoggedIn(false);
+    navigate('/mainpage');
+  };
+  
   useEffect(() => {
     dispatch({ type: "SET", payload: productsList });
   }, [productsList]);
@@ -25,7 +30,7 @@ export default function ListingPage() {
     return (
        <div className="main-page">
             <nav className="navbar navbar-expand-lg navbar-light bg-light px-3 position-relative">
-                <span onClick={() => navigate("/signup")} className="navbar-brand">WebShop</span>
+                <span onClick={() => navigate("/mainpage")} className="navbar-brand">WebShop</span>
 
                 <div className="position-absolute start-50 translate-middle-x d-flex">
                 <input className="form-control me-2"
@@ -47,8 +52,8 @@ export default function ListingPage() {
                         </button>
                         <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <li><a className="dropdown-item" onClick={() => navigate("/profile")}>My account</a></li>
-                        <li><a className="dropdown-item" href="#">My listings</a></li>
-                        <li><a className="dropdown-item" href="#">Log out</a></li>
+                        <li><a className="dropdown-item" onClick={() => navigate("/listings")}>My listings</a></li>
+                        <li><a className="dropdown-item" onClick={() => handleLogout}>Log out</a></li>
                         </ul>
                     </div>
                 </>

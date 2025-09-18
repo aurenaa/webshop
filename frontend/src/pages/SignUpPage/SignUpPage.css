@@ -21,3 +21,28 @@
     gap: 10px;
     align-items: center;
 }
+
+.user-type-selector {
+  display: flex;
+  border-radius: 17px;
+  border: 1px solid black;
+  width: 180px;
+  height: 35px;
+  overflow: hidden;
+}
+
+.type-button {
+  flex: 1;
+  border: none;
+  background-color: white;
+  cursor: pointer;
+}
+
+.type-button:hover {
+  background-color: #f0f0f0;
+}
+
+.type-button.active {
+  background-color: #0d6efd;
+  color: white;
+}

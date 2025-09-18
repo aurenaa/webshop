@@ -8,7 +8,7 @@ import "./ProfilePage.css";
 export default function ProfilePage() {
   const { user, setUser } = useUser();
   const navigate = useNavigate();
-  const { isLoggedIn, logout } = useAuthorize();
+  const { isLoggedIn, logout, setIsLoggedIn } = useAuthorize();
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState(null);
@@ -22,9 +22,8 @@ export default function ProfilePage() {
   }, [user]);
 
   const handleProfileImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setProfileImage(e.target.files[0]);
-    }
+    const file = e.target.files[0];
+    if (file) setProfileImage(file);
   };
 
   const handleEditClick = () => {
@@ -53,41 +52,51 @@ export default function ProfilePage() {
     setEditedUser((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    navigate('/mainpage');
+  };
+
   const handleSaveClick = async () => {
     try {
+      let updatedProfileImage = editedUser.profileImage;
+
       if (profileImage) {
         const formData = new FormData();
         formData.append("profileImage", profileImage);
-        await axios.patch(
-          `http://localhost:8080/WebShopAppREST/rest/users/${user.id}/upload-image`,
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
+        formData.append("id", user.id);
+
+        const res = await axios.post(
+          "http://localhost:8080/WebShopAppREST/users/upload-image",
+          formData
         );
+
+        updatedProfileImage = res.data.profileImage;
       }
 
       const payload = {
-        description: editedUser.description
+        firstName: editedUser.firstName,
+        lastName: editedUser.lastName,
+        username: editedUser.username,
+        email: editedUser.email,
+        phoneNumber: editedUser.phoneNumber,
+        birthDate: editedUser.birthDate || null,
+        description: editedUser.description,
+        password: editedUser.password && editedUser.password !== "" ? editedUser.password : undefined,
       };
-
-      if (
-        (editedUser.username !== user.username ||
-        editedUser.email !== user.email ||
-        (editedUser.password && editedUser.password !== "")) &&
-        !editedUser.currentPassword
-      ) {
-        setMessage("Please enter your current password to change username, email, or password.");
-        return;
-      }
 
       const response = await axios.patch(
         `http://localhost:8080/WebShopAppREST/rest/users/${user.id}`,
         payload
       );
 
-      setUser(response.data);
+      setUser({ ...response.data, profileImage: updatedProfileImage });
+      setEditedUser({ ...response.data, profileImage: updatedProfileImage });
+
       setMessage("Profile updated successfully!");
       setIsEditing(false);
       setProfileImage(null);
+
     } catch (error) {
       console.error(error);
       setMessage("Failed to update profile.");
@@ -112,8 +121,17 @@ export default function ProfilePage() {
       <button onClick={() => navigate("/add-product")} className="btn btn-success me-2">Add a Listing</button>
         {isLoggedIn ? (
           <>
-            <img src="/icons/shopping_cart.png" alt="Cart" style={{ width: "30px", height: "30px", marginRight: "15px", cursor: "pointer" }} onClick={() => navigate("/cart")}/>
-            <img src="/icons/account_circle.png" alt="User" style={{ width: "30px", height: "30px", cursor: "pointer" }} onClick={() => navigate("/profile")}/>
+            <img className="cart" src="/icons/shopping_cart.png" alt="Cart" onClick={() => navigate("/cart")}/>
+            <div className="dropdown">
+                <button className="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                  <img className="menu" src="/icons/menu.png" alt="Menu"/>
+                </button>
+                <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <li><a className="dropdown-item" onClick={() => navigate("/profile")}>My account</a></li>
+                  <li><a className="dropdown-item" onClick={() => navigate("/listingpage")}>My listings</a></li>
+                  <li><a className="dropdown-item" onClick={handleLogout}>Log out</a></li>
+                </ul>
+              </div>
           </>
         ) : (
           <>
@@ -124,17 +142,6 @@ export default function ProfilePage() {
               Log in
             </span>
           </>
-        )}
-        {isLoggedIn && (
-          <span onClick={() => {
-              logout();
-              navigate("/");
-            }}
-            className="nav-link ms-3" 
-            style={{ cursor: "pointer" }}
-          >
-            Log out
-          </span>
         )}
       </div>
         </nav>
@@ -197,11 +204,11 @@ export default function ProfilePage() {
             ) : (
               <div className="basic-info-container">
                 <div className="left-column">
-                  <img 
-                    src={user.profileImage ? `/images/profiles/${user.profileImage}` : "/icons/account_circle.png"} 
-                    alt="User" 
-                    className="account"
-                  />
+                <img
+                  src={editedUser?.profileImage ? `http://localhost:8080/WebShopAppREST/images/profiles/${editedUser.profileImage}` : "/icons/account_circle.png"}
+                  alt="User"
+                  className="account"
+                />
                   <div className="username-email">
                     <p>{user.username}</p>
                     <p>{user.email}</p>

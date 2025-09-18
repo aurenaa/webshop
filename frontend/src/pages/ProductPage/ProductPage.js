@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuthorize } from "../../contexts/AuthorizeContext";
+import { useUser } from "../../contexts/UserContext";
 import axios from "axios";
 import "./ProductPage.css";
 
 export default function ProductPage() {
     const navigate = useNavigate();
-    const { isLoggedIn } = useAuthorize();
+    const { isLoggedIn, setIsLoggedIn } = useAuthorize();
+    const { user } = useUser();
 
     const handleDeleteClick = async () =>
     {
@@ -57,6 +59,12 @@ export default function ProductPage() {
         setIsEditing(false);
         setEditedProduct(null);
     };
+
+    const handleLogout = () => {
+        setIsLoggedIn(false);
+        navigate('/mainpage');
+    };
+
 
     const handleAuctionClick = () => {
         if (product.saleType == "FIXED_PRICE") {
@@ -135,8 +143,8 @@ export default function ProductPage() {
                         </button>
                         <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <li><a className="dropdown-item" onClick={() => navigate("/profile")}>My account</a></li>
-                        <li><a className="dropdown-item" href="#">My listings</a></li>
-                        <li><a className="dropdown-item" href="#">Log out</a></li>
+                        <li><a className="dropdown-item" onClick={() => navigate("/listingpage")}>My listings</a></li>
+                        <li><a className="dropdown-item" onClick={() => handleLogout}>Log out</a></li>
                         </ul>
                     </div>
                 </>
@@ -188,15 +196,16 @@ export default function ProductPage() {
                             <p><strong>Date posted:</strong> {new Date(product.datePosted).toLocaleDateString()}</p>
                             <p><strong>Sale type:</strong> {product.saleType === "FIXED_PRICE" ? "Fixed price" : "Auction"}</p>
                             <div className="buttons">
-                                {
-                                    isLoggedIn && (
+                                {isLoggedIn && (user.id == product.sellerId) && (
                                         <>  
                                             <button onClick={handleEditClick} className="btn btn-primary me-2">Edit</button>
                                             <button onClick={handleDeleteClick} className="btn btn-danger">Delete</button>
-                                            <button onClick={handleAuctionClick} className="btn btn-primary">End auction</button>
+                                            {product.saleType === "AUCTION" && (
+                                                <button onClick={handleAuctionClick} className="btn btn-primary">End auction</button>
+                                            )}
+
                                         </>
-                                    )
-                                }
+                                )}
                             </div>
                         </>
                     )}
