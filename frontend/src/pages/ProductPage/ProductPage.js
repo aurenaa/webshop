@@ -101,6 +101,16 @@ export default function ProductPage() {
         endAuction();
     };
 
+    const [seller, setSeller] = useState(null);
+
+    useEffect(() => {
+    if (product?.sellerId) {
+        axios.get(`http://localhost:8080/WebShopAppREST/rest/users/${product.sellerId}`)
+        .then(res => setSeller(res.data))
+        .catch(err => console.error("Error fetching seller", err));
+    }
+    }, [product]);
+
     useEffect(() => {
         const fetchProduct = async () => {
         try {
@@ -190,21 +200,46 @@ export default function ProductPage() {
                     ) : (
                         <>
                             <h2>{product.name}</h2>
-                            <p><strong>Price:</strong> {product.price} RSD</p>
+                            <div className="seperator"></div>
+                            <div className="user">
+                                <img className="user-img" src={user?.profileImage ? `http://localhost:8080/WebShopAppREST/images/profiles/${user.profileImage}` : "/icons/account_circle.png"}/>
+                                <div
+                                    onClick={() =>
+                                    user?.id === product.sellerId
+                                        ? navigate("/profile")
+                                        : navigate(`/user/${product.sellerId}`)
+                                    }
+                                    className="username"
+                                >
+                                    <strong>{user?.id === product.sellerId ? user.username : seller?.username || "Unknown user"}</strong>
+                                </div>
+                            </div>
+                            <div className="seperator"></div>
+                            <p><strong>{product.price} RSD</strong></p>
                             <p><strong>Category:</strong> {product.category}</p>
+                            <p><strong>Description:</strong></p>
                             <p>{product.description}</p>
                             <p><strong>Date posted:</strong> {new Date(product.datePosted).toLocaleDateString()}</p>
                             <p><strong>Sale type:</strong> {product.saleType === "FIXED_PRICE" ? "Fixed price" : "Auction"}</p>
                             <div className="buttons">
-                                {isLoggedIn && (user.id == product.sellerId) && (
+                                {isLoggedIn && (user.id == product.sellerId) ? (
                                         <>  
                                             <button onClick={handleEditClick} className="btn btn-primary me-2">Edit</button>
                                             <button onClick={handleDeleteClick} className="btn btn-danger">Delete</button>
                                             {product.saleType === "AUCTION" && (
                                                 <button onClick={handleAuctionClick} className="btn btn-primary">End auction</button>
                                             )}
-
                                         </>
+                                ) : (
+                                    <>
+                                        {product.saleType === "AUCTION" ? (
+                                            <button onClick={() => isLoggedIn ? navigate("/offer") : navigate("/login")} className="btn btn-primary">Make offer</button>
+                                        ) : (
+                                            <button onClick={() => isLoggedIn ? navigate("/offer") : navigate("/login")} className="btn btn-primary">Buy it now</button>                                            
+                                        )}    
+                                        <button onClick={() => isLoggedIn ? navigate("/offer") : navigate("/login")} className="btn btn-primary">Add to cart</button>
+                                        <button onClick={() => isLoggedIn ? navigate("/offer") : navigate("/login")} className="btn btn-danger">Add to wishlist</button>                               
+                                    </>
                                 )}
                             </div>
                         </>
