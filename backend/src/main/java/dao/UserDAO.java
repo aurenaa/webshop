@@ -185,10 +185,11 @@ public class UserDAO {
 	        String productsStr = user.getProductList() != null ? String.join("|", user.getProductList()) : "";
 	        String birthDateStr = user.getBirthDate() != null ? user.getBirthDate().toString() : "";
 	        String descriptionStr = user.getDescription() != null ? user.getDescription() : "";
-
+	        String profilePictureStr = user.getProfilePicture() != null ? user.getProfilePicture() : "";
+	        
 	        try (PrintWriter out = new PrintWriter(new FileWriter(file, true))) {
 	            out.println();
-	            out.println(String.format("%s;%s;%s;%s;%s;%s;%s;%s;%b;%s;%s;%s",
+	            out.println(String.format("%s;%s;%s;%s;%s;%s;%s;%s;%b;%s;%s;%s;%s",
 	                    user.getId(),
 	                    user.getFirstName(),
 	                    user.getLastName(),
@@ -200,7 +201,8 @@ public class UserDAO {
 	                    user.isBlocked(),           
 	                    birthDateStr,      
 	                    descriptionStr,
-	                    productsStr
+	                    productsStr,
+	                    profilePictureStr
 	            ));
 	        }
 	    } catch (Exception ex) {
@@ -214,9 +216,9 @@ public class UserDAO {
 	        int idNum = Integer.parseInt(id);
 	        if (idNum > maxId) maxId = idNum;
 	    }
+	    
 	    int newId = maxId + 1;
 	    user.setId(String.valueOf(newId));
-	    
 	    users.put(user.getId(), user);
 		return user;
 	}
@@ -227,13 +229,11 @@ public class UserDAO {
         }
         user.getProductList().add(productId);
         editFileUser(user, contextPath);
-        //if (user.getRole() == Role.BUYER) {
-        //    user.setRole(Role.SELLER);
-        //}
 	}
 
 	public void editFileUser(User user, String contextPath) {
 	    File file = new File(contextPath + "/users.txt");
+
 	    try {
 	        List<String> lines = new ArrayList<>();
 	        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -247,8 +247,8 @@ public class UserDAO {
 	                    String birthDateStr = user.getBirthDate() != null ? user.getBirthDate().toString() : "";
 	                    String descriptionStr = user.getDescription() != null ? user.getDescription() : "";
 	                    String profilePictureStr = user.getProfilePicture() != null ? user.getProfilePicture() : "";
-	                    
-	                    String newLine = String.format("%s;%s;%s;%s;%s;%s;%s;%s;%b;%s;%s;%s",
+
+	                    String newLine = String.format("%s;%s;%s;%s;%s;%s;%s;%s;%b;%s;%s;%s;%s",
 	                        user.getId(),
 	                        user.getFirstName(),
 	                        user.getLastName(),
@@ -264,11 +264,13 @@ public class UserDAO {
 	                        profilePictureStr
 	                    );
 	                    lines.add(newLine);
+	                    System.out.println("New line to write: " + newLine);
 	                } else {
 	                    lines.add(line);
 	                }
 	            }
 	        }
+
 	        try (PrintWriter writer = new PrintWriter(new FileWriter(file, false))) {
 	            for (String l : lines) {
 	                writer.println(l);
@@ -333,33 +335,26 @@ public class UserDAO {
     
     public String saveProfileImage(String userId, InputStream fileInputStream, String fileName, String contextPath) throws IOException {
         File uploadDir = new File(contextPath + "/images/profiles");
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
-            }
+        if (!uploadDir.exists()) uploadDir.mkdirs();
 
-            String ext = "";
-            int dotIndex = fileName.lastIndexOf('.');
-            if (dotIndex > 0) {
-                ext = fileName.substring(dotIndex);
-            }
-            String newFileName = "user_" + userId + ext;
+        String ext = "";
+        int dotIndex = fileName.lastIndexOf('.');
+        if (dotIndex > 0) ext = fileName.substring(dotIndex);
+        String newFileName = "user_" + userId + ext;
 
-            File outputFile = new File(uploadDir, newFileName);
+        File outputFile = new File(uploadDir, newFileName);
+        try (OutputStream out = new FileOutputStream(outputFile)) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = fileInputStream.read(buffer)) != -1) out.write(buffer, 0, bytesRead);
+        }
 
-            try (OutputStream out = new FileOutputStream(outputFile)) {
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = fileInputStream.read(buffer)) != -1) {
-                    out.write(buffer, 0, bytesRead);
-                }
-            }
+        User u = users.get(userId);
+        if (u != null) {
+            u.setProfilePicture(newFileName);
+            editFileUser(u, contextPath);
+        }
 
-            User u = users.get(userId);
-            if (u != null) {
-                u.setProfilePicture(newFileName); 
-                editFileUser(u, contextPath); 
-            }
-
-            return newFileName;
-     }
+        return newFileName;
+    }
 }

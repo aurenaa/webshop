@@ -18,9 +18,6 @@ import dao.UserDAO;
 import dto.AuctionEndDTO;
 import dto.UserDTO;
 
-import javax.servlet.annotation.MultipartConfig;
-
-@MultipartConfig
 @Path("/users")
 public class UserService {
 
@@ -67,9 +64,6 @@ public class UserService {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response endAuction(@PathParam("productId") String productId, AuctionEndDTO dto) {
-    	System.out.println("END AUCTION CALLED for product " + productId);
-    	System.out.println("Seller: " + dto.getSellerId() + ", Buyer: " + dto.getBuyerId());
-    	System.out.println("ProductDAO from context: " + ctx.getAttribute("productDAO"));
         String sellerId = dto.getSellerId();
         String buyerId = dto.getBuyerId();
     	UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
@@ -83,30 +77,4 @@ public class UserService {
     	productDAO.statusSold(productId, ctx.getRealPath(""));
     	return Response.status(201).entity("Auction ended successfully").build();
     }
-    
-    /*
-    @PATCH
-    @Path("/{id}/upload-image")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response uploadProfileImage(@PathParam("id") String id,
-                                       @Context HttpServletRequest request) {
-        UserDAO dao = (UserDAO) ctx.getAttribute("userDAO");
-        String contextPath = ctx.getRealPath("");
-
-        try {
-            Part filePart = request.getPart("profileImage");
-            try (InputStream fileInputStream = filePart.getInputStream()) {
-                String fileName = filePart.getSubmittedFileName();
-                dao.saveProfileImage(id, fileInputStream, fileName, contextPath);
-            }
-
-            return Response.ok(dao.findById(id)).build();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                           .entity("Failed to upload image").build();
-        }
-    }
-     */
 }

@@ -11,6 +11,7 @@ public class UserDTO {
 	private String password;
     private LocalDate birthDate;        
     private String description; 
+    private String profilePicture;
     
     public String getFirstName() {
 		return firstName;
@@ -75,4 +76,13 @@ public class UserDTO {
     public void setDescription(String description) { 
     	this.description = description;
     }
+    
+    public String getProfilePicture() { 
+    	return description;
+    }
+    
+    public void setProfilePicture(String profilePicture) { 
+    	this.profilePicture = profilePicture;
+    }
+    
 }
