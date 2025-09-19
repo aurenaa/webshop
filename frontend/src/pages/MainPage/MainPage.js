@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useProducts } from "../../contexts/ProductsContext";
+import { useUser } from "../../contexts/UserContext";
 import ProductTable from "./components/ProductTable";
 import { useProductsList } from "../../hooks/useProductsList";
 import { useAuthorize } from "../../contexts/AuthorizeContext";
@@ -13,7 +14,8 @@ export default function MainPage() {
   const productsList = useProductsList() || [];
   const navigate = useNavigate();
   const { isLoggedIn, setIsLoggedIn, logout } = useAuthorize();
-
+  const { user } = useUser();
+  
   useEffect(() => {
     dispatch({ type: "SET", payload: productsList });
   }, [productsList]);
@@ -47,7 +49,7 @@ export default function MainPage() {
                   <img className="menu" src="/icons/menu.png" alt="Menu"/>
                 </button>
                 <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <li><a className="dropdown-item" onClick={() => navigate("/profile")}>My account</a></li>
+                  <li><a className="dropdown-item" onClick={() => navigate(`/profile/${user.id}`)}>My account</a></li>
                   <li><a className="dropdown-item" onClick={() => navigate("/listingpage")}>My listings</a></li>
                   <li><a className="dropdown-item" onClick={handleLogout}>Log out</a></li>
                 </ul>

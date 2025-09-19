@@ -16,14 +16,14 @@ export default function ListingPage() {
   const navigate = useNavigate();
   const { isLoggedIn, setIsLoggedIn } = useAuthorize();
 
-	const handleLogout = () => {
-    setIsLoggedIn(false);
-    navigate('/mainpage');
-  };
+    const handleLogout = () => {
+        setIsLoggedIn(false);
+        navigate('/mainpage');
+    };
   
-  useEffect(() => {
-    dispatch({ type: "SET", payload: productsList });
-  }, [productsList]);
+    useEffect(() => {
+        dispatch({ type: "SET", payload: productsList });
+    }, [productsList]);
 
   const userProducts = isLoggedIn ? products.filter(p => p.sellerId === user.id) : [];
    
