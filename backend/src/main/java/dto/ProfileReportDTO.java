@@ -2,18 +2,17 @@ package dto;
 
 import java.util.Date;
 
-public class ReviewDTO {
+public class ProfileReportDTO  {
 	private String id;
 	private String reviewerId;
 	private String reviewedUserId;
-	private String reviewerUsername;
 	private int rating;
 	private String comment;
 	private Date date;
+    
+	public ProfileReportDTO() { }
 	
-	public ReviewDTO() {}
-	
-	public ReviewDTO(String id, String reviewerId, String reviewedUserId, int rating, String comment, Date date) {
+	public ProfileReportDTO(String id, String reviewerId, String reviewedUserId, int rating, String comment, Date date) {
 		this.id = id;
 		this.reviewerId = reviewerId;
 		this.reviewedUserId = reviewedUserId;
@@ -68,13 +67,5 @@ public class ReviewDTO {
     
     public Date getDate() {
     	return date;
-    }
-    
-    public String getReviewerUsername() {
-        return reviewerUsername;
-    }
-    
-    public void setReviewerUsername(String reviewerUsername) {
-    	this.reviewerUsername = reviewerUsername;
     }
 }

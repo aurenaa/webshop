@@ -181,7 +181,7 @@ export default function UserProfilePage() {
                                 </div>
                                 <div className="rating">
                                     <div>Average rating:</div>
-                                    <div>{userProfile.averageRating?.toFixed(1) || "0.0"}</div>
+                                    <div>{userProfile.rating?.toFixed(1) || "0.0"}</div>
                                     {user?.role === "SELLER" && canReviewBuyer() && (
                                         <button className="btn btn-secondary btn-sm review-button" onClick={() => openReviewModal(userProfile)}>
                                             Review Buyer
@@ -289,7 +289,7 @@ export default function UserProfilePage() {
                                 </div>
                                 <div className="rating">
                                     <div>Average rating:</div>
-                                    <div>{userProfile.averageRating?.toFixed(1) || "0.0"}</div>
+                                    <div>{userProfile.rating?.toFixed(1) || "0.0"}</div>
                                     {user?.role === "SELLER" && canReviewBuyer() && (
                                         <button className="btn btn-secondary btn-sm review-button" onClick={() => openReviewModal(userProfile)}>
                                             Review Buyer
