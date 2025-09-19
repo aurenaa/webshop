@@ -12,6 +12,7 @@ public class UserDTO {
     private LocalDate birthDate;        
     private String description; 
     private String profilePicture;
+    private double averageRating;
     
     public String getFirstName() {
 		return firstName;
@@ -85,4 +86,11 @@ public class UserDTO {
     	this.profilePicture = profilePicture;
     }
     
+    public double getAverageRating() { 
+    	return averageRating;
+    }
+    
+    public void setAverageRating(double averageRating) { 
+    	this.averageRating = averageRating;
+    }    
 }

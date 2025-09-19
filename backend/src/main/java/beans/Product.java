@@ -15,7 +15,7 @@ public class Product {
     private String sellerId;
     private List<Bid> bids;
     private Status status;
-
+    
     public enum SaleType {
     	FIXED_PRICE,
         AUCTION
@@ -129,6 +129,7 @@ public class Product {
     public Status getStatus() { 
     	return status; 
     }
+    
     public void setStatus(Status status) { 
     	this.status = status; 
     }

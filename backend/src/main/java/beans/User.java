@@ -7,6 +7,8 @@ import java.util.List;
 
 import javax.json.bind.annotation.JsonbDateFormat;
 
+import dto.ReviewDTO;
+
 
 public class User implements Serializable {
 	
@@ -26,6 +28,10 @@ public class User implements Serializable {
     private Role role;          
     private boolean blocked; 
     private List<String> productList;
+    
+    private List<String> reviewsReceived;
+    private double averageRating;
+    private List<ReviewDTO> feedback;
     
 	public User() {
 	}
@@ -64,7 +70,8 @@ public class User implements Serializable {
     }
     
     public User(String id, String firstName, String lastName, String username, String email, String phoneNumber,
-            String password, Role role, boolean blocked, List<String> productList, LocalDate birthDate, String description, String profilePicture) {
+            String password, Role role, boolean blocked, List<String> productList, LocalDate birthDate, String description, 
+            String profilePicture, Double averageRating, List<String> reviewsReceived) {
     this.id = id;
     this.firstName = firstName;
     this.lastName = lastName;
@@ -78,6 +85,8 @@ public class User implements Serializable {
     this.birthDate = birthDate;
     this.description = description;
     this.profilePicture = profilePicture;
+    this.averageRating = averageRating;
+    this.reviewsReceived = reviewsReceived;
 }
     
     public String getId() {
@@ -191,6 +200,29 @@ public class User implements Serializable {
 	    return productList;
 	}
 	
+    public void setReviewsList(ArrayList<String> reviewsReceived) {
+    	this.reviewsReceived = reviewsReceived;
+    }
+    
+	public List<String> getReviewsList() {
+	    return reviewsReceived;
+	}
+	
+    public double getRating() {
+    	return averageRating;
+    }
+
+    public void setRating(double averageRating) {
+    	this.averageRating = averageRating;
+    }	
+    
+    public List<ReviewDTO> getFeedback() { 
+    	return feedback;
+    }
+    
+    public void setFeedback(List<ReviewDTO> feedback) {
+    	this.feedback = feedback;
+    }
 
 	@Override
 	public int hashCode() {

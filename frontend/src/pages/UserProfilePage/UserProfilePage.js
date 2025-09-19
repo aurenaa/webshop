@@ -10,24 +10,43 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import "./UserProfilePage.css";
 
 export default function UserProfilePage() {
-    const { user, userLoggedIn } = useUser();
+    const { user } = useUser();
     const navigate = useNavigate();
     const { isLoggedIn, setIsLoggedIn } = useAuthorize();
     const [userProfile, setUserProfile] = useState(null);
     const { id } = useParams();
-    const [product] = useState(null);
     const { products } = useProducts();
     const [activeTab, setActiveTab] = useState("items");
 
+    const [showReviewModal, setShowReviewModal] = useState(false);
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [showOthers, setShowOthers] = useState(false);
+    const [reviewScore, setReviewScore] = useState(5);
+    const [reviewComment, setReviewComment] = useState("");
+    const [reviewTargetUser, setReviewTargetUser] = useState(null);
+    const [selectedValue, setSelectedValue] = useState('');
+
+    const openReviewModal = (userToReview) => {
+        setReviewTargetUser(userToReview);
+        setReviewScore(5);   
+        setReviewComment("");     
+        setShowReviewModal(true);  
+    };
+
+    const openReportModal = (userToReview) => {
+        setReviewTargetUser(userToReview);   
+        setShowReportModal(true);     
+    }
+
     useEffect(() => {
-        if (isLoggedIn && Number(id) === userLoggedIn.id) {
-            setUserProfile(userLoggedIn);
-            } else {
-            axios.get(`http://localhost:8080/WebShopAppREST/rest/users/${id}`)
+        if (isLoggedIn && user && Number(id) === user.id) {
+            setUserProfile(user);
+        } else {
+            axios.get(`http://localhost:8080/WebShopAppREST/rest/users/${id}/withFeedback`)
                 .then(res => setUserProfile(res.data))
                 .catch(err => console.error("Error fetching user", err));
-            }
-    }, [id, isLoggedIn, userLoggedIn]);
+        }
+    }, [id, isLoggedIn, user]);
 
     const userProducts = useMemo(() => {
         if (!userProfile) return [];
@@ -40,9 +59,71 @@ export default function UserProfilePage() {
         return products.filter(p => productIds.includes(p.id));
     }, [userProfile, products]);
 
+
+    const canReviewBuyer = () => {
+        if (!user || !userProfile) return false;
+        if (user.role !== "SELLER") return false;
+
+        return userProfile.productList
+            .map(pid => products.find(p => p.id === pid))
+            .some(p => p && p.sellerId === user.id && !p.buyerReviewed);
+    };
+
+    const canReviewSeller = () => {
+        if (!user || !userProfile) return false;
+        if (user.role !== "BUYER") return false;
+
+        return userProfile.productList
+            .map(pid => products.find(p => p.id === pid))
+            .some(p => p && p.sellerId === userProfile.id && !p.sellerReviewed);
+    };
+
+    const canReportBuyer = () => {
+        if (!user || !userProfile) return false;
+        if (user.role !== "SELLER") return false;
+
+        return userProfile.productList
+            .map(pid => products.find(p => p.id === pid))
+            .some(p => p && p.sellerId === user.id);
+    };
+
+    const canReportSeller = () => {
+        if (!user || !userProfile) return false;
+        if (user.role !== "BUYER") return false;
+
+        return userProfile.productList
+            .map(pid => products.find(p => p.id === pid))
+            .some(p => p && p.sellerId === userProfile.id);
+    };
+
     const handleLogout = () => {
         setIsLoggedIn(false);
         navigate('/mainpage');
+    };
+
+    const handleDropdownChange = (event) => {
+        setSelectedValue(event.target.value);
+        if (event.target.value === '5') {
+            setShowOthers(true);
+        }
+        else {
+            setShowOthers(false);
+        }
+    };
+
+    const submitReview = () => {
+        if (!reviewTargetUser) return;
+        axios.post(`http://localhost:8080/WebShopAppREST/rest/users/reviews`, {
+            reviewerId: user.id,
+            reviewedUserId: reviewTargetUser.id,
+            rating: reviewScore,
+            comment: reviewComment
+        })
+        .then(res => {
+            console.log("Review submitted:", res.data);
+            setShowReviewModal(false);
+        })
+        .catch(err => console.error(err));
     };
 
     return (
@@ -87,7 +168,6 @@ export default function UserProfilePage() {
                     )}
                 </div>
             </nav>
-            
             {userProfile && (
                 <>
                     {userProfile.role === "SELLER" && (
@@ -101,7 +181,31 @@ export default function UserProfilePage() {
                                 </div>
                                 <div className="rating">
                                     <div>Average rating:</div>
-                                    <div>4.7</div>
+                                    <div>{userProfile.averageRating?.toFixed(1) || "0.0"}</div>
+                                    {user?.role === "SELLER" && canReviewBuyer() && (
+                                        <button className="btn btn-secondary btn-sm review-button" onClick={() => openReviewModal(userProfile)}>
+                                            Review Buyer
+                                        </button>
+                                    )}
+
+                                    {user?.role === "BUYER" && canReviewSeller() && (
+                                        <button className="btn btn-secondary btn-sm review-button" onClick={() => openReviewModal(userProfile)}>
+                                            Review Seller
+                                        </button>
+                                    )}
+                                </div>
+                                <div className="report">
+                                    {user?.role === "SELLER" && canReportBuyer() && (
+                                        <button className="btn btn-danger btn-sm review-button" onClick={() => openReportModal(userProfile)}>
+                                            Report
+                                        </button>
+                                    )}
+
+                                    {user?.role === "BUYER" && canReportSeller() && (
+                                        <button className="btn btn-danger btn-sm review-button" onClick={() => openReportModal(userProfile)}>
+                                            Report
+                                        </button>
+                                    )}                                    
                                 </div>
                             </div>
                             <div className="profile-details">
@@ -153,14 +257,23 @@ export default function UserProfilePage() {
                                     <p>{userProfile?.email || "No information provided."}</p>
                                 </div>
                             )}
-
                             {activeTab === "feedback" && (
-                                <div>
-                                {userProfile?.feedback?.map(f => (
-                                    <div key={f.id}>{f.comment}</div>
-                                ))}
-                                </div>
-                            )}
+                            <div className="feedback-section">
+                                {userProfile?.feedback && userProfile.feedback.length > 0 ? (
+                                    userProfile.feedback.map(f => (
+                                        <div key={f.id} className="feedback-item mb-3 p-2 border rounded">
+                                            <div className="d-flex justify-content-between align-items-center">
+                                                <strong>{f.reviewerUsername}</strong>
+                                                <span>Rating: {f.rating}/5</span>
+                                            </div>
+                                            <div className="comment">{f.comment}</div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p>No feedback yet.</p>
+                                )}
+                            </div>
+                        )}
                             </div>
                         </div>
                     )}
@@ -176,7 +289,31 @@ export default function UserProfilePage() {
                                 </div>
                                 <div className="rating">
                                     <div>Average rating:</div>
-                                    <div>4.7</div>
+                                    <div>{userProfile.averageRating?.toFixed(1) || "0.0"}</div>
+                                    {user?.role === "SELLER" && canReviewBuyer() && (
+                                        <button className="btn btn-secondary btn-sm review-button" onClick={() => openReviewModal(userProfile)}>
+                                            Review Buyer
+                                        </button>
+                                    )}
+
+                                    {user?.role === "BUYER" && canReviewSeller() && (
+                                        <button className="btn btn-secondary btn-sm review-button" onClick={() => openReviewModal(userProfile)}>
+                                            Review Seller
+                                        </button>
+                                    )}
+                                </div>
+                                <div className="report">
+                                    {user?.role === "SELLER" && canReportBuyer() && (
+                                        <button className="btn btn-danger btn-sm me-2 review-button" onClick={() => openReportModal(userProfile)}>
+                                            Report
+                                        </button>
+                                    )}
+
+                                    {user?.role === "BUYER" && canReportSeller() && (
+                                        <button className="btn btn-danger btn-sm me-2 review-button" onClick={() => openReportModal(userProfile)}>
+                                            Report
+                                        </button>
+                                    )}                                    
                                 </div>
                             </div>
                             <div className="profile-details">
@@ -219,17 +356,90 @@ export default function UserProfilePage() {
                             )}
 
                             {activeTab === "feedback" && (
-                                <div>
-                                {userProfile?.feedback?.map(f => (
-                                    <div key={f.id}>{f.comment}</div>
-                                ))}
-                                </div>
-                            )}
+                            <div className="feedback-section">
+                                {userProfile?.feedback && userProfile.feedback.length > 0 ? (
+                                    userProfile.feedback.map(f => (
+                                        <div key={f.id} className="feedback-item mb-3 p-2 border rounded">
+                                            <div className="d-flex justify-content-between align-items-center">
+                                                <strong>{f.reviewerUsername}</strong>
+                                                <span>Rating: {f.rating}/5</span>
+                                            </div>
+                                            <div className="mt-1">{f.comment}</div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p>No feedback yet.</p>
+                                )}
+                            </div>
+                        )}
                             </div>
                         </div>
                     )}
                 </>
             )}
+            {showReviewModal && (
+            <>
+            <div className="modal-overlay"
+                onClick={() => setShowReviewModal(false)}/>
+                <div className="modal show d-block" tabIndex="-1">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Leave a Review for {reviewTargetUser.username}</h5>
+                                <button type="button" className="btn-close" onClick={() => setShowReviewModal(false)}></button>
+                            </div>
+                            <div className="modal-body">
+                                <label>Score (1-5):</label>
+                                <input type="number" min="1" max="5" value={reviewScore} onChange={e => setReviewScore(Number(e.target.value))} className="form-control mb-2"/>
+                                <label>Comment:</label>
+                                <textarea value={reviewComment} onChange={e => setReviewComment(e.target.value)} className="form-control"/>
+                            </div>
+                            <div className="modal-footer">
+                                <button className="btn btn-secondary" onClick={() => setShowReviewModal(false)}>Cancel</button>
+                                <button className="btn btn-primary" onClick={submitReview}>Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </>
+            )}
+            {showReportModal && (
+            <>
+            <div className="modal-overlay"
+                onClick={() => setShowReportModal(false)}/>
+                <div className="modal show d-block" tabIndex="-1">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Report {reviewTargetUser.username}</h5>
+                                <button type="button" className="btn-close" onClick={() => setShowReportModal(false)}></button>
+                            </div>
+                            <div className="modal-body">
+                                <select value={selectedValue} onChange={handleDropdownChange} class="form-select" aria-label="Default select example">
+                                    <option selected>Reason for reporting</option>
+                                    <option value="1">Buyer did not pickup product</option>
+                                    <option value="2">Buyer did not pay for the product</option>
+                                    <option value="3">Buyer was unresponsive after purchase</option>
+                                    <option value="4">Buyer returned a damaged product</option>
+                                    <option value="4">Buyer violated platform rules</option>                                                                           
+                                    <option value="5">Other</option>
+                                </select>
+                                { showOthers && (
+                                    <div class="input-group">
+                                        <textarea class="form-control" aria-label="With textarea"></textarea>
+                                    </div>
+                                )};                                
+                            </div>
+                            <div className="modal-footer">
+                                <button className="btn btn-secondary" onClick={() => setShowReviewModal(false)}>Cancel</button>
+                                <button className="btn btn-primary" onClick={submitReview}>Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </>
+            )}
         </div>
+        
     );
 }

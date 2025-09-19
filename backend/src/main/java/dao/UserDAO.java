@@ -16,6 +16,7 @@ import java.util.List;
 import java.time.LocalDate;
 import java.util.Map;
 
+import beans.Review;
 import beans.User;
 import beans.User.Role;
 import dto.UserDTO;
@@ -82,7 +83,7 @@ public class UserDAO {
 
 	            String[] tokens = line.split(";", -1);
 	            
-	            if (tokens.length < 9) {
+	            if (tokens.length < 10) {
 	                System.err.println("Invalid line format: " + line);
 	                continue;
 	            }
@@ -165,7 +166,26 @@ public class UserDAO {
 	                profilePicture = tokens[12].trim();
 	            }
 	            
-	            users.put(id, new User(id, firstName, lastName, username, email, phoneNumber, password, role, blocked, productList, birthDate, description, profilePicture));
+	            double averageRating = 0.0;
+	            if (tokens.length > 13 && !tokens[13].trim().isEmpty()) {
+	                try {
+	                    averageRating = Double.parseDouble(tokens[13].trim());
+	                } catch (NumberFormatException e) {
+	                    System.err.println("Invalid average rating for user " + id + ": " + tokens[13].trim());
+	                }
+	            }
+	            
+	            List<String> reviewsReceived = new ArrayList<>();
+	            if (tokens.length > 14 && !tokens[14].trim().isEmpty()) {
+	                String reviewsStr = tokens[14].trim();
+	                for (String reviewId : reviewsStr.split(",")) {
+	                    if (!reviewId.trim().isEmpty()) {
+	                    	reviewsReceived.add(reviewId.trim());
+	                    }
+	                }
+	            }
+	            
+	            users.put(id, new User(id, firstName, lastName, username, email, phoneNumber, password, role, blocked, productList, birthDate, description, profilePicture, averageRating, reviewsReceived));
 	        }
 	    } catch (Exception ex) {
 	        ex.printStackTrace();
@@ -186,10 +206,12 @@ public class UserDAO {
 	        String birthDateStr = user.getBirthDate() != null ? user.getBirthDate().toString() : "";
 	        String descriptionStr = user.getDescription() != null ? user.getDescription() : "";
 	        String profilePictureStr = user.getProfilePicture() != null ? user.getProfilePicture() : "";
+	        String reviewsStr = user.getReviewsList() != null ? String.join(",", user.getReviewsList()) : "";
+	        double avgRating = user.getRating();
 	        
 	        try (PrintWriter out = new PrintWriter(new FileWriter(file, true))) {
 	            out.println();
-	            out.println(String.format("%s;%s;%s;%s;%s;%s;%s;%s;%b;%s;%s;%s;%s",
+	            out.println(String.format("%s;%s;%s;%s;%s;%s;%s;%s;%b;%s;%s;%s;%s;%s;%s",
 	                    user.getId(),
 	                    user.getFirstName(),
 	                    user.getLastName(),
@@ -202,7 +224,9 @@ public class UserDAO {
 	                    birthDateStr,      
 	                    descriptionStr,
 	                    productsStr,
-	                    profilePictureStr
+	                    profilePictureStr,
+	                    avgRating,
+	                    reviewsStr
 	            ));
 	        }
 	    } catch (Exception ex) {
@@ -230,7 +254,39 @@ public class UserDAO {
         user.getProductList().add(productId);
         editFileUser(user, contextPath);
 	}
+	
+	public void addReviewId(User user, String reviewId, String contextPath, ReviewDAO reviewDAO) {
+		if (user.getReviewsList() == null) {
+		    user.setReviewsList(new ArrayList<>());
+		}
+		if (!user.getReviewsList().contains(reviewId)) {
+		    user.getReviewsList().add(reviewId);
+		    calculateAverageRating(user, reviewDAO);
+		    editFileUser(user, contextPath);
+		}
+	}
 
+	public void calculateAverageRating(User user, ReviewDAO reviewDAO) {
+	    if (user.getReviewsList() == null || user.getReviewsList().isEmpty()) {
+	        user.setRating(0.0);
+	        return;
+	    }
+	    
+	    double sum = 0;
+	    int count = 0;
+
+	    for (String reviewId : user.getReviewsList()) {
+	        Review r = reviewDAO.findById(reviewId);
+	        if (r != null) {
+	            sum += r.getRating();
+	            count++;
+	        }
+	    }
+
+	    double average = count > 0 ? sum / count : 0.0;
+	    user.setRating(average);
+	}
+	
 	public void editFileUser(User user, String contextPath) {
 	    File file = new File(contextPath + "/users.txt");
 
@@ -247,8 +303,9 @@ public class UserDAO {
 	                    String birthDateStr = user.getBirthDate() != null ? user.getBirthDate().toString() : "";
 	                    String descriptionStr = user.getDescription() != null ? user.getDescription() : "";
 	                    String profilePictureStr = user.getProfilePicture() != null ? user.getProfilePicture() : "";
-
-	                    String newLine = String.format("%s;%s;%s;%s;%s;%s;%s;%s;%b;%s;%s;%s;%s",
+	                    String reviewsStr = user.getReviewsList() != null ? String.join(",", user.getReviewsList()) : "";
+	                    
+	                    String newLine = String.format("%s;%s;%s;%s;%s;%s;%s;%s;%b;%s;%s;%s;%s;%s;%s",
 	                        user.getId(),
 	                        user.getFirstName(),
 	                        user.getLastName(),
@@ -261,7 +318,9 @@ public class UserDAO {
 	                        birthDateStr,   
 	                        descriptionStr,
 	                        productsStr,
-	                        profilePictureStr
+	                        profilePictureStr,
+	                        user.getRating(),
+	                        reviewsStr
 	                    );
 	                    lines.add(newLine);
 	                    System.out.println("New line to write: " + newLine);

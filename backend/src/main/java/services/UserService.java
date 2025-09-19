@@ -1,10 +1,15 @@
 package services;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -12,10 +17,13 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import beans.Review;
 import beans.User;
 import dao.ProductDAO;
+import dao.ReviewDAO;
 import dao.UserDAO;
 import dto.AuctionEndDTO;
+import dto.ReviewDTO;
 import dto.UserDTO;
 
 @Path("/users")
@@ -76,5 +84,72 @@ public class UserService {
     	userDAO.addProductId(buyer, productId, ctx.getRealPath(""));
     	productDAO.statusSold(productId, ctx.getRealPath(""));
     	return Response.status(201).entity("Auction ended successfully").build();
+    }
+    
+    @POST
+    @Path("/reviews")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response submitReview(ReviewDTO dto) {
+        String reviewedUserId = dto.getReviewedUserId();
+        String reviewerId = dto.getReviewerId();
+        int rating = dto.getRating();
+        String comment = dto.getComment();
+
+        UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
+        ReviewDAO reviewDAO = new ReviewDAO(ctx.getRealPath(""));
+
+        User reviewedUser = userDAO.findById(reviewedUserId);
+        User reviewer = userDAO.findById(reviewerId);
+
+        if (reviewedUser == null || reviewer == null) {
+            return Response.status(404).entity("User not found").build();
+        }
+
+        Review review = new Review();
+        review.setReviewerId(reviewerId);
+        review.setReviewedUserId(reviewedUserId);
+        review.setRating(rating);
+        review.setComment(comment);
+        review.setDate(java.sql.Date.valueOf(LocalDate.now()));
+
+        review = reviewDAO.save(review);
+        reviewDAO.addReview(review, ctx.getRealPath(""));
+       
+        userDAO.addReviewId(reviewedUser, review.getId(), ctx.getRealPath(""), reviewDAO);
+        
+        return Response.status(201).entity(review).build();
+    }
+    
+    @GET
+    @Path("/{id}/withFeedback")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUserWithFeedback(@PathParam("id") String id) { 
+        UserDAO userDao = (UserDAO) ctx.getAttribute("userDAO");
+        ReviewDAO reviewDAO = new ReviewDAO(ctx.getRealPath(""));
+
+        User user = userDao.findById(id);
+        if (user == null) {
+            return Response.status(404).entity("User not found").build();
+        }
+
+        List<Review> reviewsForUser = reviewDAO.findReviewsByReviewedUser(id);
+
+        List<ReviewDTO> feedback = new ArrayList<>();
+        for (Review r : reviewsForUser) {
+            ReviewDTO dto = new ReviewDTO();
+            dto.setId(r.getId());
+            dto.setRating(r.getRating());
+            dto.setComment(r.getComment());
+            dto.setDate(r.getDate());
+
+            User reviewer = userDao.findById(r.getReviewerId());
+            dto.setReviewerUsername(reviewer != null ? reviewer.getUsername() : "Unknown");
+
+            feedback.add(dto);
+        }
+
+        user.setFeedback(feedback);
+        return Response.ok().entity(user).build();
     }
 }

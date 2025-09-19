@@ -224,7 +224,12 @@ export default function ProductPage() {
                             <div className="buttons">
                                 {isLoggedIn && (user.id == product.sellerId) ? (
                                         <>  
-                                            <button onClick={handleEditClick} className="btn btn-primary me-2">Edit</button>
+                                            { product.saleType === "AUCTION" && product.bids.length == 0 && (
+                                                <button onClick={handleEditClick} className="btn btn-primary me-2">Edit</button>
+                                            )}
+                                            { product.saleType === "FIXED_PRICE" && (
+                                                <button onClick={handleEditClick} className="btn btn-primary me-2">Edit</button>
+                                            )}                                            
                                             <button onClick={handleDeleteClick} className="btn btn-danger">Delete</button>
                                             {product.saleType === "AUCTION" && (
                                                 <button onClick={handleAuctionClick} className="btn btn-primary">End auction</button>
