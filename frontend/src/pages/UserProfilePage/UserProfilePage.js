@@ -77,10 +77,10 @@ export default function UserProfilePage() {
 
     const submitReview = () => {
         if (!reviewTargetUser) return;
-        axios.post(`http://localhost:8080/WebShopAppREST/rest/reviews`, {
-            userId: reviewTargetUser.id,
+        axios.post(`http://localhost:8080/WebShopAppREST/rest/users/reviews`, {
             reviewerId: user.id,
-            score: reviewScore,
+            reviewedUserId: reviewTargetUser.id,
+            rating: reviewScore,
             comment: reviewComment
         })
         .then(res => {
@@ -210,10 +210,17 @@ export default function UserProfilePage() {
                             )}
 
                             {activeTab === "feedback" && (
-                                <div>
-                                {userProfile?.feedback?.map(f => (
-                                    <div key={f.id}>{f.comment}</div>
-                                ))}
+                            <div className="feedback-section">
+                                    {userProfile?.feedback && userProfile.feedback.length > 0 ? (
+                                        userProfile.feedback.map(f => (
+                                            <div key={f.id} className="feedback-item">
+                                                <strong>Rating: {f.rating}/5</strong>
+                                                <p>{f.comment}</p>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p>No feedback yet.</p>
+                                    )}
                                 </div>
                             )}
                             </div>
@@ -285,10 +292,17 @@ export default function UserProfilePage() {
                             )}
 
                             {activeTab === "feedback" && (
-                                <div>
-                                {userProfile?.feedback?.map(f => (
-                                    <div key={f.id}>{f.comment}</div>
-                                ))}
+                            <div className="feedback-section">
+                                    {userProfile?.feedback && userProfile.feedback.length > 0 ? (
+                                        userProfile.feedback.map(f => (
+                                            <div key={f.id} className="feedback-item">
+                                                <strong>Rating: {f.rating}/5</strong>
+                                                <p>{f.comment}</p>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p>No feedback yet.</p>
+                                    )}
                                 </div>
                             )}
                             </div>
@@ -297,6 +311,10 @@ export default function UserProfilePage() {
                 </>
             )}
             {showReviewModal && (
+            <>
+            <div className="modal-overlay"
+                onClick={() => setShowReviewModal(false)}
+                />
                 <div className="modal show d-block" tabIndex="-1">
                     <div className="modal-dialog">
                         <div className="modal-content">
@@ -317,7 +335,9 @@ export default function UserProfilePage() {
                         </div>
                     </div>
                 </div>
+            </>
             )}
         </div>
+        
     );
 }

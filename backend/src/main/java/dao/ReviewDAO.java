@@ -47,7 +47,7 @@ public class ReviewDAO {
 
 	            String[] tokens = line.split(";", -1);
 	            
-	            if (tokens.length < 7) {
+	            if (tokens.length < 6) {
 	                System.err.println("Invalid line format: " + line);
 	                continue;
 	            }
@@ -55,13 +55,12 @@ public class ReviewDAO {
 	            String id = tokens[0].trim();
 	            String reviewerId = tokens[1].trim();
 	            String reviewedUserId = tokens[2].trim();
-	            String productId = tokens[3].trim();
-	            String rating = tokens[4].trim();
-	            String comment = tokens[5].trim();
-	            String datePosted = tokens[6].trim();
+	            String rating = tokens[3].trim();
+	            String comment = tokens[4].trim();
+	            String datePosted = tokens[5].trim();
 	            
 	            Date date = java.sql.Date.valueOf(datePosted);
-	            reviews.put(id, new Review(id, reviewerId, reviewedUserId, productId, Integer.parseInt(rating), comment, date));
+	            reviews.put(id, new Review(id, reviewerId, reviewedUserId, Integer.parseInt(rating), comment, date));
 	        }
 	    } catch (Exception ex) {
 	        ex.printStackTrace();
@@ -81,16 +80,15 @@ public class ReviewDAO {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	        String dateStr = sdf.format(review.getDate());
 	        try (PrintWriter out = new PrintWriter(new FileWriter(file, true))) {
-	            out.println();
-	            out.println(String.format("%s;%s;%s;%s;%s;%s;%s",
+	            out.println(String.format("%s;%s;%s;%s;%s;%s",
 	            		review.getId(),
 	            		review.getReviewerId(),
 	            		review.getReviewedUserId(),
-	            		review.getProductId(),
 	            		review.getRating(),
 	            		review.getComment(),
 	            		dateStr
 	            ));
+	            out.println();
 	        }
 	    } catch (Exception ex) {
 	        ex.printStackTrace();
@@ -98,15 +96,19 @@ public class ReviewDAO {
 	}
 	
 	public Review save(Review review) {
-	    int maxId = -1;
-	    for (String id : reviews.keySet()) {
-	        int idNum = Integer.parseInt(id);
-	        if (idNum > maxId) maxId = idNum;
+	    int newId;
+	    if (reviews.isEmpty()) {
+	        newId = 1;
+	    } else {
+	        int maxId = reviews.keySet().stream()
+	                .mapToInt(Integer::parseInt)
+	                .max()
+	                .getAsInt();
+	        newId = maxId + 1;
 	    }
-	    int newId = maxId + 1;
 	    review.setId(String.valueOf(newId));
 	    review.setDate(java.sql.Date.valueOf(LocalDate.now()));
 	    reviews.put(review.getId(), review);
-		return review;
+	    return review;
 	}
 }

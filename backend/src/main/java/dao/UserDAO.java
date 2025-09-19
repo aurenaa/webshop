@@ -16,6 +16,7 @@ import java.util.List;
 import java.time.LocalDate;
 import java.util.Map;
 
+import beans.Review;
 import beans.User;
 import beans.User.Role;
 import dto.UserDTO;
@@ -253,7 +254,39 @@ public class UserDAO {
         user.getProductList().add(productId);
         editFileUser(user, contextPath);
 	}
+	
+	public void addReviewId(User user, String reviewId, String contextPath, ReviewDAO reviewDAO) {
+		if (user.getReviewsList() == null) {
+		    user.setReviewsList(new ArrayList<>());
+		}
+		if (!user.getReviewsList().contains(reviewId)) {
+		    user.getReviewsList().add(reviewId);
+		    calculateAverageRating(user, reviewDAO);
+		    editFileUser(user, contextPath);
+		}
+	}
 
+	public void calculateAverageRating(User user, ReviewDAO reviewDAO) {
+	    if (user.getReviewsList() == null || user.getReviewsList().isEmpty()) {
+	        user.setRating(0.0);
+	        return;
+	    }
+	    
+	    double sum = 0;
+	    int count = 0;
+
+	    for (String reviewId : user.getReviewsList()) {
+	        Review r = reviewDAO.findById(reviewId);
+	        if (r != null) {
+	            sum += r.getRating();
+	            count++;
+	        }
+	    }
+
+	    double average = count > 0 ? sum / count : 0.0;
+	    user.setRating(average);
+	}
+	
 	public void editFileUser(User user, String contextPath) {
 	    File file = new File(contextPath + "/users.txt");
 

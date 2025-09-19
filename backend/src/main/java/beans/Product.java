@@ -15,8 +15,6 @@ public class Product {
     private String sellerId;
     private List<Bid> bids;
     private Status status;
-    private boolean buyerReviewed;
-    private boolean sellerReviewed;
     
     public enum SaleType {
     	FIXED_PRICE,
@@ -43,7 +41,7 @@ public class Product {
         this.sellerId = sellerId;
     }
     
-    public Product(String id, String name, String description, String category, double price, SaleType saleType, Date datePosted, String sellerId, Status status, boolean buyerReviewd, boolean sellerReviewd, List<Bid> bids) {
+    public Product(String id, String name, String description, String category, double price, SaleType saleType, Date datePosted, String sellerId, Status status, List<Bid> bids) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -53,8 +51,6 @@ public class Product {
         this.datePosted = datePosted;
         this.sellerId = sellerId;
         this.status = status;
-        this.buyerReviewed = buyerReviewd;
-        this.sellerReviewed = sellerReviewed;
 	    this.bids = bids;
     }
 
@@ -136,21 +132,5 @@ public class Product {
     
     public void setStatus(Status status) { 
     	this.status = status; 
-    }
-    
-    public boolean getBuyerReviewed() { 
-    	return buyerReviewed; 
-    }
-    
-    public void setBuyerReviewed(boolean buyerReviewed) { 
-    	this.buyerReviewed = buyerReviewed; 
-    }
-    
-    public boolean getSellerReviewed() { 
-    	return sellerReviewed; 
-    }
-    
-    public void setSellerReviewed(boolean sellerReviewed) { 
-    	this.sellerReviewed = sellerReviewed; 
     }
 }

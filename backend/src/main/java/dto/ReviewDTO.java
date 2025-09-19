@@ -1,20 +1,18 @@
-package beans;
+package dto;
 
-import java.io.Serializable;
 import java.util.Date;
 
-
-public class Review implements Serializable {
+public class ReviewDTO {
 	private String id;
 	private String reviewerId;
 	private String reviewedUserId;
 	private int rating;
 	private String comment;
 	private Date date;
-    
-	public Review() { }
 	
-	public Review(String id, String reviewerId, String reviewedUserId, int rating, String comment, Date date) {
+	public ReviewDTO() {}
+	
+	public ReviewDTO(String id, String reviewerId, String reviewedUserId, int rating, String comment, Date date) {
 		this.id = id;
 		this.reviewerId = reviewerId;
 		this.reviewedUserId = reviewedUserId;
