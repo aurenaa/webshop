@@ -6,6 +6,7 @@ public class ReviewDTO {
 	private String id;
 	private String reviewerId;
 	private String reviewedUserId;
+	private String reviewerUsername;
 	private int rating;
 	private String comment;
 	private Date date;
@@ -67,5 +68,9 @@ public class ReviewDTO {
     
     public Date getDate() {
     	return date;
+    }
+    
+    public void setReviewerUsername(String username) {
+    	this.reviewerUsername = username;
     }
 }

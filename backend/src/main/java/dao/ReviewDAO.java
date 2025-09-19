@@ -7,9 +7,11 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import beans.Review;
@@ -110,5 +112,16 @@ public class ReviewDAO {
 	    review.setDate(java.sql.Date.valueOf(LocalDate.now()));
 	    reviews.put(review.getId(), review);
 	    return review;
+	}
+	
+	public List<Review> findReviewsByReviewedUser(String userId) {
+	    Collection<Review> allReviews = this.findAll();
+	    List<Review> result = new ArrayList<>();
+	    for (Review r : allReviews) {
+	        if (r.getReviewedUserId().equals(userId)) {
+	            result.add(r);
+	        }
+	    }
+	    return result;
 	}
 }

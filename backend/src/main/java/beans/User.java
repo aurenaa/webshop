@@ -7,6 +7,8 @@ import java.util.List;
 
 import javax.json.bind.annotation.JsonbDateFormat;
 
+import dto.ReviewDTO;
+
 
 public class User implements Serializable {
 	
@@ -29,6 +31,7 @@ public class User implements Serializable {
     
     private List<String> reviewsReceived;
     private double averageRating;
+    private List<ReviewDTO> feedback;
     
 	public User() {
 	}
@@ -212,6 +215,14 @@ public class User implements Serializable {
     public void setRating(double averageRating) {
     	this.averageRating = averageRating;
     }	
+    
+    public List<ReviewDTO> getFeedback() { 
+    	return feedback;
+    }
+    
+    public void setFeedback(List<ReviewDTO> feedback) {
+    	this.feedback = feedback;
+    }
 
 	@Override
 	public int hashCode() {

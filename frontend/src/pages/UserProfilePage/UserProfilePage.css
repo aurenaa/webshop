@@ -32,7 +32,7 @@
 }
 
 .rating {
-    margin-left: 1000px;
+    margin-left: 930px;
     display: flex;
     gap: 10px;
     font-weight: bold;
@@ -91,4 +91,14 @@
 
 .modal-custom {
     z-index: 1050;
+}
+
+.feedback-section {
+    margin-right: 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group {
+    margin-top: 10px;
 }

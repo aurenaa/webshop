@@ -1,6 +1,8 @@
 package services;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
@@ -117,5 +119,37 @@ public class UserService {
         userDAO.addReviewId(reviewedUser, review.getId(), ctx.getRealPath(""), reviewDAO);
         
         return Response.status(201).entity(review).build();
+    }
+    
+    @GET
+    @Path("/{id}/withFeedback")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUserWithFeedback(@PathParam("id") String id) { 
+        UserDAO userDao = (UserDAO) ctx.getAttribute("userDAO");
+        ReviewDAO reviewDAO = new ReviewDAO(ctx.getRealPath(""));
+
+        User user = userDao.findById(id);
+        if (user == null) {
+            return Response.status(404).entity("User not found").build();
+        }
+
+        List<Review> reviewsForUser = reviewDAO.findReviewsByReviewedUser(id);
+
+        List<ReviewDTO> feedback = new ArrayList<>();
+        for (Review r : reviewsForUser) {
+            ReviewDTO dto = new ReviewDTO();
+            dto.setId(r.getId());
+            dto.setRating(r.getRating());
+            dto.setComment(r.getComment());
+            dto.setDate(r.getDate());
+
+            User reviewer = userDao.findById(r.getReviewerId());
+            dto.setReviewerUsername(reviewer != null ? reviewer.getUsername() : "Unknown");
+
+            feedback.add(dto);
+        }
+
+        user.setFeedback(feedback);
+        return Response.ok().entity(user).build();
     }
 }
