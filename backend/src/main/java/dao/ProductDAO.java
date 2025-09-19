@@ -52,7 +52,7 @@ public class ProductDAO {
 	                continue;
 
 	            String[] tokens = line.split(";");
-	            if (tokens.length < 9) {
+	            if (tokens.length < 11) {
 	                System.out.println("Skipping: " + line);
 	                continue;
 	            }
@@ -66,6 +66,8 @@ public class ProductDAO {
 	            String datePosted = tokens[6].trim();
 	            String sellerId = tokens[7].trim();
 	            String status = tokens[8].trim();
+	            String buyerReviewd = tokens[9].trim();
+	            String sellerReviewd = tokens[10].trim();
 	            
 	            List<Bid> bids = new ArrayList<>();
 	            if (tokens.length > 9 && !tokens[9].trim().isEmpty()) {
@@ -88,7 +90,7 @@ public class ProductDAO {
 	            Product.Status statusEnum = Product.Status.valueOf(status);
 	            Date date = java.sql.Date.valueOf(datePosted);
 
-	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId, statusEnum, bids));
+	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId, statusEnum, Boolean.parseBoolean(buyerReviewd), Boolean.parseBoolean(sellerReviewd), bids));
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -137,7 +139,7 @@ public class ProductDAO {
 	                bidsStr = String.join("|", bidTokens);
 	            }
 	            
-	            String line = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s",
+	            String line = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s;%s",
 	                product.getId(),
 	                product.getName(),
 	                product.getDescription(),
@@ -147,6 +149,8 @@ public class ProductDAO {
 	                dateStr,
 	                product.getSellerId(),
 	                product.getStatus(),
+	                product.getBuyerReviewed(),
+	                product.getSellerReviewed(),	              
 	                bidsStr
 	            );
 
@@ -228,7 +232,7 @@ public class ProductDAO {
 	                        bidsStr = String.join("|", bidTokens);
 	                    }
 	                    
-	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s",
+	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s;%s",
 	                            updatedProduct.getId(),
 	                            updatedProduct.getName(),
 	                            updatedProduct.getDescription(),
@@ -238,6 +242,8 @@ public class ProductDAO {
 	                            dateStr,
 	                            updatedProduct.getSellerId(),
 	                            updatedProduct.getStatus(),
+	                            updatedProduct.getBuyerReviewed(),
+	                            updatedProduct.getSellerReviewed(),
 	                            bidsStr
 	                    );
 	                    lines.add(newLine);

@@ -43,7 +43,7 @@ public class Product {
         this.sellerId = sellerId;
     }
     
-    public Product(String id, String name, String description, String category, double price, SaleType saleType, Date datePosted, String sellerId, Status status, List<Bid> bids) {
+    public Product(String id, String name, String description, String category, double price, SaleType saleType, Date datePosted, String sellerId, Status status, boolean buyerReviewd, boolean sellerReviewd, List<Bid> bids) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -53,6 +53,8 @@ public class Product {
         this.datePosted = datePosted;
         this.sellerId = sellerId;
         this.status = status;
+        this.buyerReviewed = buyerReviewd;
+        this.sellerReviewed = sellerReviewed;
 	    this.bids = bids;
     }
 

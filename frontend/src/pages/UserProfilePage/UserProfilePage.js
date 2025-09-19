@@ -10,24 +10,35 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import "./UserProfilePage.css";
 
 export default function UserProfilePage() {
-    const { user, userLoggedIn } = useUser();
+    const { user } = useUser();
     const navigate = useNavigate();
     const { isLoggedIn, setIsLoggedIn } = useAuthorize();
     const [userProfile, setUserProfile] = useState(null);
     const { id } = useParams();
-    const [product] = useState(null);
     const { products } = useProducts();
     const [activeTab, setActiveTab] = useState("items");
 
+    const [showReviewModal, setShowReviewModal] = useState(false);
+    const [reviewScore, setReviewScore] = useState(5);
+    const [reviewComment, setReviewComment] = useState("");
+    const [reviewTargetUser, setReviewTargetUser] = useState(null);
+
+    const openReviewModal = (userToReview) => {
+        setReviewTargetUser(userToReview);
+        setReviewScore(5);   
+        setReviewComment("");     
+        setShowReviewModal(true);  
+    };
+
     useEffect(() => {
-        if (isLoggedIn && Number(id) === userLoggedIn.id) {
-            setUserProfile(userLoggedIn);
+        if (isLoggedIn && user && Number(id) === user.id) {
+            setUserProfile(user);
             } else {
             axios.get(`http://localhost:8080/WebShopAppREST/rest/users/${id}`)
                 .then(res => setUserProfile(res.data))
                 .catch(err => console.error("Error fetching user", err));
             }
-    }, [id, isLoggedIn, userLoggedIn]);
+    }, [id, isLoggedIn, user]);
 
     const userProducts = useMemo(() => {
         if (!userProfile) return [];
@@ -40,9 +51,43 @@ export default function UserProfilePage() {
         return products.filter(p => productIds.includes(p.id));
     }, [userProfile, products]);
 
+
+    const canReviewBuyer = () => {
+        if (!user || !userProfile) return false;
+        if (user.role !== "SELLER") return false;
+
+        return userProfile.productList
+            .map(pid => products.find(p => p.id === pid))
+            .some(p => p && p.sellerId === user.id && !p.buyerReviewed);
+    };
+
+    const canReviewSeller = () => {
+        if (!user || !userProfile) return false;
+        if (user.role !== "BUYER") return false;
+
+        return userProfile.productList
+            .map(pid => products.find(p => p.id === pid))
+            .some(p => p && p.sellerId === userProfile.id && !p.sellerReviewed);
+    };
+
     const handleLogout = () => {
         setIsLoggedIn(false);
         navigate('/mainpage');
+    };
+
+    const submitReview = () => {
+        if (!reviewTargetUser) return;
+        axios.post(`http://localhost:8080/WebShopAppREST/rest/reviews`, {
+            userId: reviewTargetUser.id,
+            reviewerId: user.id,
+            score: reviewScore,
+            comment: reviewComment
+        })
+        .then(res => {
+            console.log("Review submitted:", res.data);
+            setShowReviewModal(false);
+        })
+        .catch(err => console.error(err));
     };
 
     return (
@@ -87,7 +132,6 @@ export default function UserProfilePage() {
                     )}
                 </div>
             </nav>
-            
             {userProfile && (
                 <>
                     {userProfile.role === "SELLER" && (
@@ -101,7 +145,18 @@ export default function UserProfilePage() {
                                 </div>
                                 <div className="rating">
                                     <div>Average rating:</div>
-                                    <div>4.7</div>
+                                    <div>{userProfile.averageRating?.toFixed(1) || "0.0"}</div>
+                                    {user?.role === "SELLER" && canReviewBuyer() && (
+                                        <button className="btn btn-secondary btn-sm me-2 review-button" onClick={() => openReviewModal(userProfile)}>
+                                            Review Buyer
+                                        </button>
+                                    )}
+
+                                    {user?.role === "BUYER" && canReviewSeller() && (
+                                        <button className="btn btn-secondary btn-sm me-2 review-button" onClick={() => openReviewModal(userProfile)}>
+                                            Review Seller
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                             <div className="profile-details">
@@ -176,7 +231,18 @@ export default function UserProfilePage() {
                                 </div>
                                 <div className="rating">
                                     <div>Average rating:</div>
-                                    <div>4.7</div>
+                                    <div>{userProfile.averageRating?.toFixed(1) || "0.0"}</div>
+                                    {user?.role === "SELLER" && canReviewBuyer() && (
+                                        <button className="btn btn-secondary btn-sm me-2 review-button" onClick={() => openReviewModal(userProfile)}>
+                                            Review Buyer
+                                        </button>
+                                    )}
+
+                                    {user?.role === "BUYER" && canReviewSeller() && (
+                                        <button className="btn btn-secondary btn-sm me-2 review-button" onClick={() => openReviewModal(userProfile)}>
+                                            Review Seller
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                             <div className="profile-details">
@@ -229,6 +295,28 @@ export default function UserProfilePage() {
                         </div>
                     )}
                 </>
+            )}
+            {showReviewModal && (
+                <div className="modal show d-block" tabIndex="-1">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Leave a Review for {reviewTargetUser.username}</h5>
+                                <button type="button" className="btn-close" onClick={() => setShowReviewModal(false)}></button>
+                            </div>
+                            <div className="modal-body">
+                                <label>Score (1-5):</label>
+                                <input type="number" min="1" max="5" value={reviewScore} onChange={e => setReviewScore(Number(e.target.value))} className="form-control mb-2"/>
+                                <label>Comment:</label>
+                                <textarea value={reviewComment} onChange={e => setReviewComment(e.target.value)} className="form-control"/>
+                            </div>
+                            <div className="modal-footer">
+                                <button className="btn btn-secondary" onClick={() => setShowReviewModal(false)}>Cancel</button>
+                                <button className="btn btn-primary" onClick={submitReview}>Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
