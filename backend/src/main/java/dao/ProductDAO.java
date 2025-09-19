@@ -137,7 +137,7 @@ public class ProductDAO {
 	                bidsStr = String.join("|", bidTokens);
 	            }
 	            
-	            String line = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s",
+	            String line = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;",
 	                product.getId(),
 	                product.getName(),
 	                product.getDescription(),
@@ -146,7 +146,7 @@ public class ProductDAO {
 	                product.getSaleType(),
 	                dateStr,
 	                product.getSellerId(),
-	                product.getStatus(),
+	                product.getStatus(),	              
 	                bidsStr
 	            );
 
