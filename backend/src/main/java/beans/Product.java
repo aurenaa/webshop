@@ -15,7 +15,9 @@ public class Product {
     private String sellerId;
     private List<Bid> bids;
     private Status status;
-
+    private boolean buyerReviewed;
+    private boolean sellerReviewed;
+    
     public enum SaleType {
     	FIXED_PRICE,
         AUCTION
@@ -129,7 +131,24 @@ public class Product {
     public Status getStatus() { 
     	return status; 
     }
+    
     public void setStatus(Status status) { 
     	this.status = status; 
+    }
+    
+    public boolean getBuyerReviewed() { 
+    	return buyerReviewed; 
+    }
+    
+    public void setBuyerReviewed(boolean buyerReviewed) { 
+    	this.buyerReviewed = buyerReviewed; 
+    }
+    
+    public boolean getSellerReviewed() { 
+    	return sellerReviewed; 
+    }
+    
+    public void setSellerReviewed(boolean sellerReviewed) { 
+    	this.sellerReviewed = sellerReviewed; 
     }
 }
