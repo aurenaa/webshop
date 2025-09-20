@@ -4,68 +4,63 @@ import java.util.Date;
 
 public class ProfileReportDTO  {
 	private String id;
-	private String reviewerId;
-	private String reviewedUserId;
-	private int rating;
-	private String comment;
-	private Date date;
+    private String reason;
+    private Date submissionDate;
+    private String submittedByUserId;
+    private String reportedUserId;
+    private ReportStatus status;
     
-	public ProfileReportDTO() { }
-	
-	public ProfileReportDTO(String id, String reviewerId, String reviewedUserId, int rating, String comment, Date date) {
-		this.id = id;
-		this.reviewerId = reviewerId;
-		this.reviewedUserId = reviewedUserId;
-		this.rating = rating;
-		this.comment = comment;
-		this.date = date;
-	}
-	
-    public String getId() {
-    	return id;
+    public enum ReportStatus { SUBMITTED, REJECTED, ACCEPTED }    
+    public ProfileReportDTO() {}
+
+    public ProfileReportDTO(String id, String reason, String submittedByUserId, String reportedUserId, ReportStatus status, Date submissionDate) {
+        this.id = id;
+        this.reason = reason;
+        this.submissionDate = submissionDate;
+        this.submittedByUserId = submittedByUserId;
+        this.reportedUserId = reportedUserId;
+        this.status = status;
     }
 
-    public void setId(String id) {
-    	this.id = id;
+    public String getId() { 
+    	return id; 
     }
-    
-    public String getReviewerId() {
-    	return reviewerId;
-    }
-
-    public void setReviewerId(String reviewerId) {
-    	this.reviewerId = reviewerId;
-    }
-    
-    public String getReviewedUserId() {
-    	return reviewedUserId;
+    public void setId(String id) { 
+    	this.id = id; 
     }
 
-    public void setReviewedUserId(String reviewedUserId) {
-    	this.reviewedUserId = reviewedUserId;
+    public String getReason() { 
+    	return reason; 
     }
-    
-    public int getRating() {
-    	return rating;
+    public void setReason(String reason) { 
+    	this.reason = reason; 
     }
 
-    public void setRating(int rating) {
-    	this.rating = rating;
+    public Date getSubmissionDate() { 
+    	return submissionDate; 
     }
-    
-    public void setComment(String comment) {
-    	this.comment = comment;
+    public void setSubmissionDate(Date submissionDate) { 
+    	this.submissionDate = submissionDate;
     }
-    
-    public String getComment() {
-    	return comment;
+
+    public String getSubmittedByUserId() {
+    	return submittedByUserId; 
     }
-    
-    public void setDate(Date date) {
-    	this.date = date;
+    public void setSubmittedByUserId(String submittedByUserId) { 
+    	this.submittedByUserId = submittedByUserId;
     }
-    
-    public Date getDate() {
-    	return date;
+
+    public String getReportedUserId() { 
+    	return reportedUserId; 
+    }
+    public void setReportedUserId(String reportedUserId) {
+    	this.reportedUserId = reportedUserId;
+    }
+
+    public ReportStatus getStatus() { 
+    	return status; 
+    }
+    public void setStatus(ReportStatus status) { 
+    	this.status = status; 
     }
 }

@@ -17,6 +17,7 @@ export default function UserProfilePage() {
     const { id } = useParams();
     const { products } = useProducts();
     const [activeTab, setActiveTab] = useState("items");
+    const [otherReason, setOtherReason] = useState("");
 
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
@@ -122,6 +123,27 @@ export default function UserProfilePage() {
         .then(res => {
             console.log("Review submitted:", res.data);
             setShowReviewModal(false);
+        })
+        .catch(err => console.error(err));
+    };
+
+    const submitReport = () => {
+        let reasonToSend = selectedValue === "Other" ? otherReason.trim() : selectedValue;
+
+        if (!reasonToSend) {
+            alert("Please enter a reason for reporting.");
+            return;
+        }
+
+        axios.post(`http://localhost:8080/WebShopAppREST/rest/report/reports`, {
+        submittedByUserId: user.id,
+        reportedUserId: reviewTargetUser.id,
+        reason: reasonToSend,
+        status: "SUBMITTED"
+        })
+        .then(res => {
+        console.log("Report submitted:", res.data);
+        setShowReportModal(false);
         })
         .catch(err => console.error(err));
     };
@@ -415,24 +437,24 @@ export default function UserProfilePage() {
                                 <button type="button" className="btn-close" onClick={() => setShowReportModal(false)}></button>
                             </div>
                             <div className="modal-body">
-                                <select value={selectedValue} onChange={handleDropdownChange} class="form-select" aria-label="Default select example">
-                                    <option selected>Reason for reporting</option>
-                                    <option value="1">Buyer did not pickup product</option>
-                                    <option value="2">Buyer did not pay for the product</option>
-                                    <option value="3">Buyer was unresponsive after purchase</option>
-                                    <option value="4">Buyer returned a damaged product</option>
-                                    <option value="4">Buyer violated platform rules</option>                                                                           
-                                    <option value="5">Other</option>
-                                </select>
-                                { showOthers && (
-                                    <div class="input-group">
-                                        <textarea class="form-control" aria-label="With textarea"></textarea>
+                            <select value={selectedValue} onChange={handleDropdownChange} className="form-select" aria-label="Default select example">
+                                <option value="">Reason for reporting</option>
+                                <option value="Buyer did not pickup product">Buyer did not pickup product</option>
+                                <option value="Buyer did not pay for the product">Buyer did not pay for the product</option>
+                                <option value="Buyer was unresponsive after purchase">Buyer was unresponsive after purchase</option>
+                                <option value="Buyer returned a damaged product">Buyer returned a damaged product</option>
+                                <option value="Buyer violated platform rules">Buyer violated platform rules</option>
+                                <option value="Other">Other</option>
+                            </select>
+                                { selectedValue === "Other" && (
+                                    <div className="input-group">
+                                        <textarea className="form-control" placeholder="Enter your reason" value={otherReason} onChange={e => setOtherReason(e.target.value)}></textarea>
                                     </div>
-                                )};                                
+                                )}                           
                             </div>
                             <div className="modal-footer">
-                                <button className="btn btn-secondary" onClick={() => setShowReviewModal(false)}>Cancel</button>
-                                <button className="btn btn-primary" onClick={submitReview}>Submit</button>
+                                <button className="btn btn-secondary" onClick={() => setShowReportModal(false)}>Cancel</button>
+                                <button className="btn btn-primary" onClick={submitReport}>Submit</button>
                             </div>
                         </div>
                     </div>

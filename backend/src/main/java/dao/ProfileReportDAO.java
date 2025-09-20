@@ -82,12 +82,13 @@ public class ProfileReportDAO {
 	        String dateStr = sdf.format(report.getSubmissionDate());
 	        
 	        try (PrintWriter out = new PrintWriter(new FileWriter(file, true))) {
-	            out.println(String.format("%s;%s;%s;%s;%s;%s",
+	            out.println(String.format("%s;%s;%s;%s;%s;%s;%s",
 	            		report.getId(),
 	            		report.getReason(),
 	            		report.getSubmissionDate(),
 	            		report.getSubmittedByUserId(),
 	            		report.getReportedUserId(),
+	            		report.getStatus(),
 	            		dateStr
 	            ));
 	            out.println();
