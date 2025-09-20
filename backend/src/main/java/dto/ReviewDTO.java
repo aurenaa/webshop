@@ -70,7 +70,11 @@ public class ReviewDTO {
     	return date;
     }
     
-    public void setReviewerUsername(String username) {
-    	this.reviewerUsername = username;
+    public String getReviewerUsername() {
+        return reviewerUsername;
+    }
+    
+    public void setReviewerUsername(String reviewerUsername) {
+    	this.reviewerUsername = reviewerUsername;
     }
 }
