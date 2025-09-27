@@ -202,7 +202,9 @@ export default function ProductPage() {
                             <h2>{product.name}</h2>
                             <div className="seperator"></div>
                             <div className="user">
-                                <img className="user-img" src={user?.profileImage ? `http://localhost:8080/WebShopAppREST/images/profiles/${user.profileImage}` : "/icons/account_circle.png"}/>
+                                <img className="user-img"
+                                     src={seller?.profilePicture ? `http://localhost:8080/WebShopAppREST/images/profiles/${seller.profilePicture}` : "/icons/account_circle.png"}
+                                />
                                 <div
                                     onClick={() =>
                                     user?.id === product.sellerId

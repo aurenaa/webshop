@@ -13,6 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/images/profiles/*")
 public class ProfileImageServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+        resp.setHeader("Access-Control-Allow-Methods", "GET");
+        resp.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    	
         String filename = req.getPathInfo().substring(1);
         File file = new File(getServletContext().getRealPath("/images/profiles"), filename);
         if (!file.exists()) {
