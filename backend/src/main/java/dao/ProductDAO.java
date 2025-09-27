@@ -2,8 +2,12 @@ package dao;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -15,6 +19,7 @@ import java.util.Date;
 
 import beans.Bid;
 import beans.Product;
+import beans.User;
 import beans.Product.Status;
 import dto.ProductUpdateDTO;
 
@@ -317,4 +322,29 @@ public class ProductDAO {
 		
 		return p;
 	}
+	
+	public String saveProductImage(String productId, InputStream fileInputStream, String fileName, String contextPath) throws IOException {
+        File uploadDir = new File(contextPath + "/images/products");
+        if (!uploadDir.exists()) uploadDir.mkdirs();
+
+        String ext = "";
+        int dotIndex = fileName.lastIndexOf('.');
+        if (dotIndex > 0) ext = fileName.substring(dotIndex);
+        String newFileName = "product_" + productId + ext;
+
+        File outputFile = new File(uploadDir, newFileName);
+        try (OutputStream out = new FileOutputStream(outputFile)) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = fileInputStream.read(buffer)) != -1) out.write(buffer, 0, bytesRead);
+        }
+
+        Product p = products.get(productId);
+        if (p != null) {
+            p.setProductPicture(newFileName);
+            editFileProduct(p, contextPath);
+        }
+
+        return newFileName;
+    }
 }
