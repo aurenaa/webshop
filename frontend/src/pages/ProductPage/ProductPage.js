@@ -168,7 +168,17 @@ export default function ProductPage() {
         </nav>
         <div className="body">
             <div className="image-gallery"></div>
-            <div className="image"></div>
+            <div className="image">
+            <img
+                src={
+                product.productPicture
+                    ? `http://localhost:8080/WebShopAppREST/images/products/${product.productPicture}`
+                    : "/icons/no_image.jpg"
+                }
+                alt={product.name}
+                className="product-img"
+            />
+            </div>
             <div className="product-info">            
                 {isEditing ? (
                         <>
