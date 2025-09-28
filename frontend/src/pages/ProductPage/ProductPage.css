@@ -57,10 +57,10 @@
     border-radius: 25px;
 }
 
-.product-img {
-    margin-top: 50px;
+.product-img img {
     width: 550px;
-    height: 500px; 
+    height: 550px;
+    object-fit: contain;
 }
 
 .username {

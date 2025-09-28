@@ -167,17 +167,23 @@ export default function ProductPage() {
             </div>
         </nav>
         <div className="body">
-            <div className="image-gallery"></div>
-            <div className="image">
-            <img
-                src={
-                product.productPicture
-                    ? `http://localhost:8080/WebShopAppREST/images/products/${product.productPicture}`
-                    : "/icons/no_image.jpg"
-                }
-                alt={product.name}
-                className="product-img"
-            />
+        <div className="image-gallery" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            {product.productPictures && product.productPictures.slice(0, 5).map((pic, idx) => (
+                <img
+                    key={idx}
+                    src={`http://localhost:8080/WebShopAppREST/images/products/${pic}`}
+                    alt={`${product.name} ${idx + 1}`}
+                    style={{ width: "80px", height: "80px", objectFit: "cover" }}
+                />
+            ))}
+        </div>
+            <div className="product-img">
+                <img
+                    src={product.productPictures && product.productPictures.length > 0 ? 
+                        `http://localhost:8080/WebShopAppREST/images/products/${product.productPictures[0]}` 
+                        : "/icons/no_image.jpg"}
+                    alt={product.name}
+                />
             </div>
             <div className="product-info">            
                 {isEditing ? (
