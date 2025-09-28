@@ -72,9 +72,12 @@ public class ProductDAO {
 	            String sellerId = tokens[7].trim();
 	            String status = tokens[8].trim();
 	            
-	            String productPicture = "";
+	            List<String> productPictures = new ArrayList<>();
 	            if (tokens.length > 9 && !tokens[9].trim().isEmpty()) {
-	            	productPicture = tokens[9].trim();
+	                String[] pics = tokens[9].trim().split("\\|");
+	                for (String pic : pics) {
+	                    productPictures.add(pic);
+	                }
 	            }
 	            
 	            List<Bid> bids = new ArrayList<>();
@@ -98,7 +101,7 @@ public class ProductDAO {
 	            Product.Status statusEnum = Product.Status.valueOf(status);
 	            Date date = java.sql.Date.valueOf(datePosted);
 
-	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId, statusEnum, productPicture, bids));
+	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId, statusEnum, productPictures, bids));
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -135,9 +138,12 @@ public class ProductDAO {
 	            
 	            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	            String dateStr = sdf.format(product.getDatePosted());
-	            String productPictureStr = product.getProductPicture() != null ? product.getProductPicture() : "";
+	            
+	            if (product.getProductPictures() == null) product.setProductPictures(new ArrayList<>());
 	            if (product.getStatus() == null) product.setStatus(Product.Status.PROCESSING);
 	            if (product.getBids() == null) product.setBids(new ArrayList<>());
+	            
+	            String productPicturesStr = String.join("|", product.getProductPictures());
 	            
 	            String bidsStr = "";
 	            if (!product.getBids().isEmpty()) {
@@ -158,7 +164,7 @@ public class ProductDAO {
 	                dateStr,
 	                product.getSellerId(),
 	                product.getStatus(),	
-	                productPictureStr,
+	                productPicturesStr,
 	                bidsStr
 	            );
 
@@ -230,7 +236,8 @@ public class ProductDAO {
 	                if (parts[0].equals(updatedProduct.getId())) {
 	                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	                    String dateStr = sdf.format(updatedProduct.getDatePosted());
-	                    String productPictureStr = updatedProduct.getProductPicture() != null ? updatedProduct.getProductPicture() : "";
+	                    String productPicturesStr = updatedProduct.getProductPictures() != null ? String.join("|", updatedProduct.getProductPictures()) : "";
+	                    
 	                    String bidsStr = "";
 	                    if (updatedProduct.getBids() != null && !updatedProduct.getBids().isEmpty()) {
 	                        List<String> bidTokens = new ArrayList<>();
@@ -250,7 +257,7 @@ public class ProductDAO {
 	                            dateStr,
 	                            updatedProduct.getSellerId(),
 	                            updatedProduct.getStatus(),
-	                            productPictureStr,
+	                            productPicturesStr,
 	                            bidsStr
 	                    );
 	                    lines.add(newLine);
@@ -332,27 +339,36 @@ public class ProductDAO {
 	}
 	
 	public String saveProductImage(String productId, InputStream fileInputStream, String fileName, String contextPath) throws IOException {
-        File uploadDir = new File(contextPath + "/images/products");
-        if (!uploadDir.exists()) uploadDir.mkdirs();
+	    Product p = products.get(productId);
+	    if (p == null) throw new IllegalArgumentException("Product not found: " + productId);
 
-        String ext = "";
-        int dotIndex = fileName.lastIndexOf('.');
-        if (dotIndex > 0) ext = fileName.substring(dotIndex);
-        String newFileName = "product_" + productId + ext;
+	    File uploadDir = new File(contextPath + "/images/products");
+	    if (!uploadDir.exists()) uploadDir.mkdirs();
 
-        File outputFile = new File(uploadDir, newFileName);
-        try (OutputStream out = new FileOutputStream(outputFile)) {
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = fileInputStream.read(buffer)) != -1) out.write(buffer, 0, bytesRead);
-        }
+	    String ext = "";
+	    int dotIndex = fileName.lastIndexOf('.');
+	    if (dotIndex > 0) ext = fileName.substring(dotIndex);
 
-        Product p = products.get(productId);
-        if (p != null) {
-            p.setProductPicture(newFileName);
-            editFileProduct(p, contextPath);
-        }
+	    int nextIndex = 1;
+	    if (p.getProductPictures() != null && !p.getProductPictures().isEmpty()) {
+	        nextIndex = p.getProductPictures().size() + 1;
+	    }
 
-        return newFileName;
-    }
+	    String newFileName = "product_" + productId + "_" + nextIndex + ext;
+	    File outputFile = new File(uploadDir, newFileName);
+
+	    try (OutputStream out = new FileOutputStream(outputFile)) {
+	        byte[] buffer = new byte[1024];
+	        int bytesRead;
+	        while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+	            out.write(buffer, 0, bytesRead);
+	        }
+	    }
+
+	    if (p.getProductPictures() == null) p.setProductPictures(new ArrayList<>());
+	    p.getProductPictures().add(newFileName);
+
+	    editFileProduct(p, contextPath);
+	    return newFileName;
+	}
 }
