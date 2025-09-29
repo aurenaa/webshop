@@ -9,6 +9,8 @@ export default function ProductPage() {
     const navigate = useNavigate();
     const { isLoggedIn, setIsLoggedIn } = useAuthorize();
     const { user } = useUser();
+    const [showRejectInput, setShowRejectInput] = useState(false);
+    const [rejectReason, setRejectReason] = useState("");
 
     const handleDeleteClick = async () =>
     {
@@ -65,6 +67,41 @@ export default function ProductPage() {
         navigate('/mainpage');
     };
 
+    const handleSellClick = async () =>
+    {
+        try {
+            await axios.post(
+            `http://localhost:8080/WebShopAppREST/rest/mainpage/${product.id}/sell`,
+            {}
+            );
+            navigate("/listingpage"); 
+        } catch (err) {
+            console.error("Error selling product", err);
+    }
+    };
+
+    const handleRejectClick = () =>
+    {
+        setShowRejectInput(true);
+    };
+
+    const handleConfirmReject = async () => {
+        if (!rejectReason.trim()) {
+            alert("You must enter a reason to reject!");
+            return;
+        }
+
+        try {
+            await axios.post(
+            `http://localhost:8080/WebShopAppREST/rest/mainpage/${product.id}/reject`,
+            { reason: rejectReason },
+            { headers: { "Content-Type": "application/json" } }
+            );
+            navigate("/listingpage");
+        } catch (err) {
+            console.error("Error rejecting product", err);
+        }
+    };
 
     const handleAuctionClick = () => {
         if (product.saleType == "FIXED_PRICE") {
@@ -112,7 +149,7 @@ export default function ProductPage() {
 
         const boughtProduct = response.data;
 
-        navigate("/purchasedProducts", { state: { product: boughtProduct } });
+        navigate("/purchasedpage", { state: { product: boughtProduct } });
 
         } catch (err) {
             console.error("Error buying product", err);
@@ -246,16 +283,48 @@ export default function ProductPage() {
                             <p><strong>Sale type:</strong> {product.saleType === "FIXED_PRICE" ? "Fixed price" : "Auction"}</p>
                             <div className="buttons">
                                 {isLoggedIn && (user.id == product.sellerId) ? (
-                                        <>  
-                                            { product.saleType === "AUCTION" && product.bids.length == 0 && (
-                                                <button onClick={handleEditClick} className="btn btn-primary me-2">Edit</button>
-                                            )}
-                                            { product.saleType === "FIXED_PRICE" && (
-                                                <button onClick={handleEditClick} className="btn btn-primary me-2">Edit</button>
-                                            )}                                            
-                                            <button onClick={handleDeleteClick} className="btn btn-danger">Delete</button>
-                                            {product.saleType === "AUCTION" && (
-                                                <button onClick={handleAuctionClick} className="btn btn-primary">End auction</button>
+                                        <> 
+                                            {product.status === "PROCESSING" ? (
+                                                <>
+                                                <button 
+                                                    onClick={handleSellClick} 
+                                                    className="btn btn-success me-2">
+                                                    Sell
+                                                </button>
+                                                <button 
+                                                    onClick={handleRejectClick} 
+                                                    className="btn btn-danger">
+                                                    Reject
+                                                </button>
+                                                {showRejectInput && (
+                                                    <div className="mt-3">
+                                                        <textarea
+                                                        className="form-control mb-2"
+                                                        placeholder="Enter rejection reason..."
+                                                        value={rejectReason}
+                                                        onChange={(e) => setRejectReason(e.target.value)}
+                                                        />
+                                                        <button 
+                                                        onClick={handleConfirmReject} 
+                                                        className="btn btn-danger">
+                                                        Confirm Reject
+                                                        </button>
+                                                    </div>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <>
+                                                { product.saleType === "AUCTION" && product.bids.length === 0 && (
+                                                    <button onClick={handleEditClick} className="btn btn-primary me-2">Edit</button>
+                                                )}
+                                                { product.saleType === "FIXED_PRICE" && (
+                                                    <button onClick={handleEditClick} className="btn btn-primary me-2">Edit</button>
+                                                )}                                            
+                                                <button onClick={handleDeleteClick} className="btn btn-danger">Delete</button>
+                                                {product.saleType === "AUCTION" && (
+                                                    <button onClick={handleAuctionClick} className="btn btn-primary">End auction</button>
+                                                )}
+                                                </>
                                             )}
                                         </>
                                 ) : (

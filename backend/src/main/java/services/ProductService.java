@@ -1,6 +1,7 @@
 package services;
 
 import java.util.Collection;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
@@ -13,7 +14,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
@@ -121,36 +121,38 @@ public class ProductService {
 	@Path("/{id}/buy")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Product buyProduct(@PathParam("id") String id, @QueryParam("buyerId") String buyerId)
+	public Product buyProduct(@PathParam("id") String id, Product buyerId)
 	{
 		ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
 		UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
 		
 		Product product = productDAO.findProduct(id);
+		String buyerid = buyerId.getBuyerId();
 		
 		if(product.getSaleType().equals(SaleType.FIXED_PRICE))
 		{
-			productDAO.updateStatus(id, Status.PROCESSING, ctx.getRealPath(""), buyerId);
+			productDAO.updateStatus(id, Status.PROCESSING, ctx.getRealPath(""), buyerid);
+			product = productDAO.findProduct(id);
+			
+			User seller = userDAO.findById(product.getSellerId());
+		    if (seller != null) {
+		        userDAO.removeProductId(seller, product.getId(), ctx.getRealPath(""));
+		        userDAO.editFileUser(seller, ctx.getRealPath(""));
+		    }
+		    
+		    User buyer = userDAO.findById(product.getBuyerId());
+		    if(buyer != null)
+		    {
+		    	userDAO.addPurchaseId(buyer, product.getId(), ctx.getRealPath(""));
+		    	userDAO.editFileUser(buyer, ctx.getRealPath(""));
+		    }
+		    
+		    return product;
 		}
 		else
 		{
 			return null;
 		}
-		
-		User seller = userDAO.findById(product.getSellerId());
-	    if (seller != null) {
-	        userDAO.removeProductId(seller, product.getId(), ctx.getRealPath(""));
-	        userDAO.editFileUser(seller, ctx.getRealPath(""));
-	    }
-	    
-	    User buyer = userDAO.findById(product.getBuyerId());
-	    if(buyer != null)
-	    {
-	    	userDAO.addPurchaseId(buyer, product.getId(), ctx.getRealPath(""));
-	    	userDAO.editFileUser(buyer, ctx.getRealPath(""));
-	    }
-
-		return productDAO.findProduct(id);
 	}
 	
 	@POST
@@ -169,11 +171,14 @@ public class ProductService {
 	@POST
 	@Path("/{id}/reject")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Product rejectProduct(@PathParam("id") String id) {
+	public Product rejectProduct(@PathParam("id") String id, Map<String, String> payload) {
 	    ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
 	    Product product = productDAO.findProduct(id);
-
+	    
+	    String reason = payload.get("reason");
+	    
 	    product.setStatus(Status.REJECTED);
+	    product.setRejectionReason(reason);
 	    product.setBuyerId(null);
 
 	    productDAO.editFileProduct(product, ctx.getRealPath(""));

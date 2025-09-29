@@ -56,7 +56,7 @@ public class ProductDAO {
 	                System.out.println("Skipping: " + line);
 	                continue;
 	            }
-
+	            
 	            String id = tokens[0].trim();
 	            String name = tokens[1].trim();
 	            String description = tokens[2].trim();
@@ -72,9 +72,15 @@ public class ProductDAO {
 	                buyerId = tokens[9].trim();
 	            }
 	            
+	            String rejectionReason = "";
+	            if(tokens.length > 10)
+	            {
+	            	rejectionReason = tokens[10].trim();
+	            }
+	            
 	            List<Bid> bids = new ArrayList<>();
-	            if (tokens.length > 10 && !tokens[10].trim().isEmpty()) {
-	                String bidsStr = tokens[10].trim();
+	            if (tokens.length > 11 && !tokens[11].trim().isEmpty()) {
+	                String bidsStr = tokens[11].trim();
 	                String[] bidsArr = bidsStr.split("\\|");
 	                for (String b : bidsArr) {
 	                    String[] bidTokens = b.split(":");
@@ -93,7 +99,7 @@ public class ProductDAO {
 	            Product.Status statusEnum = Product.Status.valueOf(status);
 	            Date date = java.sql.Date.valueOf(datePosted);
 
-	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId, statusEnum, buyerId, bids));
+	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId, statusEnum, buyerId, rejectionReason, bids));
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -234,7 +240,7 @@ public class ProductDAO {
 	                        bidsStr = String.join("|", bidTokens);
 	                    }
 	                    
-	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s%s",
+	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s;%s",
 	                            updatedProduct.getId(),
 	                            updatedProduct.getName(),
 	                            updatedProduct.getDescription(),
@@ -245,6 +251,7 @@ public class ProductDAO {
 	                            updatedProduct.getSellerId(),
 	                            updatedProduct.getStatus(),
 	                            updatedProduct.getBuyerId() != null ? updatedProduct.getBuyerId() : "",
+	                            updatedProduct.getRejectionReason() != null ? updatedProduct.getRejectionReason() : "",
 	                            bidsStr
 	                    );
 	                    lines.add(newLine);

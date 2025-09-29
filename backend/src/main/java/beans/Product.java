@@ -16,6 +16,7 @@ public class Product {
     private List<Bid> bids;
     private Status status;
     private String buyerId;
+    private String rejectionReason;
     
     public enum SaleType {
     	FIXED_PRICE,
@@ -43,7 +44,7 @@ public class Product {
         this.buyerId = buyerId;
     }
     
-    public Product(String id, String name, String description, String category, double price, SaleType saleType, Date datePosted, String sellerId, Status status, String buyerId, List<Bid> bids) {
+    public Product(String id, String name, String description, String category, double price, SaleType saleType, Date datePosted, String sellerId, Status status, String buyerId, String rejectionReason, List<Bid> bids) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -53,6 +54,7 @@ public class Product {
         this.datePosted = datePosted;
         this.sellerId = sellerId;
         this.status = status;
+        this.rejectionReason = rejectionReason;
 	    this.bids = bids;
     }
 
@@ -143,5 +145,14 @@ public class Product {
     public void setBuyerId(String buyerId)
     {
     	this.buyerId = buyerId;
+    }
+    
+    public String getRejectionReason() {
+    	return rejectionReason;
+    }
+    
+    public void setRejectionReason(String rejectionReason)
+    {
+    	this.rejectionReason = rejectionReason;
     }
 }

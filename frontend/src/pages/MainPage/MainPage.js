@@ -71,7 +71,7 @@ export default function MainPage() {
                     <li>
                       <a
                         className="dropdown-item"
-                        onClick={() => navigate("/purchasepage")}
+                        onClick={() => navigate("/purchasedpage")}
                       >
                         My purchases
                       </a>
@@ -99,7 +99,7 @@ export default function MainPage() {
       </div>
       </nav>
       <div className="products-table mt-3">
-        <ProductTable products={products.filter(p => p.status != "PROCESSING")} />
+        <ProductTable products={products.filter(p => (p.status != "PROCESSING") && (p.status != "SOLD") )} />
       </div>
     </div>
   );
