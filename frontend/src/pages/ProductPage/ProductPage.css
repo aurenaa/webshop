@@ -25,7 +25,8 @@
 .body {
     display: grid;
     grid-template-columns: 1fr 3fr 3fr;
-    justify-items: center;
+    justify-items: end;
+    align-items: center;
 }
 
 .buttons {
@@ -41,6 +42,8 @@
     margin-top: 30px;
     display: flex;
     flex-direction: column;
+    margin-right: 200px;
+    justify-content: start;
 }
 
 .user {
@@ -52,6 +55,63 @@
 .user-img {
     width: 50px;
     height: 50px;
+    border-radius: 25px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.product-img {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.product-img img {
+  width: 650px;
+  height: 500px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  margin-left: 10px;
+}
+
+.image-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gallery-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border: 1px solid grey;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.gallery-img.active {
+  border: 2px solid black;
+}
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.7);
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+}
+
+.arrow.left {
+  left: 20px;
+}
+
+.arrow.right {
+  right: 10px;
 }
 
 .username {

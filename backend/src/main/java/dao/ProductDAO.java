@@ -2,8 +2,12 @@ package dao;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -15,6 +19,7 @@ import java.util.Date;
 
 import beans.Bid;
 import beans.Product;
+import beans.User;
 import beans.Product.Status;
 import dto.ProductUpdateDTO;
 
@@ -52,7 +57,7 @@ public class ProductDAO {
 	                continue;
 
 	            String[] tokens = line.split(";");
-	            if (tokens.length < 9) {
+	            if (tokens.length < 10) {
 	                System.out.println("Skipping: " + line);
 	                continue;
 	            }
@@ -67,9 +72,17 @@ public class ProductDAO {
 	            String sellerId = tokens[7].trim();
 	            String status = tokens[8].trim();
 	            
-	            List<Bid> bids = new ArrayList<>();
+	            List<String> productPictures = new ArrayList<>();
 	            if (tokens.length > 9 && !tokens[9].trim().isEmpty()) {
-	                String bidsStr = tokens[9].trim();
+	                String[] pics = tokens[9].trim().split("\\|");
+	                for (String pic : pics) {
+	                    productPictures.add(pic);
+	                }
+	            }
+	            
+	            List<Bid> bids = new ArrayList<>();
+	            if (tokens.length > 10 && !tokens[10].trim().isEmpty()) {
+	                String bidsStr = tokens[10].trim();
 	                String[] bidsArr = bidsStr.split("\\|");
 	                for (String b : bidsArr) {
 	                    String[] bidTokens = b.split(":");
@@ -88,7 +101,7 @@ public class ProductDAO {
 	            Product.Status statusEnum = Product.Status.valueOf(status);
 	            Date date = java.sql.Date.valueOf(datePosted);
 
-	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId, statusEnum, bids));
+	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId, statusEnum, productPictures, bids));
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -125,8 +138,12 @@ public class ProductDAO {
 	            
 	            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	            String dateStr = sdf.format(product.getDatePosted());
+	            
+	            if (product.getProductPictures() == null) product.setProductPictures(new ArrayList<>());
 	            if (product.getStatus() == null) product.setStatus(Product.Status.PROCESSING);
 	            if (product.getBids() == null) product.setBids(new ArrayList<>());
+	            
+	            String productPicturesStr = String.join("|", product.getProductPictures());
 	            
 	            String bidsStr = "";
 	            if (!product.getBids().isEmpty()) {
@@ -137,7 +154,7 @@ public class ProductDAO {
 	                bidsStr = String.join("|", bidTokens);
 	            }
 	            
-	            String line = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;",
+	            String line = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s",
 	                product.getId(),
 	                product.getName(),
 	                product.getDescription(),
@@ -146,7 +163,8 @@ public class ProductDAO {
 	                product.getSaleType(),
 	                dateStr,
 	                product.getSellerId(),
-	                product.getStatus(),	              
+	                product.getStatus(),	
+	                productPicturesStr,
 	                bidsStr
 	            );
 
@@ -218,6 +236,7 @@ public class ProductDAO {
 	                if (parts[0].equals(updatedProduct.getId())) {
 	                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	                    String dateStr = sdf.format(updatedProduct.getDatePosted());
+	                    String productPicturesStr = updatedProduct.getProductPictures() != null ? String.join("|", updatedProduct.getProductPictures()) : "";
 	                    
 	                    String bidsStr = "";
 	                    if (updatedProduct.getBids() != null && !updatedProduct.getBids().isEmpty()) {
@@ -228,7 +247,7 @@ public class ProductDAO {
 	                        bidsStr = String.join("|", bidTokens);
 	                    }
 	                    
-	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s",
+	                    String newLine = String.format("%s;%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s",
 	                            updatedProduct.getId(),
 	                            updatedProduct.getName(),
 	                            updatedProduct.getDescription(),
@@ -238,6 +257,7 @@ public class ProductDAO {
 	                            dateStr,
 	                            updatedProduct.getSellerId(),
 	                            updatedProduct.getStatus(),
+	                            productPicturesStr,
 	                            bidsStr
 	                    );
 	                    lines.add(newLine);
@@ -316,5 +336,39 @@ public class ProductDAO {
 		editFileProduct(p, contextPath);
 		
 		return p;
+	}
+	
+	public String saveProductImage(String productId, InputStream fileInputStream, String fileName, String contextPath) throws IOException {
+	    Product p = products.get(productId);
+	    if (p == null) throw new IllegalArgumentException("Product not found: " + productId);
+
+	    File uploadDir = new File(contextPath + "/images/products");
+	    if (!uploadDir.exists()) uploadDir.mkdirs();
+
+	    String ext = "";
+	    int dotIndex = fileName.lastIndexOf('.');
+	    if (dotIndex > 0) ext = fileName.substring(dotIndex);
+
+	    int nextIndex = 1;
+	    if (p.getProductPictures() != null && !p.getProductPictures().isEmpty()) {
+	        nextIndex = p.getProductPictures().size() + 1;
+	    }
+
+	    String newFileName = "product_" + productId + "_" + nextIndex + ext;
+	    File outputFile = new File(uploadDir, newFileName);
+
+	    try (OutputStream out = new FileOutputStream(outputFile)) {
+	        byte[] buffer = new byte[1024];
+	        int bytesRead;
+	        while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+	            out.write(buffer, 0, bytesRead);
+	        }
+	    }
+
+	    if (p.getProductPictures() == null) p.setProductPictures(new ArrayList<>());
+	    p.getProductPictures().add(newFileName);
+
+	    editFileProduct(p, contextPath);
+	    return newFileName;
 	}
 }

@@ -196,7 +196,7 @@ export default function UserProfilePage() {
                         <div className="background">
                             <div className="header">
                                 <img className="user-img"
-                                     src={userProfile?.profileImage ? `http://localhost:8080/WebShopAppREST/images/profiles/${userProfile.profileImage}` : "/icons/account_circle.png"}
+                                     src={userProfile?.profilePicture ? `http://localhost:8080/WebShopAppREST/images/profiles/${userProfile.profilePicture}` : "/icons/account_circle.png"}
                                 />
                                 <div className="username">
                                     {userProfile.username}

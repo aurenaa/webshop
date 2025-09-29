@@ -9,30 +9,29 @@ export default function ProductTable({ products }) {
     return <div>No products found.</div>;
   }
 
-  const handleRowClick = (id) => {
+  const handleClick = (id) => {
     navigate(`/products/${id}`);
   };
 
   return (
-    <table className="table table-striped">
-      <thead>
-        <tr>
-          <th></th>
-          <th></th>
-          <th>Category</th>
-          <th>Date posted</th>
-        </tr>
-      </thead>
-      <tbody>
-        {products.map((p) => (
-          <tr key={p.id} onClick={() => handleRowClick(p.id)}>
-            <td>{p.name}</td>
-            <td>{p.price}</td>
-            <td>{p.category}</td>
-            <td>{new Date(p.datePosted).toLocaleDateString()}</td>
-          </tr>
+    <div className="product-grid">
+      {products
+        .filter((p) => p.status !== "SOLD")
+        .map((p) => (
+          <div key={p.id} className="product-card" onClick={() => handleClick(p.id)}>
+            <img
+              src={
+                p.productPictures && p.productPictures.length > 0
+                  ? `http://localhost:8080/WebShopAppREST/images/products/${p.productPictures[0]}`
+                  : "/icons/no_image.jpg"
+              }
+              alt={p.name}
+              className="product-image"
+            />
+            <div className="product-name">{p.name}</div>
+            <div className="product-price">{p.price} RSD</div>
+          </div>
         ))}
-      </tbody>
-    </table>
+    </div>
   );
 }

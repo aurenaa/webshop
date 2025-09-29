@@ -1,25 +1,27 @@
-.table {
-  color: white;
-  background-color: #333;
-  border-collapse: collapse;
-  width: 100%;
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 350px));
+  gap: 80px;
+  margin-top: 30px;
+  justify-content: center;
 }
 
-.table th,
-.table td {
-  padding: 8px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
+.product-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
 }
 
-.table th {
-  background-color: #555;
+.product-image {
+  width: 250px;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 5px;
 }
 
-.table tr:nth-child(even) {
-  background-color: #444;
-}
-
-.table tr:hover {
-  background-color: #777;
+.product-name {
+  margin-top: 10px;
+  text-align: center;
+  font-weight: bold;
 }
