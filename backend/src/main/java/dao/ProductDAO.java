@@ -340,4 +340,12 @@ public class ProductDAO {
 		p.setStatus(newStatus);
 		editFileProduct(p, contextPath);
 	}
+	
+	public double findMaxBid(String productId)
+	{
+		Product p = products.get(productId);
+		if(p == null)
+			return -1;
+		return p.getBiggestBid();	
+	}
 }

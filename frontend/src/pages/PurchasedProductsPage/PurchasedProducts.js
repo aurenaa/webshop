@@ -23,10 +23,8 @@ export default function PurchasePage() {
 
   const handleCancel = async (productId) => {
     try {
-      await axios.post(`http://localhost:8080/WebShopAppREST/rest/products/${productId}/cancel`, user.id, {
-        headers: { "Content-Type": "application/json" }
-      });
-      alert("Purchase canceled successfully.");
+      await axios.patch(`http://localhost:8080/WebShopAppREST/rest/mainpage/${productId}/cancel`
+        );
 
       dispatch({ type: "SET", payload: await productsList });
     } catch (err) {
@@ -89,7 +87,7 @@ export default function PurchasePage() {
                     <th>Price</th>
                     <th>Status</th>
                     <th>More info</th>
-                    <th>Actions</th>
+                    <th>Cancel</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -110,7 +108,7 @@ export default function PurchasePage() {
                             className="btn btn-danger btn-sm"
                             onClick={() => handleCancel(product.id)}
                           >
-                            Cancel
+                            Yes
                           </button>
                         )}
                       </td>

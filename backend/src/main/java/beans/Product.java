@@ -18,6 +18,8 @@ public class Product {
     private String buyerId;
     private String rejectionReason;
     
+    private double biggestBid;
+    
     public enum SaleType {
     	FIXED_PRICE,
         AUCTION
@@ -154,5 +156,24 @@ public class Product {
     public void setRejectionReason(String rejectionReason)
     {
     	this.rejectionReason = rejectionReason;
+    }
+    
+    public double getBiggestBid()
+    {
+    	return biggestBid;
+    }
+    
+    public void setBiggestBid(double bBid)
+    {
+    	this.biggestBid = bBid;
+    }
+    
+    public double getMaxBid()
+    {
+    	if(bids == null || bids.isEmpty())
+    	{
+    		return price;
+    	}
+    	return bids.stream().mapToDouble(Bid::getOffer).max().orElse(price);
     }
 }

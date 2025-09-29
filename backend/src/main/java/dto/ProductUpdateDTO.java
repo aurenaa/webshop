@@ -13,6 +13,7 @@ public class ProductUpdateDTO
     private boolean buyerReviewed;
     private boolean sellerReviewed;
     private Status status;
+    private double biggestBid;
     
     public String getName() { return name; }
     public void setName(String name) {this.name = name; }
@@ -53,5 +54,15 @@ public class ProductUpdateDTO
     public void setStatus(Status status)
     {
     	this.status = status;
+    }
+    
+    public double getBiggestBid()
+    {
+    	return biggestBid;
+    }
+    
+    public void setBiggestBid(double bBid)
+    {
+    	this.biggestBid = bBid;
     }
 }

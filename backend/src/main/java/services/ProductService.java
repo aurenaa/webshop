@@ -126,6 +126,7 @@ public class ProductService {
 	{
 		ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
 		UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
+		//BidDAO bidDAO = (BidDAO) ctx.getAttribute("bidDAO");
 		
 		Product product = productDAO.findProduct(id);
 		String buyerid = buyerId.getBuyerId();
@@ -147,14 +148,12 @@ public class ProductService {
 		    	userDAO.addPurchaseId(buyer, product.getId(), ctx.getRealPath(""));
 		    	userDAO.editFileUser(buyer, ctx.getRealPath(""));
 		    }
-		    
-		    return product;
+		     
 		}
-		else
-		{
-			return null;
-		}
+		return product;
 	}
+	
+	
 	
 	@POST
 	@Path("/{id}/sell")
@@ -209,40 +208,15 @@ public class ProductService {
 	    return product;
 	}
 	
-	@POST
+	@PATCH
 	@Path("/{id}/cancel")
 	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.TEXT_PLAIN)
-	public Product cancelPurchase(@PathParam("id") String id, String buyerId)
+	public Product cancelPurchase(@PathParam("id") String productId)
 	{
-		ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
-		UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
-		
-		Product product = productDAO.findProduct(id);
-		
-		if(product.getStatus().equals(Product.Status.PROCESSING) && product.getBuyerId().equals(buyerId))
-		{
-			product.setStatus(Product.Status.CANCELED);
-		    product.setBuyerId(null);  
-		    productDAO.editFileProduct(product, ctx.getRealPath(""));
-		    
-		    User buyer = userDAO.findById(buyerId);
-		    if (buyer != null) {
-		        userDAO.removePurchaseList(buyer, product.getId(), ctx.getRealPath(""));
-		        userDAO.editFileUser(buyer, ctx.getRealPath(""));
-		    }
-
-		    User seller = userDAO.findById(product.getSellerId());
-		    if (seller != null) {
-		        userDAO.addProductId(seller, product.getId(), ctx.getRealPath(""));
-		        userDAO.editFileUser(seller, ctx.getRealPath(""));
-		    }
-		}
-		else
-		{
-			return null;
-		}
-		
+		ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");;
+		Product product = productDAO.findProduct(productId);
+		product.setStatus(Status.CANCELED);
+		productDAO.editFileProduct(product, ctx.getRealPath(""));
 	    return product;
 	}
 	
