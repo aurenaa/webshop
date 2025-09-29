@@ -34,7 +34,6 @@ public class CategoriesService {
 	}
 	
 	@GET
-	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Collection<Category> getCategories() {
 		CategoryDAO dao = (CategoryDAO) ctx.getAttribute("categoryDAO");

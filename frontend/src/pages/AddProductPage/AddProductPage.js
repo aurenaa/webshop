@@ -20,6 +20,7 @@ export default function AddProductPage() {
     const [message, setMessage] = useState("");
     const [categories, setCategories] = useState([]);
     const [newCategory, setNewCategory] = useState("");
+    const [productImage, setProductImage] = useState(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -35,17 +36,36 @@ export default function AddProductPage() {
                     "http://localhost:8080/WebShopAppREST/rest/categories/add-category",
                     { name: newCategory }
                 );
-            }            
-            const productToSend = { ...selectedProduct, sellerId: userId };
-            console.log("Posting product:", productToSend);
-            const response = await axios.post(
-                "http://localhost:8080/WebShopAppREST/rest/mainpage/", 
-                productToSend
-        );
+            }
 
-        dispatch({ type: "ADD", payload: response.data });
-        setMessage("Listing added.");
-        navigate("/"); 
+            const productToSend = {
+                ...selectedProduct,
+                sellerId: userId,
+                category: { name: selectedProduct.category }
+            };
+
+            const productResponse = await axios.post(
+                "http://localhost:8080/WebShopAppREST/rest/mainpage/",
+                productToSend
+            );
+
+            const createdProduct = productResponse.data;
+
+            const formData = new FormData();
+            formData.append("productImage", productImage);
+            formData.append("id", createdProduct.id);
+
+            const imageResponse = await axios.post(
+                "http://localhost:8080/WebShopAppREST/products/upload-image",
+                formData,
+                { headers: { "Content-Type": "multipart/form-data" } }
+            );
+
+            createdProduct.image = imageResponse.data.productImage;
+
+            dispatch({ type: "ADD", payload: createdProduct });
+            setMessage("Listing added.");
+            navigate("/"); 
         } catch (err) {
             console.error(err);
             setMessage("Error while posting listing.");
@@ -55,7 +75,10 @@ export default function AddProductPage() {
     useEffect(() => {
     axios
         .get("http://localhost:8080/WebShopAppREST/rest/categories/")
-        .then((res) => setCategories(res.data))
+        .then((res) => {
+            console.log("Fetched categories:", res.data);
+            setCategories(res.data)
+        })
         .catch((err) => console.error("Failed to fetch categories:", err));
     }, []);
 
@@ -138,6 +161,13 @@ export default function AddProductPage() {
                 <option value="FIXED_PRICE">Fixed Price</option>
                 <option value="AUCTION">Auction</option>
                 </select>
+                <label>Product Image *</label>
+                    <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={(e) => setProductImage(e.target.files[0])} 
+                        required
+                        />
                 <button className="btn btn-secondary mt-2" type="submit">Add Product</button>
             </form>
             </div>

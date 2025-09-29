@@ -56,12 +56,14 @@ public class ProductDAO {
 	            if (line.equals("") || line.startsWith("#"))
 	                continue;
 
+
 	            String[] tokens = line.split(";");
+	            /*
 	            if (tokens.length < 10) {
 	                System.out.println("Skipping: " + line);
 	                continue;
 	            }
-
+	             */
 	            String id = tokens[0].trim();
 	            String name = tokens[1].trim();
 	            String description = tokens[2].trim();
@@ -144,7 +146,8 @@ public class ProductDAO {
 	            if (product.getBids() == null) product.setBids(new ArrayList<>());
 	            
 	            String productPicturesStr = String.join("|", product.getProductPictures());
-	            
+	            String categoryStr = product.getCategory() != null ? product.getCategory().getName() : "Uncategorized";
+
 	            String bidsStr = "";
 	            if (!product.getBids().isEmpty()) {
 	                List<String> bidTokens = new ArrayList<>();
@@ -158,7 +161,7 @@ public class ProductDAO {
 	                product.getId(),
 	                product.getName(),
 	                product.getDescription(),
-	                product.getCategory().getName(),
+	                categoryStr,
 	                product.getPrice(), 
 	                product.getSaleType(),
 	                dateStr,
@@ -246,12 +249,13 @@ public class ProductDAO {
 	                        }
 	                        bidsStr = String.join("|", bidTokens);
 	                    }
-	                    
-	                    String newLine = String.format("%s;%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s",
+	                    String categoryStr = updatedProduct.getCategory() != null ? updatedProduct.getCategory().getName() : "Uncategorized";
+
+	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s",
 	                            updatedProduct.getId(),
 	                            updatedProduct.getName(),
 	                            updatedProduct.getDescription(),
-	                            updatedProduct.getCategory().getName(),
+	                            categoryStr,
 	                            updatedProduct.getPrice(),
 	                            updatedProduct.getSaleType(),
 	                            dateStr,
