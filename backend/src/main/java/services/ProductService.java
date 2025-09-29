@@ -13,10 +13,13 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import beans.Product;
+import beans.Product.SaleType;
+import beans.Product.Status;
 import beans.User;
 import dao.ProductDAO;
 import dao.UserDAO;
@@ -112,6 +115,36 @@ public class ProductService {
 	    
 	    dao.editFileProduct(product, contextPath);
 	    return product;
+	}
+	
+	@POST
+	@Path("/{id}/buy")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Product buyProduct(@PathParam("id") String id, @QueryParam("buyerId") String buyerId)
+	{
+		ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
+		UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
+		
+		Product product = productDAO.findProduct(id);
+		
+		if(product.getSaleType().equals(SaleType.FIXED_PRICE))
+		{
+			productDAO.updateStatus(id, Status.PROCESSING, ctx.getRealPath(""));
+		}
+		else
+		{
+			return null;
+		}
+		
+		User buyer = userDAO.findById(buyerId);
+		if(buyer != null)
+		{
+			userDAO.addProductId(buyer, product.getId(), ctx.getRealPath(""));
+			userDAO.editFileUser(buyer, ctx.getRealPath(""));
+		}
+		
+		return product;
 	}
 	
 }

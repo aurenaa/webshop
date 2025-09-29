@@ -30,7 +30,7 @@ public class Product {
         this.bids = new ArrayList<>();
     }
 
-    public Product(String id, String name, String description, String category, double price, SaleType saleType, String sellerId) {
+    public Product(String id, String name, String description, String category, double price, SaleType saleType, String sellerId, Status status) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -39,6 +39,7 @@ public class Product {
         this.saleType = saleType;
         this.datePosted = new Date();
         this.sellerId = sellerId;
+        this.status = status;
     }
     
     public Product(String id, String name, String description, String category, double price, SaleType saleType, Date datePosted, String sellerId, Status status, List<Bid> bids) {

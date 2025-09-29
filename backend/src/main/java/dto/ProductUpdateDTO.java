@@ -1,6 +1,7 @@
 package dto;
 
 import beans.Product.SaleType;
+import beans.Product.Status;;
 
 public class ProductUpdateDTO
 {
@@ -11,6 +12,7 @@ public class ProductUpdateDTO
     private SaleType saleType;
     private boolean buyerReviewed;
     private boolean sellerReviewed;
+    private Status status;
     
     public String getName() { return name; }
     public void setName(String name) {this.name = name; }
@@ -41,5 +43,15 @@ public class ProductUpdateDTO
     
     public void setSellerReviewed(boolean sellerReviewed) { 
     	this.sellerReviewed = sellerReviewed; 
+    }
+    
+    public Status getStatus()
+    {
+    	return status;
+    }
+    
+    public void setStatus(Status status)
+    {
+    	this.status = status;
     }
 }

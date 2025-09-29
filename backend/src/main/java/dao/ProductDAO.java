@@ -317,4 +317,11 @@ public class ProductDAO {
 		
 		return p;
 	}
+	
+	public void updateStatus(String id, Status newStatus, String contextPath)
+	{
+		Product p = products.get(id);
+		p.setStatus(newStatus);
+		editFileProduct(p, contextPath);
+	}
 }
