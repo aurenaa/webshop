@@ -17,9 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Date;
 
+import beans.Category;
 import beans.Bid;
 import beans.Product;
-import beans.User;
 import beans.Product.Status;
 import dto.ProductUpdateDTO;
 
@@ -56,16 +56,18 @@ public class ProductDAO {
 	            if (line.equals("") || line.startsWith("#"))
 	                continue;
 
+
 	            String[] tokens = line.split(";");
+	            /*
 	            if (tokens.length < 10) {
 	                System.out.println("Skipping: " + line);
 	                continue;
 	            }
-
+	             */
 	            String id = tokens[0].trim();
 	            String name = tokens[1].trim();
 	            String description = tokens[2].trim();
-	            String category = tokens[3].trim();
+	            Category category = new Category(tokens[3].trim());
 	            String price = tokens[4].trim();
 	            String saleType = tokens[5].trim();
 	            String datePosted = tokens[6].trim();
@@ -144,7 +146,8 @@ public class ProductDAO {
 	            if (product.getBids() == null) product.setBids(new ArrayList<>());
 	            
 	            String productPicturesStr = String.join("|", product.getProductPictures());
-	            
+	            String categoryStr = product.getCategory() != null ? product.getCategory().getName() : "Uncategorized";
+
 	            String bidsStr = "";
 	            if (!product.getBids().isEmpty()) {
 	                List<String> bidTokens = new ArrayList<>();
@@ -158,7 +161,7 @@ public class ProductDAO {
 	                product.getId(),
 	                product.getName(),
 	                product.getDescription(),
-	                product.getCategory(),
+	                categoryStr,
 	                product.getPrice(), 
 	                product.getSaleType(),
 	                dateStr,
@@ -246,12 +249,13 @@ public class ProductDAO {
 	                        }
 	                        bidsStr = String.join("|", bidTokens);
 	                    }
-	                    
-	                    String newLine = String.format("%s;%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s",
+	                    String categoryStr = updatedProduct.getCategory() != null ? updatedProduct.getCategory().getName() : "Uncategorized";
+
+	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s",
 	                            updatedProduct.getId(),
 	                            updatedProduct.getName(),
 	                            updatedProduct.getDescription(),
-	                            updatedProduct.getCategory(),
+	                            categoryStr,
 	                            updatedProduct.getPrice(),
 	                            updatedProduct.getSaleType(),
 	                            dateStr,
@@ -297,7 +301,7 @@ public class ProductDAO {
 			p.setId(id);
 			p.setName(product.getName());
 	        p.setDescription(product.getDescription());
-	        p.setCategory(product.getCategory());
+	        p.setCategory(new Category(product.getCategory().getName()));
 	        p.setPrice(product.getPrice());
 	        p.setSaleType(product.getSaleType());
 	        p.setDatePosted(product.getDatePosted());
@@ -322,7 +326,7 @@ public class ProductDAO {
 		}
 		if(updated.getCategory() != null)
 		{
-			p.setCategory(updated.getCategory());
+			p.setCategory(new Category(updated.getCategory().getName()));
 		}
 		if(updated.getPrice() != null)
 		{
