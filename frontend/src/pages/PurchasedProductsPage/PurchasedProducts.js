@@ -74,7 +74,7 @@ export default function PurchasePage() {
                     <th>Product</th>
                     <th>Price</th>
                     <th>Status</th>
-                    <th>Info</th>
+                    <th>More info</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -85,7 +85,7 @@ export default function PurchasePage() {
                       <td>{product.status}</td>
                       <td>
                         {product.status === "REJECTED" && product.rejectionReason && (
-                          <div className="text-danger"><small>Reason: {product.rejectionReason}</small></div>
+                          <div className="text-danger"><small> {product.rejectionReason}</small></div>
                         )}
                       </td>
                     </tr>
