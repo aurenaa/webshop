@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthorize } from "../../contexts/AuthorizeContext";
 import { useProducts } from "../../contexts/ProductsContext";
@@ -8,7 +8,6 @@ import "./AddProductPage.css";
 export default function AddProductPage() {
     const navigate = useNavigate();
     const { isLoggedIn, userId } = useAuthorize();
-
     const { dispatch } = useProducts();
     const [selectedProduct, setSelectedProduct] = useState({
         name: "",
@@ -17,33 +16,48 @@ export default function AddProductPage() {
         category: "",
         saleType: "FIXED_PRICE"
     });
+
     const [message, setMessage] = useState("");
+    const [categories, setCategories] = useState([]);
+    const [newCategory, setNewCategory] = useState("");
 
     const handleSubmit = async (e) => {
-    e.preventDefault();
+        e.preventDefault();
 
-    if (!isLoggedIn) {
-      navigate("/login");
-      return;
-    }
+        if (!isLoggedIn) {
+            navigate("/login");
+            return;
+        }
 
-    try {
-        const productToSend = { ...selectedProduct, sellerId: userId };
-        console.log("Posting product:", productToSend);
-        const response = await axios.post(
-            "http://localhost:8080/WebShopAppREST/rest/mainpage/", 
-            productToSend
-    );
+        try {
+            if (newCategory) {
+                await axios.post(
+                    "http://localhost:8080/WebShopAppREST/rest/categories/add-category",
+                    { name: newCategory }
+                );
+            }            
+            const productToSend = { ...selectedProduct, sellerId: userId };
+            console.log("Posting product:", productToSend);
+            const response = await axios.post(
+                "http://localhost:8080/WebShopAppREST/rest/mainpage/", 
+                productToSend
+        );
 
-    dispatch({ type: "ADD", payload: response.data });
-
-      setMessage("Listing added.");
-      navigate("/"); 
-    } catch (err) {
-      console.error(err);
-      setMessage("Error while posting listing.");
-    }
+        dispatch({ type: "ADD", payload: response.data });
+        setMessage("Listing added.");
+        navigate("/"); 
+        } catch (err) {
+            console.error(err);
+            setMessage("Error while posting listing.");
+        }
     };
+
+    useEffect(() => {
+    axios
+        .get("http://localhost:8080/WebShopAppREST/rest/categories/")
+        .then((res) => setCategories(res.data))
+        .catch((err) => console.error("Failed to fetch categories:", err));
+    }, []);
 
     return (
         <div className="add-product-page">
@@ -78,19 +92,44 @@ export default function AddProductPage() {
                     onChange={(e) => setSelectedProduct({ ...selectedProduct, price: e.target.value })}
                     required
                 />
-                <input
-                type="text"
-                name="category"
-                placeholder="Category"
-                value={selectedProduct.category}
-                onChange={(e) => setSelectedProduct({ ...selectedProduct, category: e.target.value })}
-                />
-                <textarea
-                    name="description"
-                    placeholder="Description"
-                    value={selectedProduct.description}
-                    onChange={(e) => setSelectedProduct({ ...selectedProduct, description: e.target.value })}
-                />
+                <label>Category:</label>
+                <select
+                    value={selectedProduct.category || "NEW"}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === "NEW") {
+                        setSelectedProduct({ ...selectedProduct, category: "" });
+                        } else {
+                        setSelectedProduct({ ...selectedProduct, category: value });
+                        }
+                    }}
+                >
+                <option value="">-- Choose category --</option>
+                {categories.map((cat) => (
+                    <option key={cat.name} value={cat.name}>
+                    {cat.name}
+                    </option>
+                ))}
+                <option value="NEW">+ Add new category</option>
+                </select>
+
+                {selectedProduct.category === "" && (
+                    <input
+                        type="text"
+                        placeholder="New category"
+                        value={newCategory}
+                        onChange={(e) => {
+                        setNewCategory(e.target.value);
+                        setSelectedProduct({ ...selectedProduct, category: e.target.value });
+                        }}
+                    />
+                )}
+                    <textarea
+                        name="description"
+                        placeholder="Description"
+                        value={selectedProduct.description}
+                        onChange={(e) => setSelectedProduct({ ...selectedProduct, description: e.target.value })}
+                    />
                 <select
                     name="saleType"
                     value={selectedProduct.saleType}
