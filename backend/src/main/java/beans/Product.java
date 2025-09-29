@@ -8,7 +8,7 @@ public class Product {
     private String id;
     private String name;
     private String description;
-    private String category;
+    private Category category;
     private double price;
     private SaleType saleType;
     private Date datePosted;
@@ -32,7 +32,7 @@ public class Product {
         this.productPictures = new ArrayList<>();
     }
 
-    public Product(String id, String name, String description, String category, double price, SaleType saleType, String sellerId) {
+    public Product(String id, String name, String description, Category category, double price, SaleType saleType, String sellerId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -43,7 +43,7 @@ public class Product {
         this.sellerId = sellerId;
     }
     
-    public Product(String id, String name, String description, String category, double price, SaleType saleType, Date datePosted, String sellerId, Status status, List<String> productPictures, List<Bid> bids) {
+    public Product(String id, String name, String description, Category category, double price, SaleType saleType, Date datePosted, String sellerId, Status status, List<String> productPictures, List<Bid> bids) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -81,11 +81,11 @@ public class Product {
         this.description = description;
     }
 
-    public String getCategory() {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(Category category) {
         this.category = category;
     }
 

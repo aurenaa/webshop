@@ -65,7 +65,7 @@ public class ProductDAO {
 	            String id = tokens[0].trim();
 	            String name = tokens[1].trim();
 	            String description = tokens[2].trim();
-	            String category = tokens[3].trim();
+	            Category category = tokens[3].trim();
 	            String price = tokens[4].trim();
 	            String saleType = tokens[5].trim();
 	            String datePosted = tokens[6].trim();
