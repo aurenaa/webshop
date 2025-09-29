@@ -33,6 +33,19 @@ export default function ProductPage() {
     const [product, setProduct] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editedProduct, setEditedProduct] = useState(null);
+    const [selectedIndex, setSelectedIndex] = useState(0);
+
+    const handlePrev = () => {
+    setSelectedIndex((prev) =>
+        prev === 0 ? product.productPictures.length - 1 : prev - 1
+    );
+    };
+
+    const handleNext = () => {
+    setSelectedIndex((prev) =>
+        prev === product.productPictures.length - 1 ? 0 : prev + 1
+    );
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -167,23 +180,28 @@ export default function ProductPage() {
             </div>
         </nav>
         <div className="body">
-        <div className="image-gallery" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            {product.productPictures && product.productPictures.slice(0, 5).map((pic, idx) => (
-                <img
+            <div className="image-gallery">
+                {product.productPictures && product.productPictures.slice(0, 5).map((pic, idx) => (
+                    <img
                     key={idx}
                     src={`http://localhost:8080/WebShopAppREST/images/products/${pic}`}
                     alt={`${product.name} ${idx + 1}`}
-                    style={{ width: "80px", height: "80px", objectFit: "cover" }}
-                />
-            ))}
-        </div>
+                    className={`gallery-img ${idx === selectedIndex ? "active" : ""}`}
+                    onClick={() => setSelectedIndex(idx)}
+                    />
+                ))}
+            </div>
             <div className="product-img">
-                <img
-                    src={product.productPictures && product.productPictures.length > 0 ? 
-                        `http://localhost:8080/WebShopAppREST/images/products/${product.productPictures[0]}` 
-                        : "/icons/no_image.jpg"}
-                    alt={product.name}
-                />
+            <button className="arrow left" onClick={handlePrev}>&lt;</button>
+            <img
+                src={
+                product.productPictures && product.productPictures.length > 0
+                    ? `http://localhost:8080/WebShopAppREST/images/products/${product.productPictures[selectedIndex]}`
+                    : "/icons/no_image.jpg"
+                }
+                alt={product.name}
+            />
+            <button className="arrow right" onClick={handleNext}>&gt;</button>
             </div>
             <div className="product-info">            
                 {isEditing ? (
