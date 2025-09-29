@@ -28,6 +28,7 @@ public class User implements Serializable {
     private Role role;          
     private boolean blocked; 
     private List<String> productList;
+    private List<String> purchaseList;
     
     private List<String> reviewsReceived;
     private double averageRating;
@@ -70,7 +71,7 @@ public class User implements Serializable {
     }
     
     public User(String id, String firstName, String lastName, String username, String email, String phoneNumber,
-            String password, Role role, boolean blocked, List<String> productList, LocalDate birthDate, String description, 
+            String password, Role role, boolean blocked, List<String> productList, List<String> purchaseList, LocalDate birthDate, String description, 
             String profilePicture, Double averageRating, List<String> reviewsReceived) {
     this.id = id;
     this.firstName = firstName;
@@ -82,6 +83,7 @@ public class User implements Serializable {
     this.role = role;
     this.blocked = blocked;
     this.productList = productList != null ? productList : new ArrayList<>();
+    this.purchaseList = purchaseList != null ? purchaseList : new ArrayList<>();
     this.birthDate = birthDate;
     this.description = description;
     this.profilePicture = profilePicture;
@@ -198,6 +200,14 @@ public class User implements Serializable {
     
 	public List<String> getProductList() {
 	    return productList;
+	}
+	
+	public void setPurchaseList(ArrayList<String> purchaseList) {
+    	this.purchaseList = purchaseList;
+    }
+    
+	public List<String> getPurchaseList() {
+	    return purchaseList;
 	}
 	
     public void setReviewsList(ArrayList<String> reviewsReceived) {

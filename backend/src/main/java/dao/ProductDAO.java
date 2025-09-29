@@ -67,28 +67,33 @@ public class ProductDAO {
 	            String sellerId = tokens[7].trim();
 	            String status = tokens[8].trim();
 	            
+	            String buyerId = "";
+	            if (tokens.length > 9) {
+	                buyerId = tokens[9].trim();
+	            }
+	            
 	            List<Bid> bids = new ArrayList<>();
-	            if (tokens.length > 9 && !tokens[9].trim().isEmpty()) {
-	                String bidsStr = tokens[9].trim();
+	            if (tokens.length > 10 && !tokens[10].trim().isEmpty()) {
+	                String bidsStr = tokens[10].trim();
 	                String[] bidsArr = bidsStr.split("\\|");
 	                for (String b : bidsArr) {
 	                    String[] bidTokens = b.split(":");
 	                    if (bidTokens.length == 2) {
-	                        String buyerId = bidTokens[0].trim();
+	                        String bidbuyerId = bidTokens[0].trim();
 	                        double offer = Double.parseDouble(bidTokens[1].trim());
-	                        bids.add(new Bid(offer, buyerId)); 
+	                        bids.add(new Bid(offer, bidbuyerId)); 
 	                    }
 	                }
 	            }
                 
 	            if (id.isEmpty() || name.isEmpty() || price.isEmpty() || saleType.isEmpty())
 	                continue;
-
+	            
 	            Product.SaleType saleEnum = Product.SaleType.valueOf(saleType);
 	            Product.Status statusEnum = Product.Status.valueOf(status);
 	            Date date = java.sql.Date.valueOf(datePosted);
 
-	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId, statusEnum, bids));
+	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId, statusEnum, buyerId, bids));
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -125,7 +130,7 @@ public class ProductDAO {
 	            
 	            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	            String dateStr = sdf.format(product.getDatePosted());
-	            if (product.getStatus() == null) product.setStatus(Product.Status.PROCESSING);
+	            if (product.getStatus() == null) product.setStatus(Product.Status.AVAILABLE);
 	            if (product.getBids() == null) product.setBids(new ArrayList<>());
 	            
 	            String bidsStr = "";
@@ -137,7 +142,7 @@ public class ProductDAO {
 	                bidsStr = String.join("|", bidTokens);
 	            }
 	            
-	            String line = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;",
+	            String line = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s;",
 	                product.getId(),
 	                product.getName(),
 	                product.getDescription(),
@@ -146,7 +151,8 @@ public class ProductDAO {
 	                product.getSaleType(),
 	                dateStr,
 	                product.getSellerId(),
-	                product.getStatus(),	              
+	                product.getStatus(),
+	                product.getBuyerId() != null ? product.getBuyerId() : "",
 	                bidsStr
 	            );
 
@@ -228,7 +234,7 @@ public class ProductDAO {
 	                        bidsStr = String.join("|", bidTokens);
 	                    }
 	                    
-	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s",
+	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s%s",
 	                            updatedProduct.getId(),
 	                            updatedProduct.getName(),
 	                            updatedProduct.getDescription(),
@@ -238,6 +244,7 @@ public class ProductDAO {
 	                            dateStr,
 	                            updatedProduct.getSellerId(),
 	                            updatedProduct.getStatus(),
+	                            updatedProduct.getBuyerId() != null ? updatedProduct.getBuyerId() : "",
 	                            bidsStr
 	                    );
 	                    lines.add(newLine);
@@ -318,9 +325,10 @@ public class ProductDAO {
 		return p;
 	}
 	
-	public void updateStatus(String id, Status newStatus, String contextPath)
+	public void updateStatus(String id, Status newStatus, String contextPath, String buyerId)
 	{
 		Product p = products.get(id);
+		p.setBuyerId(buyerId);
 		p.setStatus(newStatus);
 		editFileProduct(p, contextPath);
 	}

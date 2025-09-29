@@ -15,6 +15,7 @@ public class Product {
     private String sellerId;
     private List<Bid> bids;
     private Status status;
+    private String buyerId;
     
     public enum SaleType {
     	FIXED_PRICE,
@@ -22,7 +23,7 @@ public class Product {
     }
     
     public enum Status {
-    	PROCESSING, SOLD, REJECTED, CANCELED
+    	AVAILABLE, PROCESSING, SOLD, REJECTED, CANCELED
     }
 
     public Product() {
@@ -30,7 +31,7 @@ public class Product {
         this.bids = new ArrayList<>();
     }
 
-    public Product(String id, String name, String description, String category, double price, SaleType saleType, String sellerId, Status status) {
+    public Product(String id, String name, String description, String category, double price, SaleType saleType, String sellerId, String buyerId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -39,10 +40,10 @@ public class Product {
         this.saleType = saleType;
         this.datePosted = new Date();
         this.sellerId = sellerId;
-        this.status = status;
+        this.buyerId = buyerId;
     }
     
-    public Product(String id, String name, String description, String category, double price, SaleType saleType, Date datePosted, String sellerId, Status status, List<Bid> bids) {
+    public Product(String id, String name, String description, String category, double price, SaleType saleType, Date datePosted, String sellerId, Status status, String buyerId, List<Bid> bids) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -133,5 +134,14 @@ public class Product {
     
     public void setStatus(Status status) { 
     	this.status = status; 
+    }
+    
+    public String getBuyerId() {
+    	return buyerId;
+    }
+    
+    public void setBuyerId(String buyerId)
+    {
+    	this.buyerId = buyerId;
     }
 }

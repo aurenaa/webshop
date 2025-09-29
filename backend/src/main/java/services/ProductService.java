@@ -130,21 +130,55 @@ public class ProductService {
 		
 		if(product.getSaleType().equals(SaleType.FIXED_PRICE))
 		{
-			productDAO.updateStatus(id, Status.PROCESSING, ctx.getRealPath(""));
+			productDAO.updateStatus(id, Status.PROCESSING, ctx.getRealPath(""), buyerId);
 		}
 		else
 		{
 			return null;
 		}
 		
-		User buyer = userDAO.findById(buyerId);
-		if(buyer != null)
-		{
-			userDAO.addProductId(buyer, product.getId(), ctx.getRealPath(""));
-			userDAO.editFileUser(buyer, ctx.getRealPath(""));
-		}
-		
-		return product;
+		User seller = userDAO.findById(product.getSellerId());
+	    if (seller != null) {
+	        userDAO.removeProductId(seller, product.getId(), ctx.getRealPath(""));
+	        userDAO.editFileUser(seller, ctx.getRealPath(""));
+	    }
+	    
+	    User buyer = userDAO.findById(product.getBuyerId());
+	    if(buyer != null)
+	    {
+	    	userDAO.addPurchaseId(buyer, product.getId(), ctx.getRealPath(""));
+	    	userDAO.editFileUser(buyer, ctx.getRealPath(""));
+	    }
+
+		return productDAO.findProduct(id);
+	}
+	
+	@POST
+	@Path("/{id}/sell")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Product sellProduct(@PathParam("id") String id) {
+	    ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
+	    Product product = productDAO.findProduct(id);
+
+	    product.setStatus(Status.SOLD);
+	    productDAO.editFileProduct(product, ctx.getRealPath(""));
+
+	    return product;
+	}
+	
+	@POST
+	@Path("/{id}/reject")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Product rejectProduct(@PathParam("id") String id) {
+	    ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
+	    Product product = productDAO.findProduct(id);
+
+	    product.setStatus(Status.REJECTED);
+	    product.setBuyerId(null);
+
+	    productDAO.editFileProduct(product, ctx.getRealPath(""));
+
+	    return product;
 	}
 	
 }

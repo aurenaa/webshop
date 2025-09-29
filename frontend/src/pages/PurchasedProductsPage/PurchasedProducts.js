@@ -1,0 +1,89 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import { useUser } from "../../contexts/UserContext";
+import { useAuthorize } from "../../contexts/AuthorizeContext";
+import ProductTable from "../MainPage/components/ProductTable"; 
+import axios from "axios";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import "./PurchasedProducts.css";  
+
+export default function PurchasedProductsPage() {
+  const [purchasedProducts, setPurchasedProducts] = useState([]);
+  const navigate = useNavigate();
+  const { isLoggedIn, setIsLoggedIn } = useAuthorize();
+  const { user } = useUser();
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchPurchased = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:8080/WebShopAppREST/rest/users/${user.id}/purchases`
+        );
+        setPurchasedProducts(response.data);
+      } catch (err) {
+        console.error("Error fetching purchased products", err);
+      }
+    };
+
+    fetchPurchased();
+  }, [user]);
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    navigate('/mainpage');
+  };
+
+  return (
+    <div className="main-page">
+      <nav className="navbar navbar-expand-lg navbar-light bg-light px-3 position-relative">
+        <span onClick={() => navigate("/mainpage")} className="navbar-brand" style={{ cursor: "pointer" }}>
+          WebShop
+        </span>
+
+        <div className="position-absolute start-50 translate-middle-x d-flex">
+          <input className="form-control me-2"
+                 type="search"
+                 placeholder="Search"
+                 aria-label="Search"
+          />
+          <button className="btn btn-outline-success" type="submit">Search</button>
+        </div>
+        
+        <div className="d-flex align-items-center ms-auto">
+          <button onClick={() => navigate("/add-product")} className="btn btn-success me-2">Add a Listing</button>
+          {isLoggedIn ? (
+            <>
+              <img className="cart" src="/icons/shopping_cart.png" alt="Cart" onClick={() => navigate("/cart")}/>
+              <div className="dropdown">
+                <button className="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                  <img className="menu" src="/icons/menu.png" alt="Menu"/>
+                </button>
+                <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <li><a className="dropdown-item" onClick={() => navigate(`/profile/${user.id}`)}>My account</a></li>
+                  <li><a className="dropdown-item" onClick={() => navigate("/listingpage")}>My listings</a></li>
+                  <li><a className="dropdown-item" onClick={handleLogout}>Log out</a></li>
+                </ul>
+              </div>
+            </>
+          ) : (
+            <>
+              <button onClick={() => navigate("/signup")} className="btn btn-outline-primary me-2">
+                Sign Up
+              </button>
+              <span onClick={() => navigate("/login")} className="nav-link" style={{ cursor: "pointer" }}>
+                Log in
+              </span>
+            </>
+          )}
+        </div>
+      </nav>
+
+      <div className="products-table mt-3">
+        <ProductTable products={purchasedProducts} />
+      </div>
+    </div>
+  );
+}

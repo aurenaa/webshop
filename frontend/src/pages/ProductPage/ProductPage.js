@@ -101,6 +101,29 @@ export default function ProductPage() {
         endAuction();
     };
 
+    const handleBuyClick = async () =>
+    {
+        try {
+            const response = await axios.post(
+                `http://localhost:8080/WebShopAppREST/rest/mainpage/${id}/buy`,
+                { buyerId: user.id },   
+                { headers: { "Content-Type": "application/json" } }
+            );
+
+        const boughtProduct = response.data;
+
+        navigate("/purchasedProducts", { state: { product: boughtProduct } });
+
+        } catch (err) {
+            console.error("Error buying product", err);
+        }
+    };
+
+    const handleAddToCart = () =>
+    {
+
+    }
+
     const [seller, setSeller] = useState(null);
 
     useEffect(() => {
@@ -240,7 +263,7 @@ export default function ProductPage() {
                                         {product.saleType === "AUCTION" ? (
                                             <button onClick={() => isLoggedIn ? navigate("/offer") : navigate("/login")} className="btn btn-primary">Make offer</button>
                                         ) : (
-                                            <button onClick={() => isLoggedIn ? navigate("/offer") : navigate("/login")} className="btn btn-primary">Buy it now</button>                                            
+                                            <button onClick={() => isLoggedIn ? handleBuyClick() : navigate("/login")} className="btn btn-primary">Buy it now</button>                                            
                                         )}    
                                         <button onClick={() => isLoggedIn ? navigate("/offer") : navigate("/login")} className="btn btn-primary">Add to cart</button>
                                         <button onClick={() => isLoggedIn ? navigate("/offer") : navigate("/login")} className="btn btn-danger">Add to wishlist</button>                               
