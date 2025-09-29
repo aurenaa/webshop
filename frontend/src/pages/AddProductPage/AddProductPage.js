@@ -63,20 +63,20 @@ export default function AddProductPage() {
             <div className="form-border p-4">
             <form onSubmit={handleSubmit} className="d-flex flex-column gap-2">
                 <input
-                type="text"
-                name="name"
-                placeholder="Product Name"
-                value={selectedProduct.name}
-                onChange={(e) => setSelectedProduct({ ...selectedProduct, name: e.target.value })}
-                required
+                    type="text"
+                    name="name"
+                    placeholder="Product Name"
+                    value={selectedProduct.name}
+                    onChange={(e) => setSelectedProduct({ ...selectedProduct, name: e.target.value })}
+                    required
                 />
                 <input
-                type="number"
-                name="price"
-                placeholder="Price"
-                value={selectedProduct.price}
-                onChange={(e) => setSelectedProduct({ ...selectedProduct, price: e.target.value })}
-                required
+                    type="number"
+                    name="price"
+                    placeholder="Price"
+                    value={selectedProduct.price}
+                    onChange={(e) => setSelectedProduct({ ...selectedProduct, price: e.target.value })}
+                    required
                 />
                 <input
                 type="text"
@@ -86,15 +86,15 @@ export default function AddProductPage() {
                 onChange={(e) => setSelectedProduct({ ...selectedProduct, category: e.target.value })}
                 />
                 <textarea
-                name="description"
-                placeholder="Description"
-                value={selectedProduct.description}
-                onChange={(e) => setSelectedProduct({ ...selectedProduct, description: e.target.value })}
+                    name="description"
+                    placeholder="Description"
+                    value={selectedProduct.description}
+                    onChange={(e) => setSelectedProduct({ ...selectedProduct, description: e.target.value })}
                 />
                 <select
-                name="saleType"
-                value={selectedProduct.saleType}
-                onChange={(e) => setSelectedProduct({ ...selectedProduct, saleType: e.target.value })}
+                    name="saleType"
+                    value={selectedProduct.saleType}
+                    onChange={(e) => setSelectedProduct({ ...selectedProduct, saleType: e.target.value })}
                 >
                 <option value="FIXED_PRICE">Fixed Price</option>
                 <option value="AUCTION">Auction</option>

@@ -1,12 +1,13 @@
 package dto;
 
+import beans.Category;
 import beans.Product.SaleType;
 
 public class ProductUpdateDTO
 {
 	private String name;
 	private String description;
-    private String category;
+    private Category category;
     private double price;
     private SaleType saleType;
     private boolean buyerReviewed;
@@ -18,8 +19,8 @@ public class ProductUpdateDTO
     public String getDescription() { return description; }
     public void setDescription(String description) {this.description = description; }
     
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
+    public Category getCategory() { return category; }
+    public void setCategory(Category category) { this.category = category; }
 
     public Double getPrice() { return price; }
     public void setPrice(Double price) { this.price = price; }

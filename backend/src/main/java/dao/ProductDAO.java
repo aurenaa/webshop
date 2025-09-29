@@ -17,9 +17,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Date;
 
+import beans.Category;
 import beans.Bid;
 import beans.Product;
-import beans.User;
 import beans.Product.Status;
 import dto.ProductUpdateDTO;
 
@@ -65,7 +65,7 @@ public class ProductDAO {
 	            String id = tokens[0].trim();
 	            String name = tokens[1].trim();
 	            String description = tokens[2].trim();
-	            Category category = tokens[3].trim();
+	            Category category = new Category(tokens[3].trim());
 	            String price = tokens[4].trim();
 	            String saleType = tokens[5].trim();
 	            String datePosted = tokens[6].trim();
@@ -158,7 +158,7 @@ public class ProductDAO {
 	                product.getId(),
 	                product.getName(),
 	                product.getDescription(),
-	                product.getCategory(),
+	                product.getCategory().getName(),
 	                product.getPrice(), 
 	                product.getSaleType(),
 	                dateStr,
@@ -251,7 +251,7 @@ public class ProductDAO {
 	                            updatedProduct.getId(),
 	                            updatedProduct.getName(),
 	                            updatedProduct.getDescription(),
-	                            updatedProduct.getCategory(),
+	                            updatedProduct.getCategory().getName(),
 	                            updatedProduct.getPrice(),
 	                            updatedProduct.getSaleType(),
 	                            dateStr,
@@ -297,7 +297,7 @@ public class ProductDAO {
 			p.setId(id);
 			p.setName(product.getName());
 	        p.setDescription(product.getDescription());
-	        p.setCategory(product.getCategory());
+	        p.setCategory(new Category(product.getCategory().getName()));
 	        p.setPrice(product.getPrice());
 	        p.setSaleType(product.getSaleType());
 	        p.setDatePosted(product.getDatePosted());
@@ -322,7 +322,7 @@ public class ProductDAO {
 		}
 		if(updated.getCategory() != null)
 		{
-			p.setCategory(updated.getCategory());
+			p.setCategory(new Category(updated.getCategory().getName()));
 		}
 		if(updated.getPrice() != null)
 		{
