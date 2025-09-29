@@ -212,39 +212,37 @@ public class ProductService {
 	@POST
 	@Path("/{id}/cancel")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Product cancelPurchase(@PathParam("id") String id, @QueryParam("id") String buyerId)
+	@Consumes(MediaType.TEXT_PLAIN)
+	public Product cancelPurchase(@PathParam("id") String id, String buyerId)
 	{
 		ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
 		UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
 		
 		Product product = productDAO.findProduct(id);
 		
-		if(!product.getStatus().equals(Product.Status.PROCESSING))
+		if(product.getStatus().equals(Product.Status.PROCESSING) && product.getBuyerId().equals(buyerId))
+		{
+			product.setStatus(Product.Status.CANCELED);
+		    product.setBuyerId(null);  
+		    productDAO.editFileProduct(product, ctx.getRealPath(""));
+		    
+		    User buyer = userDAO.findById(buyerId);
+		    if (buyer != null) {
+		        userDAO.removePurchaseList(buyer, product.getId(), ctx.getRealPath(""));
+		        userDAO.editFileUser(buyer, ctx.getRealPath(""));
+		    }
+
+		    User seller = userDAO.findById(product.getSellerId());
+		    if (seller != null) {
+		        userDAO.addProductId(seller, product.getId(), ctx.getRealPath(""));
+		        userDAO.editFileUser(seller, ctx.getRealPath(""));
+		    }
+		}
+		else
 		{
 			return null;
 		}
 		
-		if(!product.getBuyerId().equals(buyerId))
-		{
-			return null;
-		}
-		
-		product.setStatus(Product.Status.AVAILABLE);
-	    product.setBuyerId(null);  
-	    productDAO.editFileProduct(product, ctx.getRealPath(""));
-	    
-	    User buyer = userDAO.findById(buyerId);
-	    if (buyer != null) {
-	        userDAO.removePurchaseList(buyer, product.getId(), ctx.getRealPath(""));
-	        userDAO.editFileUser(buyer, ctx.getRealPath(""));
-	    }
-
-	    User seller = userDAO.findById(product.getSellerId());
-	    if (seller != null) {
-	        userDAO.addProductId(seller, product.getId(), ctx.getRealPath(""));
-	        userDAO.editFileUser(seller, ctx.getRealPath(""));
-	    }
-
 	    return product;
 	}
 	

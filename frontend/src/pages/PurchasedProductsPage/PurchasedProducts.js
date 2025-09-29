@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import { useProducts } from "../../contexts/ProductsContext";
 import { useProductsList } from "../../hooks/useProductsList";
@@ -18,6 +19,19 @@ export default function PurchasePage() {
   const handleLogout = () => {
     setIsLoggedIn(false);
     navigate('/mainpage');
+  };
+
+  const handleCancel = async (productId) => {
+    try {
+      await axios.post(`http://localhost:8080/WebShopAppREST/rest/products/${productId}/cancel`, user.id, {
+        headers: { "Content-Type": "application/json" }
+      });
+      alert("Purchase canceled successfully.");
+
+      dispatch({ type: "SET", payload: await productsList });
+    } catch (err) {
+      alert(err.response?.data || "Error canceling purchase.");
+    }
   };
 
   useEffect(() => {
@@ -75,6 +89,7 @@ export default function PurchasePage() {
                     <th>Price</th>
                     <th>Status</th>
                     <th>More info</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -83,9 +98,20 @@ export default function PurchasePage() {
                       <td>{product.name}</td>
                       <td>{product.price}</td>
                       <td>{product.status}</td>
+                      
                       <td>
                         {product.status === "REJECTED" && product.rejectionReason && (
                           <div className="text-danger"><small> {product.rejectionReason}</small></div>
+                        )}
+                      </td>
+                      <td>
+                        {product.status === "PROCESSING" && (
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() => handleCancel(product.id)}
+                          >
+                            Cancel
+                          </button>
                         )}
                       </td>
                     </tr>
