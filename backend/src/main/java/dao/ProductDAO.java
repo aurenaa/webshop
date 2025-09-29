@@ -159,6 +159,7 @@ public class ProductDAO {
 	                product.getSellerId(),
 	                product.getStatus(),
 	                product.getBuyerId() != null ? product.getBuyerId() : "",
+	                product.getRejectionReason() != null ? product.getRejectionReason() : "",
 	                bidsStr
 	            );
 
