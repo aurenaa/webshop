@@ -15,6 +15,7 @@ public class Product {
     private String sellerId;
     private List<Bid> bids;
     private Status status;
+    private List<String> productPictures;
     
     public enum SaleType {
     	FIXED_PRICE,
@@ -28,6 +29,7 @@ public class Product {
     public Product() {
         this.datePosted = new Date();
         this.bids = new ArrayList<>();
+        this.productPictures = new ArrayList<>();
     }
 
     public Product(String id, String name, String description, String category, double price, SaleType saleType, String sellerId) {
@@ -41,7 +43,7 @@ public class Product {
         this.sellerId = sellerId;
     }
     
-    public Product(String id, String name, String description, String category, double price, SaleType saleType, Date datePosted, String sellerId, Status status, List<Bid> bids) {
+    public Product(String id, String name, String description, String category, double price, SaleType saleType, Date datePosted, String sellerId, Status status, List<String> productPictures, List<Bid> bids) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -51,6 +53,7 @@ public class Product {
         this.datePosted = datePosted;
         this.sellerId = sellerId;
         this.status = status;
+        this.productPictures = productPictures;
 	    this.bids = bids;
     }
 
@@ -132,5 +135,13 @@ public class Product {
     
     public void setStatus(Status status) { 
     	this.status = status; 
+    }
+    
+    public List<String> getProductPictures() { 
+    	return productPictures; 
+    }
+    
+    public void setProductPictures(List<String> productPictures) {
+    	this.productPictures = productPictures; 
     }
 }
