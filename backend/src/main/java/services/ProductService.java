@@ -16,8 +16,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import beans.Category;
 import beans.Product;
 import beans.User;
+import dao.CategoryDAO;
 import dao.ProductDAO;
 import dao.UserDAO;
 import dto.ProductUpdateDTO;
@@ -113,5 +115,4 @@ public class ProductService {
 	    dao.editFileProduct(product, contextPath);
 	    return product;
 	}
-	
 }

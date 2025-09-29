@@ -216,7 +216,7 @@ export default function ProductPage() {
                             </p>
                             <p>
                                 <strong>Category:</strong> 
-                                <input type="text" name="category" value={editedProduct.category} onChange={handleChange}/>
+                                <input type="text" name="category" value={editedProduct.category.name} onChange={handleChange}/>
                             </p>
                             <textarea name="description" value={editedProduct.description} onChange={handleChange}/>
                             <p><strong>Date posted:</strong> {new Date(product.datePosted).toLocaleDateString()}</p>
@@ -252,7 +252,7 @@ export default function ProductPage() {
                             </div>
                             <div className="seperator"></div>
                             <p><strong>{product.price} RSD</strong></p>
-                            <p><strong>Category:</strong> {product.category}</p>
+                            <p><strong>Category:</strong> {product.category.name}</p>
                             <p><strong>Description:</strong></p>
                             <p>{product.description}</p>
                             <p><strong>Date posted:</strong> {new Date(product.datePosted).toLocaleDateString()}</p>
