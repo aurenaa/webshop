@@ -59,7 +59,7 @@ export default function ProfilePage() {
 
   const handleSaveClick = async () => {
     try {
-      let updatedProfileImage = editedUser.profileImage;
+      let updatedProfileImage = editedUser.profilePicture;
 
       if (profileImage) {
         const formData = new FormData();
@@ -90,8 +90,8 @@ export default function ProfilePage() {
         payload
       );
 
-      setUser({ ...response.data, profileImage: updatedProfileImage });
-      setEditedUser({ ...response.data, profileImage: updatedProfileImage });
+      setUser({ ...response.data, profileImage: updatedProfileImage  });
+      setEditedUser({ ...response.data, profileImage: updatedProfileImage  });
 
       setMessage("Profile updated successfully!");
       setIsEditing(false);
@@ -102,7 +102,7 @@ export default function ProfilePage() {
       setMessage("Failed to update profile.");
     }
   };
-
+  
   return (
     <div className="main-page">
       <nav className="navbar navbar-expand-lg navbar-light bg-light px-3 position-relative">
@@ -204,11 +204,11 @@ export default function ProfilePage() {
             ) : (
               <div className="basic-info-container">
                 <div className="left-column">
-                <img
-                  src={editedUser?.profileImage ? `http://localhost:8080/WebShopAppREST/images/profiles/${editedUser.profileImage}` : "/icons/account_circle.png"}
-                  alt="User"
-                  className="account"
-                />
+                  <img
+                    src={editedUser?.profilePicture ? `http://localhost:8080/WebShopAppREST/images/profiles/${editedUser.profilePicture}` : "/icons/account_circle.png"}
+                    alt="User"
+                    className="account"
+                  />
                   <div className="username-email">
                     <p>{user.username}</p>
                     <p>{user.email}</p>

@@ -8,7 +8,7 @@ public class Product {
     private String id;
     private String name;
     private String description;
-    private String category;
+    private Category category;
     private double price;
     private SaleType saleType;
     private Date datePosted;
@@ -19,6 +19,9 @@ public class Product {
     private String rejectionReason;
     
     private double biggestBid;
+
+    private List<String> productPictures;
+
     
     public enum SaleType {
     	FIXED_PRICE,
@@ -32,9 +35,11 @@ public class Product {
     public Product() {
         this.datePosted = new Date();
         this.bids = new ArrayList<>();
+        this.productPictures = new ArrayList<>();
     }
 
-    public Product(String id, String name, String description, String category, double price, SaleType saleType, String sellerId, String buyerId) {
+
+    public Product(String id, String name, String description, Category category, double price, SaleType saleType, String sellerId, String buyerId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -46,7 +51,8 @@ public class Product {
         this.buyerId = buyerId;
     }
     
-    public Product(String id, String name, String description, String category, double price, SaleType saleType, Date datePosted, String sellerId, Status status, String buyerId, String rejectionReason, List<Bid> bids) {
+    public Product(String id, String name, String description, Category category, double price, SaleType saleType, Date datePosted, String sellerId, Status status, String buyerId, String rejectionReason, List<String> productPictures, List<Bid> bids) {
+
         this.id = id;
         this.name = name;
         this.description = description;
@@ -57,6 +63,8 @@ public class Product {
         this.sellerId = sellerId;
         this.status = status;
         this.rejectionReason = rejectionReason;
+        this.productPictures = productPictures;
+
 	    this.bids = bids;
     }
 
@@ -84,11 +92,11 @@ public class Product {
         this.description = description;
     }
 
-    public String getCategory() {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(Category category) {
         this.category = category;
     }
 
@@ -175,5 +183,13 @@ public class Product {
     		return price;
     	}
     	return bids.stream().mapToDouble(Bid::getOffer).max().orElse(price);
+    }
+
+    public List<String> getProductPictures() { 
+    	return productPictures; 
+    }
+    
+    public void setProductPictures(List<String> productPictures) {
+    	this.productPictures = productPictures; 
     }
 }

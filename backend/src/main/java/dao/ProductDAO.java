@@ -1,9 +1,12 @@
 package dao;
-
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -13,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Date;
 
+import beans.Category;
 import beans.Bid;
 import beans.Product;
 import beans.Product.Status;
@@ -51,16 +55,22 @@ public class ProductDAO {
 	            if (line.equals("") || line.startsWith("#"))
 	                continue;
 
+
 	            String[] tokens = line.split(";");
-	            if (tokens.length < 9) {
+	            /*
+	            if (tokens.length < 10) {
 	                System.out.println("Skipping: " + line);
 	                continue;
 	            }
+
 	            
+
+	             */
+
 	            String id = tokens[0].trim();
 	            String name = tokens[1].trim();
 	            String description = tokens[2].trim();
-	            String category = tokens[3].trim();
+	            Category category = new Category(tokens[3].trim());
 	            String price = tokens[4].trim();
 	            String saleType = tokens[5].trim();
 	            String datePosted = tokens[6].trim();
@@ -78,9 +88,19 @@ public class ProductDAO {
 	            	rejectionReason = tokens[10].trim();
 	            }
 	            
+	            List<String> productPictures = new ArrayList<>();
+	            if (tokens.length > 119 && !tokens[11].trim().isEmpty()) {
+	                String[] pics = tokens[11].trim().split("\\|");
+	                for (String pic : pics) {
+	                    productPictures.add(pic);
+	                }
+	            }
+	            
 	            List<Bid> bids = new ArrayList<>();
 	            if (tokens.length > 11 && !tokens[11].trim().isEmpty()) {
 	                String bidsStr = tokens[11].trim();
+
+
 	                String[] bidsArr = bidsStr.split("\\|");
 	                for (String b : bidsArr) {
 	                    String[] bidTokens = b.split(":");
@@ -99,7 +119,7 @@ public class ProductDAO {
 	            Product.Status statusEnum = Product.Status.valueOf(status);
 	            Date date = java.sql.Date.valueOf(datePosted);
 
-	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId, statusEnum, buyerId, rejectionReason, bids));
+	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId, statusEnum, buyerId, rejectionReason, productPictures, bids));
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -136,9 +156,17 @@ public class ProductDAO {
 	            
 	            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	            String dateStr = sdf.format(product.getDatePosted());
+
 	            if (product.getStatus() == null) product.setStatus(Product.Status.AVAILABLE);
+
+	            
+	            if (product.getProductPictures() == null) product.setProductPictures(new ArrayList<>());
+
 	            if (product.getBids() == null) product.setBids(new ArrayList<>());
 	            
+	            String productPicturesStr = String.join("|", product.getProductPictures());
+	            String categoryStr = product.getCategory() != null ? product.getCategory().getName() : "Uncategorized";
+
 	            String bidsStr = "";
 	            if (!product.getBids().isEmpty()) {
 	                List<String> bidTokens = new ArrayList<>();
@@ -148,18 +176,22 @@ public class ProductDAO {
 	                bidsStr = String.join("|", bidTokens);
 	            }
 	            
+
 	            String line = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s;",
 	                product.getId(),
 	                product.getName(),
 	                product.getDescription(),
-	                product.getCategory(),
+	                categoryStr,
 	                product.getPrice(), 
 	                product.getSaleType(),
 	                dateStr,
 	                product.getSellerId(),
+
 	                product.getStatus(),
 	                product.getBuyerId() != null ? product.getBuyerId() : "",
 	                product.getRejectionReason() != null ? product.getRejectionReason() : "",
+	                product.getStatus(),	
+	                productPicturesStr,
 	                bidsStr
 	            );
 
@@ -231,6 +263,7 @@ public class ProductDAO {
 	                if (parts[0].equals(updatedProduct.getId())) {
 	                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	                    String dateStr = sdf.format(updatedProduct.getDatePosted());
+	                    String productPicturesStr = updatedProduct.getProductPictures() != null ? String.join("|", updatedProduct.getProductPictures()) : "";
 	                    
 	                    String bidsStr = "";
 	                    if (updatedProduct.getBids() != null && !updatedProduct.getBids().isEmpty()) {
@@ -240,12 +273,15 @@ public class ProductDAO {
 	                        }
 	                        bidsStr = String.join("|", bidTokens);
 	                    }
+
 	                    
-	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s;%s",
+	                    //String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s;%s",
+	                   // String categoryStr = updatedProduct.getCategory() != null ? updatedProduct.getCategory().getName() : "Uncategorized";
+	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s",
 	                            updatedProduct.getId(),
 	                            updatedProduct.getName(),
 	                            updatedProduct.getDescription(),
-	                            updatedProduct.getCategory(),
+	                            //categoryStr,
 	                            updatedProduct.getPrice(),
 	                            updatedProduct.getSaleType(),
 	                            dateStr,
@@ -253,6 +289,8 @@ public class ProductDAO {
 	                            updatedProduct.getStatus(),
 	                            updatedProduct.getBuyerId() != null ? updatedProduct.getBuyerId() : "",
 	                            updatedProduct.getRejectionReason() != null ? updatedProduct.getRejectionReason() : "",
+
+	                            productPicturesStr,
 	                            bidsStr
 	                    );
 	                    lines.add(newLine);
@@ -292,7 +330,7 @@ public class ProductDAO {
 			p.setId(id);
 			p.setName(product.getName());
 	        p.setDescription(product.getDescription());
-	        p.setCategory(product.getCategory());
+	        p.setCategory(new Category(product.getCategory().getName()));
 	        p.setPrice(product.getPrice());
 	        p.setSaleType(product.getSaleType());
 	        p.setDatePosted(product.getDatePosted());
@@ -317,7 +355,7 @@ public class ProductDAO {
 		}
 		if(updated.getCategory() != null)
 		{
-			p.setCategory(updated.getCategory());
+			p.setCategory(new Category(updated.getCategory().getName()));
 		}
 		if(updated.getPrice() != null)
 		{
@@ -333,6 +371,7 @@ public class ProductDAO {
 		return p;
 	}
 	
+
 	public void updateStatus(String id, Status newStatus, String contextPath, String buyerId)
 	{
 		Product p = products.get(id);
@@ -347,5 +386,39 @@ public class ProductDAO {
 		if(p == null)
 			return -1;
 		return p.getBiggestBid();	
+	}
+
+	public String saveProductImage(String productId, InputStream fileInputStream, String fileName, String contextPath) throws IOException {
+	    Product p = products.get(productId);
+	    if (p == null) throw new IllegalArgumentException("Product not found: " + productId);
+
+	    File uploadDir = new File(contextPath + "/images/products");
+	    if (!uploadDir.exists()) uploadDir.mkdirs();
+
+	    String ext = "";
+	    int dotIndex = fileName.lastIndexOf('.');
+	    if (dotIndex > 0) ext = fileName.substring(dotIndex);
+
+	    int nextIndex = 1;
+	    if (p.getProductPictures() != null && !p.getProductPictures().isEmpty()) {
+	        nextIndex = p.getProductPictures().size() + 1;
+	    }
+
+	    String newFileName = "product_" + productId + "_" + nextIndex + ext;
+	    File outputFile = new File(uploadDir, newFileName);
+
+	    try (OutputStream out = new FileOutputStream(outputFile)) {
+	        byte[] buffer = new byte[1024];
+	        int bytesRead;
+	        while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+	            out.write(buffer, 0, bytesRead);
+	        }
+	    }
+
+	    if (p.getProductPictures() == null) p.setProductPictures(new ArrayList<>());
+	    p.getProductPictures().add(newFileName);
+
+	    editFileProduct(p, contextPath);
+	    return newFileName;
 	}
 }

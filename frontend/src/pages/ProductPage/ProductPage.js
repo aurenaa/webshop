@@ -35,6 +35,19 @@ export default function ProductPage() {
     const [product, setProduct] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editedProduct, setEditedProduct] = useState(null);
+    const [selectedIndex, setSelectedIndex] = useState(0);
+
+    const handlePrev = () => {
+    setSelectedIndex((prev) =>
+        prev === 0 ? product.productPictures.length - 1 : prev - 1
+    );
+    };
+
+    const handleNext = () => {
+    setSelectedIndex((prev) =>
+        prev === product.productPictures.length - 1 ? 0 : prev + 1
+    );
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -227,8 +240,29 @@ export default function ProductPage() {
             </div>
         </nav>
         <div className="body">
-            <div className="image-gallery"></div>
-            <div className="image"></div>
+            <div className="image-gallery">
+                {product.productPictures && product.productPictures.slice(0, 5).map((pic, idx) => (
+                    <img
+                    key={idx}
+                    src={`http://localhost:8080/WebShopAppREST/images/products/${pic}`}
+                    alt={`${product.name} ${idx + 1}`}
+                    className={`gallery-img ${idx === selectedIndex ? "active" : ""}`}
+                    onClick={() => setSelectedIndex(idx)}
+                    />
+                ))}
+            </div>
+            <div className="product-img">
+            <button className="arrow left" onClick={handlePrev}>&lt;</button>
+            <img
+                src={
+                product.productPictures && product.productPictures.length > 0
+                    ? `http://localhost:8080/WebShopAppREST/images/products/${product.productPictures[selectedIndex]}`
+                    : "/icons/no_image.jpg"
+                }
+                alt={product.name}
+            />
+            <button className="arrow right" onClick={handleNext}>&gt;</button>
+            </div>
             <div className="product-info">            
                 {isEditing ? (
                         <>
@@ -242,7 +276,7 @@ export default function ProductPage() {
                             </p>
                             <p>
                                 <strong>Category:</strong> 
-                                <input type="text" name="category" value={editedProduct.category} onChange={handleChange}/>
+                                <input type="text" name="category" value={editedProduct.category.name} onChange={handleChange}/>
                             </p>
                             <textarea name="description" value={editedProduct.description} onChange={handleChange}/>
                             <p><strong>Date posted:</strong> {new Date(product.datePosted).toLocaleDateString()}</p>
@@ -262,7 +296,9 @@ export default function ProductPage() {
                             <h2>{product.name}</h2>
                             <div className="seperator"></div>
                             <div className="user">
-                                <img className="user-img" src={user?.profileImage ? `http://localhost:8080/WebShopAppREST/images/profiles/${user.profileImage}` : "/icons/account_circle.png"}/>
+                                <img className="user-img"
+                                     src={seller?.profilePicture ? `http://localhost:8080/WebShopAppREST/images/profiles/${seller.profilePicture}` : "/icons/account_circle.png"}
+                                />
                                 <div
                                     onClick={() =>
                                     user?.id === product.sellerId
@@ -276,7 +312,7 @@ export default function ProductPage() {
                             </div>
                             <div className="seperator"></div>
                             <p><strong>{product.price} RSD</strong></p>
-                            <p><strong>Category:</strong> {product.category}</p>
+                            <p><strong>Category:</strong> {product.category.name}</p>
                             <p><strong>Description:</strong></p>
                             <p>{product.description}</p>
                             <p><strong>Date posted:</strong> {new Date(product.datePosted).toLocaleDateString()}</p>
