@@ -13,6 +13,7 @@ import { AuthorizeProvider } from "./contexts/AuthorizeContext";
 import { ProductsProvider } from "./contexts/ProductsContext";
 import { UserProvider } from "./contexts/UserContext";
 import PurchasedProductsPage from "./pages/PurchasedProductsPage/PurchasedProducts";
+import OfferPage from './pages/OfferPage/OfferPage';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
                 <Route path='/listingpage' element={<ListingPage />}/>
                 <Route path='/user/:id' element={<UserProfilePage/>}/>
                 <Route path="/purchasedpage" element={<PurchasedProductsPage />} />
+                <Route path="/offer/:id" element={<OfferPage/>} />
                 <Route
                   path="/add-product"
                   element={

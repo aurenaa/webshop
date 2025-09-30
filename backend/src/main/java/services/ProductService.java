@@ -18,12 +18,14 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import beans.Bid;
 import beans.Product;
 import beans.Product.SaleType;
 import beans.Product.Status;
 import beans.User;
 import dao.ProductDAO;
 import dao.UserDAO;
+import dto.BidDTO;
 import dto.ProductUpdateDTO;
 
 
@@ -117,6 +119,31 @@ public class ProductService {
 	    dao.editFileProduct(product, contextPath);
 	    return product;
 	}
+	
+	@POST
+    @Path("/{id}/offer")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Product placeBid(@PathParam("id") String productId, BidDTO dto)
+    {
+    	ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
+    	
+    	Product p = productDAO.findProduct(productId);
+    	
+    	double currentBid = p.getMaxBid();
+    	if(currentBid < dto.getOffer())
+    	{
+    		Bid bid = new Bid(dto.getOffer(), dto.getBuyerId());
+    		p.getBids().add(bid);
+    		productDAO.editFileProduct(p, ctx.getRealPath(""));
+    		return p;
+    	}
+    	else
+    	{
+    		return null;
+    	}
+	
+    }
 	
 	@POST
 	@Path("/{id}/buy")
