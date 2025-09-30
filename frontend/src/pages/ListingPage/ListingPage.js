@@ -16,6 +16,8 @@ export default function ListingPage() {
   const navigate = useNavigate();
   const { isLoggedIn, setIsLoggedIn } = useAuthorize();
 
+ 
+
     const handleLogout = () => {
         setIsLoggedIn(false);
         navigate('/mainpage');
@@ -25,7 +27,7 @@ export default function ListingPage() {
         dispatch({ type: "SET", payload: productsList });
     }, [productsList]);
 
-  const userProducts = isLoggedIn ? products.filter(p => p.sellerId === user.id) : [];
+  const userProducts = isLoggedIn ? products.filter(p => p.sellerId === user.id && p.status !== "SOLD") : [];
    
     return (
        <div className="main-page">
