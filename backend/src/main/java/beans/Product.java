@@ -15,7 +15,13 @@ public class Product {
     private String sellerId;
     private List<Bid> bids;
     private Status status;
+    private String buyerId;
+    private String rejectionReason;
+    
+    private double biggestBid;
+
     private List<String> productPictures;
+
     
     public enum SaleType {
     	FIXED_PRICE,
@@ -23,7 +29,7 @@ public class Product {
     }
     
     public enum Status {
-    	PROCESSING, SOLD, REJECTED, CANCELED
+    	AVAILABLE, PROCESSING, SOLD, REJECTED, CANCELED
     }
 
     public Product() {
@@ -32,7 +38,8 @@ public class Product {
         this.productPictures = new ArrayList<>();
     }
 
-    public Product(String id, String name, String description, Category category, double price, SaleType saleType, String sellerId) {
+
+    public Product(String id, String name, String description, Category category, double price, SaleType saleType, String sellerId, String buyerId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -41,9 +48,11 @@ public class Product {
         this.saleType = saleType;
         this.datePosted = new Date();
         this.sellerId = sellerId;
+        this.buyerId = buyerId;
     }
     
-    public Product(String id, String name, String description, Category category, double price, SaleType saleType, Date datePosted, String sellerId, Status status, List<String> productPictures, List<Bid> bids) {
+    public Product(String id, String name, String description, Category category, double price, SaleType saleType, Date datePosted, String sellerId, Status status, String buyerId, String rejectionReason, List<String> productPictures, List<Bid> bids) {
+
         this.id = id;
         this.name = name;
         this.description = description;
@@ -53,7 +62,9 @@ public class Product {
         this.datePosted = datePosted;
         this.sellerId = sellerId;
         this.status = status;
+        this.rejectionReason = rejectionReason;
         this.productPictures = productPictures;
+
 	    this.bids = bids;
     }
 
@@ -137,6 +148,43 @@ public class Product {
     	this.status = status; 
     }
     
+    public String getBuyerId() {
+    	return buyerId;
+    }
+    
+    public void setBuyerId(String buyerId)
+    {
+    	this.buyerId = buyerId;
+    }
+    
+    public String getRejectionReason() {
+    	return rejectionReason;
+    }
+    
+    public void setRejectionReason(String rejectionReason)
+    {
+    	this.rejectionReason = rejectionReason;
+    }
+    
+    public double getBiggestBid()
+    {
+    	return biggestBid;
+    }
+    
+    public void setBiggestBid(double bBid)
+    {
+    	this.biggestBid = bBid;
+    }
+    
+    public double getMaxBid()
+    {
+    	if(bids == null || bids.isEmpty())
+    	{
+    		return price;
+    	}
+    	return bids.stream().mapToDouble(Bid::getOffer).max().orElse(price);
+    }
+
     public List<String> getProductPictures() { 
     	return productPictures; 
     }

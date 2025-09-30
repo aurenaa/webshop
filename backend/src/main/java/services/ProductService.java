@@ -1,6 +1,7 @@
 package services;
 
 import java.util.Collection;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
@@ -13,15 +14,18 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import beans.Category;
+import beans.Bid;
 import beans.Product;
+import beans.Product.SaleType;
+import beans.Product.Status;
 import beans.User;
-import dao.CategoryDAO;
 import dao.ProductDAO;
 import dao.UserDAO;
+import dto.BidDTO;
 import dto.ProductUpdateDTO;
 
 
@@ -115,4 +119,132 @@ public class ProductService {
 	    dao.editFileProduct(product, contextPath);
 	    return product;
 	}
+	
+	@POST
+    @Path("/{id}/offer")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Product placeBid(@PathParam("id") String productId, BidDTO dto)
+    {
+    	ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
+    	
+    	Product p = productDAO.findProduct(productId);
+    	
+    	double currentBid = p.getMaxBid();
+    	if(currentBid < dto.getOffer())
+    	{
+    		Bid bid = new Bid(dto.getOffer(), dto.getBuyerId());
+    		p.getBids().add(bid);
+    		productDAO.editFileProduct(p, ctx.getRealPath(""));
+    		return p;
+    	}
+    	else
+    	{
+    		return null;
+    	}
+	
+    }
+	
+	@POST
+	@Path("/{id}/buy")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Product buyProduct(@PathParam("id") String id, Product buyerId)
+	{
+		ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
+		UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
+		//BidDAO bidDAO = (BidDAO) ctx.getAttribute("bidDAO");
+		
+		Product product = productDAO.findProduct(id);
+		String buyerid = buyerId.getBuyerId();
+		
+		if(product.getSaleType().equals(SaleType.FIXED_PRICE))
+		{
+			productDAO.updateStatus(id, Status.PROCESSING, ctx.getRealPath(""), buyerid);
+			product = productDAO.findProduct(id);
+			
+			User seller = userDAO.findById(product.getSellerId());
+		    if (seller != null) {
+		        userDAO.removeProductId(seller, product.getId(), ctx.getRealPath(""));
+		        userDAO.editFileUser(seller, ctx.getRealPath(""));
+		    }
+		    
+		    User buyer = userDAO.findById(product.getBuyerId());
+		    if(buyer != null)
+		    {
+		    	userDAO.addPurchaseId(buyer, product.getId(), ctx.getRealPath(""));
+		    	userDAO.editFileUser(buyer, ctx.getRealPath(""));
+		    }
+		     
+		}
+		return product;
+	}
+	
+	
+	
+	@POST
+	@Path("/{id}/sell")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Product sellProduct(@PathParam("id") String id) {
+	    ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
+	    Product product = productDAO.findProduct(id);
+	    UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
+
+	    product.setStatus(Status.SOLD);
+	    productDAO.editFileProduct(product, ctx.getRealPath(""));
+	    
+	    User seller = userDAO.findById(product.getSellerId());
+	    if (seller != null) {
+	        userDAO.removeProductId(seller, product.getId(), ctx.getRealPath(""));
+	        userDAO.editFileUser(seller, ctx.getRealPath(""));
+	    }
+	    
+	    if (product.getBuyerId() != null) {
+	        User buyer = userDAO.findById(product.getBuyerId());
+	        if (buyer != null) {
+	            userDAO.addPurchaseId(buyer, product.getId(), ctx.getRealPath(""));
+	            userDAO.editFileUser(buyer, ctx.getRealPath(""));
+	        }
+	    }
+
+	    return product;
+	}
+	
+	@POST
+	@Path("/{id}/reject")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Product rejectProduct(@PathParam("id") String id, @QueryParam("id") String buyerId, Map<String, String> payload) {
+	    ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
+	    UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
+	    
+	    Product product = productDAO.findProduct(id);
+	    
+	    String reason = payload.get("reason");
+	    
+	    product.setStatus(Status.REJECTED);
+	    product.setRejectionReason(reason);
+	    
+	    User buyer = userDAO.findById(product.getBuyerId());
+	    if (buyer != null) {
+	        userDAO.addPurchaseId(buyer, product.getId(), ctx.getRealPath(""));
+	        userDAO.editFileUser(buyer, ctx.getRealPath(""));
+	    }
+
+	    productDAO.editFileProduct(product, ctx.getRealPath(""));
+
+	    return product;
+	}
+	
+	@PATCH
+	@Path("/{id}/cancel")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Product cancelPurchase(@PathParam("id") String productId)
+	{
+		ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");;
+		Product product = productDAO.findProduct(productId);
+		product.setStatus(Status.CANCELED);
+		productDAO.editFileProduct(product, ctx.getRealPath(""));
+	    return product;
+	}
+	
 }
