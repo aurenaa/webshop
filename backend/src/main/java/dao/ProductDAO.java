@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Date;
 
 import beans.Category;
+import beans.Location;
 import beans.Bid;
 import beans.Product;
 import beans.Product.Status;
@@ -46,7 +47,10 @@ public class ProductDAO {
 	    BufferedReader in = null;
 	    try {
 	        File file = new File(contextPath + "/products.txt");
-	        System.out.println(file.getCanonicalPath());
+	        
+            LocationDAO locationDAO = new LocationDAO();
+            locationDAO.loadLocations(contextPath);
+            
 	        in = new BufferedReader(new FileReader(file));
 	        String line;
 
@@ -55,14 +59,8 @@ public class ProductDAO {
 	            if (line.equals("") || line.startsWith("#"))
 	                continue;
 
-
 	            String[] tokens = line.split(";");
-	            /*
-	            if (tokens.length < 10) {
-	                System.out.println("Skipping: " + line);
-	                continue;
-	            }
-	             */
+
 	            String id = tokens[0].trim();
 	            String name = tokens[1].trim();
 	            String description = tokens[2].trim();
@@ -71,19 +69,21 @@ public class ProductDAO {
 	            String saleType = tokens[5].trim();
 	            String datePosted = tokens[6].trim();
 	            String sellerId = tokens[7].trim();
-	            String status = tokens[8].trim();
+	            String locationId = tokens[8].trim();
+	            String status = tokens[9].trim();
+	            
 	            
 	            List<String> productPictures = new ArrayList<>();
-	            if (tokens.length > 9 && !tokens[9].trim().isEmpty()) {
-	                String[] pics = tokens[9].trim().split("\\|");
+	            if (tokens.length > 10 && !tokens[10].trim().isEmpty()) {
+	                String[] pics = tokens[10].trim().split("\\|");
 	                for (String pic : pics) {
 	                    productPictures.add(pic);
 	                }
 	            }
 	            
 	            List<Bid> bids = new ArrayList<>();
-	            if (tokens.length > 10 && !tokens[10].trim().isEmpty()) {
-	                String bidsStr = tokens[10].trim();
+	            if (tokens.length > 11 && !tokens[11].trim().isEmpty()) {
+	                String bidsStr = tokens[11].trim();
 	                String[] bidsArr = bidsStr.split("\\|");
 	                for (String b : bidsArr) {
 	                    String[] bidTokens = b.split(":");
@@ -101,8 +101,9 @@ public class ProductDAO {
 	            Product.SaleType saleEnum = Product.SaleType.valueOf(saleType);
 	            Product.Status statusEnum = Product.Status.valueOf(status);
 	            Date date = java.sql.Date.valueOf(datePosted);
-
-	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId, statusEnum, productPictures, bids));
+	            Location location = locationDAO.findLocation(locationId);
+	            
+	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId, location, statusEnum, productPictures, bids));
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -137,6 +138,16 @@ public class ProductDAO {
 	        try (FileWriter fw = new FileWriter(file, true);
 	             PrintWriter out = new PrintWriter(fw)) {
 	            
+	            LocationDAO locationDAO = new LocationDAO();
+	            locationDAO.loadLocations(contextPath);
+	            Location location = product.getLocation();
+	            if (location != null) {
+	                Location existing = locationDAO.findLocation(location.getId());
+	                if (existing == null) {
+	                    locationDAO.save(location, contextPath);
+	                }
+	            }
+	            
 	            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	            String dateStr = sdf.format(product.getDatePosted());
 
@@ -154,7 +165,10 @@ public class ProductDAO {
 	                }
 	                bidsStr = String.join("|", bidTokens);
 	            }	         
-	            String line = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s",
+	            
+	            String locationId = location != null ? location.getId() : "";
+	            
+	            String line = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s",
 	                product.getId(),
 	                product.getName(),
 	                product.getDescription(),
@@ -163,6 +177,7 @@ public class ProductDAO {
 	                product.getSaleType(),
 	                dateStr,
 	                product.getSellerId(),
+	                locationId,
 	                product.getStatus(),
 	                product.getStatus(),	
 	                productPicturesStr,
@@ -247,7 +262,9 @@ public class ProductDAO {
 	                        bidsStr = String.join("|", bidTokens);
 	                    }
 	                    String categoryStr = updatedProduct.getCategory() != null ? updatedProduct.getCategory().getName() : "Uncategorized";
-	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s",
+	                    String locationId = updatedProduct.getLocation() != null ? updatedProduct.getLocation().getId() : "";
+
+	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s;%s",
 	                            updatedProduct.getId(),
 	                            updatedProduct.getName(),
 	                            updatedProduct.getDescription(),
@@ -256,6 +273,7 @@ public class ProductDAO {
 	                            updatedProduct.getSaleType(),
 	                            dateStr,
 	                            updatedProduct.getSellerId(),
+	                            locationId,
 	                            updatedProduct.getStatus(),
 	                            productPicturesStr,
 	                            bidsStr
