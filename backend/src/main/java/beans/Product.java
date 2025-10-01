@@ -17,6 +17,7 @@ public class Product {
     private Status status;
     private double biggestBid;
     private List<String> productPictures;
+    private Location location;
 
     public enum SaleType {
     	FIXED_PRICE,
@@ -45,7 +46,7 @@ public class Product {
         this.sellerId = sellerId;
     }
     
-    public Product(String id, String name, String description, Category category, double price, SaleType saleType, Date datePosted, String sellerId, Status status, List<String> productPictures, List<Bid> bids) {
+    public Product(String id, String name, String description, Category category, double price, SaleType saleType, Date datePosted, String sellerId, Location locationId, Status status, List<String> productPictures, List<Bid> bids) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -164,5 +165,13 @@ public class Product {
     
     public void setProductPictures(List<String> productPictures) {
     	this.productPictures = productPictures; 
+    }
+    
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
     }
 }
