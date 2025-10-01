@@ -62,11 +62,7 @@ public class ProductDAO {
 	                System.out.println("Skipping: " + line);
 	                continue;
 	            }
-
-	            
-
 	             */
-
 	            String id = tokens[0].trim();
 	            String name = tokens[1].trim();
 	            String description = tokens[2].trim();
@@ -77,49 +73,36 @@ public class ProductDAO {
 	            String sellerId = tokens[7].trim();
 	            String status = tokens[8].trim();
 	            
-	            String buyerId = "";
-	            if (tokens.length > 9) {
-	                buyerId = tokens[9].trim();
-	            }
-	            
-	            String rejectionReason = "";
-	            if(tokens.length > 10)
-	            {
-	            	rejectionReason = tokens[10].trim();
-	            }
-	            
 	            List<String> productPictures = new ArrayList<>();
-	            if (tokens.length > 119 && !tokens[11].trim().isEmpty()) {
-	                String[] pics = tokens[11].trim().split("\\|");
+	            if (tokens.length > 9 && !tokens[9].trim().isEmpty()) {
+	                String[] pics = tokens[9].trim().split("\\|");
 	                for (String pic : pics) {
 	                    productPictures.add(pic);
 	                }
 	            }
 	            
 	            List<Bid> bids = new ArrayList<>();
-	            if (tokens.length > 11 && !tokens[11].trim().isEmpty()) {
-	                String bidsStr = tokens[11].trim();
-
-
+	            if (tokens.length > 10 && !tokens[10].trim().isEmpty()) {
+	                String bidsStr = tokens[10].trim();
 	                String[] bidsArr = bidsStr.split("\\|");
 	                for (String b : bidsArr) {
 	                    String[] bidTokens = b.split(":");
 	                    if (bidTokens.length == 2) {
-	                        String bidbuyerId = bidTokens[0].trim();
+	                        String buyerId = bidTokens[0].trim();
 	                        double offer = Double.parseDouble(bidTokens[1].trim());
-	                        bids.add(new Bid(offer, bidbuyerId)); 
+	                        bids.add(new Bid(offer, buyerId)); 
 	                    }
 	                }
 	            }
                 
 	            if (id.isEmpty() || name.isEmpty() || price.isEmpty() || saleType.isEmpty())
 	                continue;
-	            
+
 	            Product.SaleType saleEnum = Product.SaleType.valueOf(saleType);
 	            Product.Status statusEnum = Product.Status.valueOf(status);
 	            Date date = java.sql.Date.valueOf(datePosted);
 
-	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId, statusEnum, buyerId, rejectionReason, productPictures, bids));
+	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId, statusEnum, productPictures, bids));
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -157,13 +140,9 @@ public class ProductDAO {
 	            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	            String dateStr = sdf.format(product.getDatePosted());
 
-	            if (product.getStatus() == null) product.setStatus(Product.Status.AVAILABLE);
-
-	            
+	            if (product.getStatus() == null) product.setStatus(Product.Status.AVAILABLE);	          
 	            if (product.getProductPictures() == null) product.setProductPictures(new ArrayList<>());
-
-	            if (product.getBids() == null) product.setBids(new ArrayList<>());
-	            
+	            if (product.getBids() == null) product.setBids(new ArrayList<>());	            
 	            String productPicturesStr = String.join("|", product.getProductPictures());
 	            String categoryStr = product.getCategory() != null ? product.getCategory().getName() : "Uncategorized";
 
@@ -174,10 +153,8 @@ public class ProductDAO {
 	                    bidTokens.add(b.getBuyerId() + ":" + b.getOffer());
 	                }
 	                bidsStr = String.join("|", bidTokens);
-	            }
-	            
-
-	            String line = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s;",
+	            }	         
+	            String line = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s",
 	                product.getId(),
 	                product.getName(),
 	                product.getDescription(),
@@ -186,15 +163,11 @@ public class ProductDAO {
 	                product.getSaleType(),
 	                dateStr,
 	                product.getSellerId(),
-
 	                product.getStatus(),
-	                product.getBuyerId() != null ? product.getBuyerId() : "",
-	                product.getRejectionReason() != null ? product.getRejectionReason() : "",
 	                product.getStatus(),	
 	                productPicturesStr,
 	                bidsStr
 	            );
-
 	            out.println(); 
 	            out.println(line);
 	        }
@@ -273,23 +246,17 @@ public class ProductDAO {
 	                        }
 	                        bidsStr = String.join("|", bidTokens);
 	                    }
-
-	                    
-	                    //String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s;%s",
-	                   // String categoryStr = updatedProduct.getCategory() != null ? updatedProduct.getCategory().getName() : "Uncategorized";
+	                    String categoryStr = updatedProduct.getCategory() != null ? updatedProduct.getCategory().getName() : "Uncategorized";
 	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s",
 	                            updatedProduct.getId(),
 	                            updatedProduct.getName(),
 	                            updatedProduct.getDescription(),
-	                            //categoryStr,
+	                            categoryStr,
 	                            updatedProduct.getPrice(),
 	                            updatedProduct.getSaleType(),
 	                            dateStr,
 	                            updatedProduct.getSellerId(),
 	                            updatedProduct.getStatus(),
-	                            updatedProduct.getBuyerId() != null ? updatedProduct.getBuyerId() : "",
-	                            updatedProduct.getRejectionReason() != null ? updatedProduct.getRejectionReason() : "",
-
 	                            productPicturesStr,
 	                            bidsStr
 	                    );
@@ -371,11 +338,10 @@ public class ProductDAO {
 		return p;
 	}
 	
-
-	public void updateStatus(String id, Status newStatus, String contextPath, String buyerId)
+	/* !! */
+	public void updateStatus(String id, Status newStatus, String contextPath)
 	{
 		Product p = products.get(id);
-		p.setBuyerId(buyerId);
 		p.setStatus(newStatus);
 		editFileProduct(p, contextPath);
 	}

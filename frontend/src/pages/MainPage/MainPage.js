@@ -50,34 +50,15 @@ export default function MainPage() {
                 </button>
                 <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
                   <li>
-                    <a
-                      className="dropdown-item"
-                      onClick={() => navigate(`/profile/${user?.id}`)}
-                    >
-                      My account
+                    <a className="dropdown-item" onClick={() => navigate(`/profile/${user?.id}`)}>
+                      Account settings
                     </a>
                   </li>
-
-                  {user?.role === "SELLER" ? (
-                    <li>
-                      <a
-                        className="dropdown-item"
-                        onClick={() => navigate("/listingpage")}
-                      >
-                        My listings
-                      </a>
-                    </li>
-                  ) : user?.role === "BUYER" ? (
-                    <li>
-                      <a
-                        className="dropdown-item"
-                        onClick={() => navigate("/purchasedpage")}
-                      >
-                        My purchases
-                      </a>
-                    </li>
-                  ) : null}
-
+                  <li>
+                    <a className="dropdown-item" onClick={() => navigate(`/user/${user?.id}`)}>
+                      My profile
+                    </a>
+                  </li>
                   <li>
                     <a className="dropdown-item" onClick={handleLogout}>
                       Log out

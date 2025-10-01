@@ -202,9 +202,9 @@ public class User implements Serializable {
 	    return productList;
 	}
 	
-	public void setPurchaseList(ArrayList<String> purchaseList) {
-    	this.purchaseList = purchaseList;
-    }
+	public void setPurchaseList(List<String> purchaseList) {
+	    this.purchaseList = purchaseList;
+	}
     
 	public List<String> getPurchaseList() {
 	    return purchaseList;

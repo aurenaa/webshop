@@ -4,29 +4,46 @@ import { useUser } from "../../contexts/UserContext";
 import axios from "axios";
 
 export default function OfferPage() {
-  const { productId } = useParams();
-  const userId = localStorage.getItem("userId");
+  const { id: productId } = useParams();
   const { user } = useUser();
-  const navigate = useNavigate();
   const [offer, setOffer] = useState("");
-
+  const navigate = useNavigate();
   const handleSubmit = async () => {
     if (!user || !user.id) {
-    alert("Log in first!");
-    return;
-  }
-    try{
-        const response = await axios.post(`http://localhost:8080/WebShopAppREST/rest/mainpage/${productId}/offer`,
-            {
-                buyerId: productId,
-                offer: offer
-            }
-        );
+      alert("Please log in first!");
+      return;
+    }
+
+    if (!productId) {
+      alert("Product ID is missing!");
+      return;
+    }
+
+    const offerValue = parseFloat(offer);
+    if (isNaN(offerValue) || offerValue <= 0) {
+      alert("Enter a valid offer amount!");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/WebShopAppREST/rest/purchases/${productId}/bid`,
+        {
+          buyerId: user.id,
+          offer: offerValue
+        }
+      );
+
+      if (!response.data) {
+        alert("Bid not accepted. Make sure product is available and your offer is higher than current max bid.");
+      } else {
+        alert("Bid placed successfully!");
         console.log("Updated product:", response.data);
-        navigate(`/product/${productId}`);
-    } catch(err)
-    {
-        console.error("Error while submitting offer:", err);
+        navigate("/mainpage");
+      }
+    } catch (err) {
+      console.error("Error while submitting offer:", err);
+      alert("Failed to submit offer. Check if the server is running and the product exists.");
     }
   };
 

@@ -69,10 +69,8 @@ public class UserService {
         return Response.ok(updatedUser).build();
     }
     
-    
-    
     @PATCH
-    @Path("/{id}/endAuction")
+    @Path("/{productId}/endAuction")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response endAuction(@PathParam("productId") String productId, AuctionEndDTO dto) {
