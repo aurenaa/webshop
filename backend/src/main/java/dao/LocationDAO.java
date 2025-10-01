@@ -15,12 +15,20 @@ public class LocationDAO {
     public Location findLocation(String id) {
         return locations.get(id);
     }
-
+    
     public Location save(Location loc, String contextPath) {
-        int maxId = locations.keySet().stream().mapToInt(k -> Integer.parseInt(k.replace("loc_", ""))).max().orElse(0);
-        String newId = "loc_" + (maxId + 1);
-        locations.put(newId, loc);
-        addLocationToFile(newId, loc, contextPath);
+        int maxId = 0;
+        for (String id : locations.keySet()) {
+            int idNum = Integer.parseInt(id);
+            if (idNum > maxId) maxId = idNum;
+        }
+
+        int newId = maxId + 1;
+        loc.setId(String.valueOf(newId));
+        locations.put(loc.getId(), loc);
+
+        addLocationToFile(loc.getId(), loc, contextPath);
+
         return loc;
     }
 

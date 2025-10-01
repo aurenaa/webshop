@@ -18,7 +18,7 @@ public class Location {
         return id;
     }
 
-    public void setLatitude(String id) {
+    public void setId(String id) {
         this.id = id;
     }
     
