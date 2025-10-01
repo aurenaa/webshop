@@ -145,6 +145,7 @@ public class ProductService {
 	
     }
 	
+	/*
 	@POST
 	@Path("/{id}/buy")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -153,10 +154,8 @@ public class ProductService {
 	{
 		ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
 		UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
-		//BidDAO bidDAO = (BidDAO) ctx.getAttribute("bidDAO");
 		
 		Product product = productDAO.findProduct(id);
-		String buyerid = buyerId.getBuyerId();
 		
 		if(product.getSaleType().equals(SaleType.FIXED_PRICE))
 		{
@@ -246,5 +245,5 @@ public class ProductService {
 		productDAO.editFileProduct(product, ctx.getRealPath(""));
 	    return product;
 	}
-	
+	*/
 }

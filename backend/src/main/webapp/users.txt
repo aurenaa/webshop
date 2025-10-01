@@ -1,4 +1,4 @@
-1;Pera;Peric;pera;pera@email.com;060111222;pera;SELLER;false;;novi opis;1;user_1.jpg
+1;Pera;Peric;pera;pera@email.com;060111222;pera;SELLER;false;;novi opis;1|5;user_1.jpg;0.0;
 2;Jovana;Jovanovic;jovana;jj@email.com;064333444;jj123;BUYER;false;;;
 3;Stojanka;Novakovic;st.nov;st.nov@email.com;065555666;100ja;SELLER;false;;opis3;3|4
 4;Mirko;Mirkovic;mirko;mirko.nov@email.com;065635666;m;BUYER;false;;mire;2
