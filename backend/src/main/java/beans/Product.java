@@ -15,11 +15,9 @@ public class Product {
     private String sellerId;
     private List<Bid> bids;
     private Status status;
-    private String rejectionReason;
     private double biggestBid;
     private List<String> productPictures;
 
-    
     public enum SaleType {
     	FIXED_PRICE,
         AUCTION
@@ -139,15 +137,6 @@ public class Product {
     
     public void setStatus(Status status) { 
     	this.status = status; 
-    }
-    
-    public String getRejectionReason() {
-    	return rejectionReason;
-    }
-    
-    public void setRejectionReason(String rejectionReason)
-    {
-    	this.rejectionReason = rejectionReason;
     }
     
     public double getBiggestBid()

@@ -154,7 +154,7 @@ public class ProductDAO {
 	                }
 	                bidsStr = String.join("|", bidTokens);
 	            }	         
-	            String line = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s;",
+	            String line = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s",
 	                product.getId(),
 	                product.getName(),
 	                product.getDescription(),
@@ -164,7 +164,6 @@ public class ProductDAO {
 	                dateStr,
 	                product.getSellerId(),
 	                product.getStatus(),
-	                product.getRejectionReason() != null ? product.getRejectionReason() : "",
 	                product.getStatus(),	
 	                productPicturesStr,
 	                bidsStr
@@ -248,7 +247,7 @@ public class ProductDAO {
 	                        bidsStr = String.join("|", bidTokens);
 	                    }
 	                    String categoryStr = updatedProduct.getCategory() != null ? updatedProduct.getCategory().getName() : "Uncategorized";
-	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s;%s",
+	                    String newLine = String.format("%s;%s;%s;%s;%.2f;%s;%s;%s;%s;%s;%s",
 	                            updatedProduct.getId(),
 	                            updatedProduct.getName(),
 	                            updatedProduct.getDescription(),
@@ -258,7 +257,6 @@ public class ProductDAO {
 	                            dateStr,
 	                            updatedProduct.getSellerId(),
 	                            updatedProduct.getStatus(),
-	                            updatedProduct.getRejectionReason() != null ? updatedProduct.getRejectionReason() : "",
 	                            productPicturesStr,
 	                            bidsStr
 	                    );
