@@ -119,31 +119,4 @@ public class ProductService {
 	    dao.editFileProduct(product, contextPath);
 	    return product;
 	}
-	
-	/*
-	@POST
-    @Path("/{id}/offer")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Product placeBid(@PathParam("id") String productId, BidDTO dto)
-    {
-    	ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
-    	
-    	Product p = productDAO.findProduct(productId);
-    	
-    	double currentBid = p.getMaxBid();
-    	if(currentBid < dto.getOffer())
-    	{
-    		Bid bid = new Bid(dto.getOffer(), dto.getBuyerId());
-    		p.getBids().add(bid);
-    		productDAO.editFileProduct(p, ctx.getRealPath(""));
-    		return p;
-    	}
-    	else
-    	{
-    		return null;
-    	}
-	
-    }
-	*/
 }

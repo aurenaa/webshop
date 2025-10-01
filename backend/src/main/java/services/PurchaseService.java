@@ -5,13 +5,15 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-
+import java.util.ArrayList;
+import beans.Bid;
 import beans.Product;
 import beans.Product.Status;
 import beans.Purchase;
 import beans.User;
 import dao.ProductDAO;
 import dao.UserDAO;
+import dto.BidDTO;
 import dao.PurchaseDAO;
 
 @Path("/purchases")
@@ -130,4 +132,33 @@ public class PurchaseService {
 
         return purchase;
     }
+    
+    @POST
+	@Path("/{productId}/bid")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Product placeBid(@PathParam("productId") String productId, BidDTO dto) {
+	    ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
+	    
+	    Product product = productDAO.findProduct(productId);
+	    if (product.getSaleType() != Product.SaleType.AUCTION || product.getStatus() != Status.AVAILABLE) {
+	        return null;
+	    }
+	    
+	    double currentMaxBid = product.getMaxBid();
+	    if (dto.getOffer() > currentMaxBid) {
+	        Bid bid = new Bid(dto.getOffer(), dto.getBuyerId());
+	        
+	        if (product.getBids() == null) {
+	            product.setBids(new ArrayList<>());
+	        }
+	        product.getBids().add(bid);
+	        product.setBiggestBid(dto.getOffer());
+	        productDAO.editFileProduct(product, ctx.getRealPath(""));
+	        
+	        return product;
+	    } else {
+	        return null;
+	    }
+	}
 }

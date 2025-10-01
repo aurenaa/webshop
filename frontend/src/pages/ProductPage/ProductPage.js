@@ -391,7 +391,7 @@ export default function ProductPage() {
                                 ) : (
                                     <>
                                         {product.saleType === "AUCTION" ? (
-                                            <button onClick={() => isLoggedIn ? navigate("/offer") : navigate("/login")} className="btn btn-primary">Make offer</button>
+                                            <button onClick={() => isLoggedIn ? navigate(`/offer/${product.id}`) : navigate("/login")} className="btn btn-primary">Make offer</button>
                                         ) : (
                                             <button onClick={() => isLoggedIn ? handleBuyClick() : navigate("/login")} className="btn btn-primary">Buy it now</button>                                            
                                         )}    
