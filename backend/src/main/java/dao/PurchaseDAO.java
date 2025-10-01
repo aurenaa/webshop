@@ -21,6 +21,15 @@ public class PurchaseDAO {
     public Purchase findPurchase(String id) {
         return purchases.get(id);
     }
+    
+    public Purchase findPurchaseByProductId(String productId) {
+        for (Purchase p : purchases.values()) {
+            if (p.getProductId().trim().equals(productId.trim())) {
+                return p;
+            }
+        }
+        return null;
+    }
 
     private void loadPurchases(String contextPath) {
         BufferedReader in = null;
@@ -52,7 +61,7 @@ public class PurchaseDAO {
     }
 
     public Purchase save(Purchase purchase, String contextPath) {
-        int maxId = -1;
+        int maxId = 0;
         for (String id : purchases.keySet()) {
             int idNum = Integer.parseInt(id);
             if (idNum > maxId) maxId = idNum;
@@ -84,7 +93,6 @@ public class PurchaseDAO {
 
     public void editPurchase(Purchase updated, String contextPath) {
         File file = new File(contextPath + "/purchases.txt");
-
         try {
             List<String> lines = new ArrayList<>();
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {

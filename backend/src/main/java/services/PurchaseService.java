@@ -40,11 +40,9 @@ public class PurchaseService {
     @Produces(MediaType.APPLICATION_JSON)
     public Purchase buyProduct(@PathParam("productId") String productId, Purchase purchaseRequest) {
         ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
-        UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
         PurchaseDAO purchaseDAO = (PurchaseDAO) ctx.getAttribute("purchaseDAO");
 
         Product product = productDAO.findProduct(productId);
-
         if (product.getStatus() != Status.AVAILABLE) {
             return null;
         }
@@ -56,18 +54,6 @@ public class PurchaseService {
 
         product.setStatus(Status.PROCESSING);
         productDAO.editFileProduct(product, ctx.getRealPath(""));
-
-        User seller = userDAO.findById(product.getSellerId());
-        if (seller != null) {
-            userDAO.removeProductId(seller, product.getId(), ctx.getRealPath(""));
-            userDAO.editFileUser(seller, ctx.getRealPath(""));
-        }
-
-        User buyer = userDAO.findById(purchase.getBuyerId());
-        if (buyer != null) {
-            userDAO.addPurchaseId(buyer, purchase.getId(), ctx.getRealPath(""));
-            userDAO.editFileUser(buyer, ctx.getRealPath(""));
-        }
 
         return purchase;
     }
@@ -94,13 +80,21 @@ public class PurchaseService {
 
         User buyer = userDAO.findById(purchase.getBuyerId());
         if (buyer != null) {
-            userDAO.addPurchaseId(buyer, purchase.getId(), ctx.getRealPath(""));
+            userDAO.addPurchaseId(buyer, product.getId(), ctx.getRealPath(""));
             userDAO.editFileUser(buyer, ctx.getRealPath(""));
         }
 
         return purchase;
     }
 
+    @GET
+    @Path("/product/{productId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Purchase getPurchaseByProduct(@PathParam("productId") String productId) {
+        PurchaseDAO purchaseDAO = (PurchaseDAO) ctx.getAttribute("purchaseDAO");
+        return purchaseDAO.findPurchaseByProductId(productId);
+    }
+    
     @POST
     @Path("/{purchaseId}/reject")
     @Produces(MediaType.APPLICATION_JSON)

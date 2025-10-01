@@ -16,8 +16,6 @@ export default function ProductTable({ products }) {
   return (
     <div className="product-grid">
       {products.map((p) => {
-        console.log(`Product ${p.id} pictures:`, p.productPictures, typeof p.productPictures);
-
         let firstPicture = null;
         if (Array.isArray(p.productPictures) && p.productPictures.length > 0) {
           firstPicture = p.productPictures[0];
@@ -38,8 +36,6 @@ export default function ProductTable({ products }) {
         const imageUrl = firstPicture 
           ? `http://localhost:8080/WebShopAppREST/images/products/${firstPicture}`
           : "/icons/no_image.jpg";
-
-        console.log(`Product ${p.id} final image URL:`, imageUrl);
 
         return (
           <div key={p.id} className="product-card" onClick={() => handleClick(p.id)}>

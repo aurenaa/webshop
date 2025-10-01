@@ -162,23 +162,32 @@ public class UserDAO {
 	                }
 	            }
 	            
+	            if (tokens.length > 12 && !tokens[12].trim().isEmpty() && purchaseList.isEmpty()) {
+	                String productsStr = tokens[12].trim();
+	                for (String productId : productsStr.split("\\|")) {
+	                    if (!productId.trim().isEmpty()) {
+	                    	purchaseList.add(productId.trim());
+	                    }
+	                }
+	            }	          
+	            
 	            String profilePicture = "";
-	            if (tokens.length > 12 && !tokens[12].trim().isEmpty()) {
-	                profilePicture = tokens[12].trim();
+	            if (tokens.length > 13 && !tokens[13].trim().isEmpty()) {
+	                profilePicture = tokens[13].trim();
 	            }
 	            
 	            double averageRating = 0.0;
-	            if (tokens.length > 13 && !tokens[13].trim().isEmpty()) {
+	            if (tokens.length > 14 && !tokens[14].trim().isEmpty()) {
 	                try {
-	                    averageRating = Double.parseDouble(tokens[13].trim());
+	                    averageRating = Double.parseDouble(tokens[14].trim());
 	                } catch (NumberFormatException e) {
-	                    System.err.println("Invalid average rating for user " + id + ": " + tokens[13].trim());
+	                    System.err.println("Invalid average rating for user " + id + ": " + tokens[14].trim());
 	                }
 	            }
 	            
 	            List<String> reviewsReceived = new ArrayList<>();
-	            if (tokens.length > 14 && !tokens[14].trim().isEmpty()) {
-	                String reviewsStr = tokens[14].trim();
+	            if (tokens.length > 15 && !tokens[15].trim().isEmpty()) {
+	                String reviewsStr = tokens[15].trim();
 	                for (String reviewId : reviewsStr.split(",")) {
 	                    if (!reviewId.trim().isEmpty()) {
 	                    	reviewsReceived.add(reviewId.trim());
@@ -252,10 +261,11 @@ public class UserDAO {
 	
 	public void addPurchaseId(User user, String productId, String contextPath)
 	{
-		if(user.getPurchaseList() == null)
-		{
-			user.setProductList(new ArrayList<>());
-		}
+	    if(user.getPurchaseList() == null) {
+	        user.setPurchaseList(new ArrayList<>());
+	    }
+	    user.getPurchaseList().add(productId);
+	    editFileUser(user, contextPath);
 	}
 	
 	public void addProductId(User user, String productId, String contextPath) {
@@ -360,7 +370,7 @@ public class UserDAO {
         }
     }
     
-    public void removePurchaseList(User user, String productId, String contextPath)
+    public void removePurchaseId(User user, String productId, String contextPath)
     {
     	if(user.getPurchaseList() != null)
     	{
