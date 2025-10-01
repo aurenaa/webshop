@@ -25,7 +25,7 @@ export default function ListingPage() {
         dispatch({ type: "SET", payload: productsList });
     }, [productsList]);
 
-  const userProducts = isLoggedIn ? products.filter(p => p.sellerId === user.id) : [];
+  const userProducts = isLoggedIn ? products.filter(p => p.sellerId === user.id && p.status !== "SOLD") : [];
    
     return (
        <div className="main-page">
@@ -51,7 +51,7 @@ export default function ListingPage() {
                         <img className="menu" src="/icons/menu.png" alt="Menu"/>
                         </button>
                         <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <li><a className="dropdown-item" onClick={() => navigate("/profile")}>My account</a></li>
+                        <li><a className="dropdown-item" onClick={() => navigate(`/profile/${user?.id}`)}>My account</a></li>
                         <li><a className="dropdown-item" onClick={() => navigate("/listings")}>My listings</a></li>
                         <li><a className="dropdown-item" onClick={() => handleLogout}>Log out</a></li>
                         </ul>

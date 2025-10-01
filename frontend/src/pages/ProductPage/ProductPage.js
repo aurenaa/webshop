@@ -9,6 +9,9 @@ export default function ProductPage() {
     const navigate = useNavigate();
     const { isLoggedIn, setIsLoggedIn } = useAuthorize();
     const { user } = useUser();
+    const [showRejectInput, setShowRejectInput] = useState(false);
+    const [rejectReason, setRejectReason] = useState("");
+    const [purchase, setPurchase] = useState(null);
 
     const handleDeleteClick = async () =>
     {
@@ -36,15 +39,15 @@ export default function ProductPage() {
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     const handlePrev = () => {
-    setSelectedIndex((prev) =>
-        prev === 0 ? product.productPictures.length - 1 : prev - 1
-    );
+        setSelectedIndex((prev) =>
+            prev === 0 ? product.productPictures.length - 1 : prev - 1
+        );
     };
 
     const handleNext = () => {
-    setSelectedIndex((prev) =>
-        prev === product.productPictures.length - 1 ? 0 : prev + 1
-    );
+        setSelectedIndex((prev) =>
+            prev === product.productPictures.length - 1 ? 0 : prev + 1
+        );
     };
 
     const handleChange = (e) => {
@@ -54,17 +57,18 @@ export default function ProductPage() {
 
     const handleSaveClick = async () => {
         try {
-            console.log("PATCH payload:", editedProduct);
-            const response = await axios.patch(
-            `http://localhost:8080/WebShopAppREST/rest/mainpage/${id}`,
-            editedProduct,
-            { headers: { "Content-Type": "application/json" } }
+            const response = await axios.post(
+                `http://localhost:8080/WebShopAppREST/rest/purchases/${product.id}/buy`,
+                { buyerId: user.id },
+                { headers: { "Content-Type": "application/json" } }
             );
-            console.log("Response:", response.data);
-            setProduct(response.data);
-            setIsEditing(false);
+
+            const purchaseData = response.data;
+            localStorage.setItem(`purchase_${product.id}`, JSON.stringify(purchaseData));
+
+            navigate("/purchasedpage", { state: { purchase: purchaseData } });
         } catch (err) {
-            console.error("Error updating product", err);
+            console.error("Error buying product", err);
         }
     };
 
@@ -78,6 +82,40 @@ export default function ProductPage() {
         navigate('/mainpage');
     };
 
+    const handleRejectClick = () =>
+    {
+        setShowRejectInput(true);
+    };
+
+    const handleSellClick = async () => {
+        if (!purchase) return alert("No purchase found!");
+        try {
+            await axios.post(
+                `http://localhost:8080/WebShopAppREST/rest/purchases/${purchase.id}/sell`,
+                {}
+            );
+            navigate("/listingpage");
+        } catch (err) {
+            console.error("Error selling product", err);
+        }
+    };
+
+    const handleConfirmReject = async () => {
+        if (!rejectReason.trim()) {
+            alert("You must enter a reason to reject!");
+            return;
+        }
+
+        if (!purchase) return alert("No purchase found!");
+        try {
+            await axios.post(
+                `http://localhost:8080/WebShopAppREST/rest/purchases/${purchase.id}/reject?reason=${encodeURIComponent(rejectReason)}`
+            );
+            navigate("/listingpage");
+        } catch (err) {
+            console.error("Error rejecting product", err);
+        }
+    };
 
     const handleAuctionClick = () => {
         if (product.saleType == "FIXED_PRICE") {
@@ -114,30 +152,74 @@ export default function ProductPage() {
         endAuction();
     };
 
+    const handleBuyClick = async () =>
+    {
+        try {
+            const response = await axios.post(
+                `http://localhost:8080/WebShopAppREST/rest/purchases/${product.id}/buy`,
+                { buyerId: user.id },
+                { headers: { "Content-Type": "application/json" } }
+            );
+
+            const purchase = response.data;
+            navigate("/mainpage");
+        } catch (err) {
+            console.error("Error buying product", err);
+        }
+    };
+
+    useEffect(() => {
+        if (product) {
+            const savedPurchase = localStorage.getItem(`purchase_${product.id}`);
+            if (savedPurchase) {
+                setPurchase(JSON.parse(savedPurchase));
+            }
+        }
+    }, [product]);
+
+    const handleAddToCart = () =>
+    {
+
+    }
+
     const [seller, setSeller] = useState(null);
 
     useEffect(() => {
-    if (product?.sellerId) {
-        axios.get(`http://localhost:8080/WebShopAppREST/rest/users/${product.sellerId}`)
-        .then(res => setSeller(res.data))
-        .catch(err => console.error("Error fetching seller", err));
-    }
+        if (product?.sellerId) {
+            axios.get(`http://localhost:8080/WebShopAppREST/rest/users/${product.sellerId}`)
+            .then(res => setSeller(res.data))
+            .catch(err => console.error("Error fetching seller", err));
+        }
     }, [product]);
 
     useEffect(() => {
         const fetchProduct = async () => {
-        try {
-            const response = await axios.get(
-            `http://localhost:8080/WebShopAppREST/rest/mainpage/${id}`
-            );
-            setProduct(response.data);
-        } catch (err) {
-            console.error("Error fetching product", err);
-        }
-    };
+            try {
+                const res = await axios.get(`http://localhost:8080/WebShopAppREST/rest/mainpage/${id}`);
+                setProduct(res.data);
+            } catch (err) {
+                console.error("Error fetching product", err);
+            }
+        };
+        fetchProduct();
+    }, [id]);
 
-    fetchProduct();
-  }, [id]);
+    useEffect(() => {
+        const fetchPurchase = async () => {
+            if (!product) return;
+            try {
+                const res = await axios.get(
+                    `http://localhost:8080/WebShopAppREST/rest/purchases/product/${product.id}`
+                );
+                if (res.data) {
+                    setPurchase(res.data);
+                }
+            } catch (err) {
+                console.error("Error fetching purchase", err);
+            }
+        };
+        fetchPurchase();
+    }, [product]);
 
     if (!product) return <div>Loading...</div>;
 
@@ -162,12 +244,24 @@ export default function ProductPage() {
                     <img className="cart" src="/icons/shopping_cart.png" alt="Cart" onClick={() => navigate("/cart")}/>
                     <div className="dropdown">
                         <button className="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img className="menu" src="/icons/menu.png" alt="Menu"/>
+                            <img className="menu" src="/icons/menu.png" alt="Menu"/>
                         </button>
                         <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <li><a className="dropdown-item" onClick={() => navigate("/profile")}>My account</a></li>
-                        <li><a className="dropdown-item" onClick={() => navigate("/listingpage")}>My listings</a></li>
-                        <li><a className="dropdown-item" onClick={() => handleLogout}>Log out</a></li>
+                        <li>
+                            <a className="dropdown-item" onClick={() => navigate(`/profile/${user?.id}`)}>
+                            Account settings
+                            </a>
+                        </li>
+                        <li>
+                            <a className="dropdown-item" onClick={() => navigate(`/user/${user?.id}`)}>
+                            My profile
+                            </a>
+                        </li>
+                        <li>
+                            <a className="dropdown-item" onClick={handleLogout}>
+                            Log out
+                            </a>
+                        </li>
                         </ul>
                     </div>
                 </>
@@ -259,24 +353,47 @@ export default function ProductPage() {
                             <p><strong>Sale type:</strong> {product.saleType === "FIXED_PRICE" ? "Fixed price" : "Auction"}</p>
                             <div className="buttons">
                                 {isLoggedIn && (user.id == product.sellerId) ? (
-                                        <>  
-                                            { product.saleType === "AUCTION" && product.bids.length == 0 && (
-                                                <button onClick={handleEditClick} className="btn btn-primary me-2">Edit</button>
-                                            )}
-                                            { product.saleType === "FIXED_PRICE" && (
-                                                <button onClick={handleEditClick} className="btn btn-primary me-2">Edit</button>
-                                            )}                                            
-                                            <button onClick={handleDeleteClick} className="btn btn-danger">Delete</button>
-                                            {product.saleType === "AUCTION" && (
-                                                <button onClick={handleAuctionClick} className="btn btn-primary">End auction</button>
+                                        <> 
+                                            {product.status === "PROCESSING" ? (
+                                                <>
+                                                <button onClick={handleSellClick} className="btn btn-success me-2">Sell</button>
+                                                <button 
+                                                    onClick={handleRejectClick} 
+                                                    className="btn btn-danger">
+                                                    Reject
+                                                </button>
+                                                {showRejectInput && (
+                                                    <div className="mt-3">
+                                                        <textarea className="form-control mb-2"
+                                                                  placeholder="Enter rejection reason..."
+                                                                  value={rejectReason}
+                                                                  onChange={(e) => setRejectReason(e.target.value)}
+                                                        />
+                                                        <button onClick={handleConfirmReject} className="btn btn-danger">Confirm Reject</button>
+                                                    </div>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <>
+                                                { product.saleType === "AUCTION" && product.bids.length === 0 && (
+                                                    <button onClick={handleEditClick} className="btn btn-primary me-2">Edit</button>
+                                                )}
+                                                { product.saleType === "FIXED_PRICE" && (
+                                                    <button onClick={handleEditClick} className="btn btn-primary me-2">Edit</button>
+                                                )}                                            
+                                                <button onClick={handleDeleteClick} className="btn btn-danger">Delete</button>
+                                                {product.saleType === "AUCTION" && (
+                                                    <button onClick={handleAuctionClick} className="btn btn-primary">End auction</button>
+                                                )}
+                                                </>
                                             )}
                                         </>
                                 ) : (
                                     <>
                                         {product.saleType === "AUCTION" ? (
-                                            <button onClick={() => isLoggedIn ? navigate("/offer") : navigate("/login")} className="btn btn-primary">Make offer</button>
+                                            <button onClick={() => isLoggedIn ? navigate(`/offer/${product.id}`) : navigate("/login")} className="btn btn-primary">Make offer</button>
                                         ) : (
-                                            <button onClick={() => isLoggedIn ? navigate("/offer") : navigate("/login")} className="btn btn-primary">Buy it now</button>                                            
+                                            <button onClick={() => isLoggedIn ? handleBuyClick() : navigate("/login")} className="btn btn-primary">Buy it now</button>                                            
                                         )}    
                                         <button onClick={() => isLoggedIn ? navigate("/offer") : navigate("/login")} className="btn btn-primary">Add to cart</button>
                                         <button onClick={() => isLoggedIn ? navigate("/offer") : navigate("/login")} className="btn btn-danger">Add to wishlist</button>                               

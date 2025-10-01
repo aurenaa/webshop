@@ -13,10 +13,12 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import beans.Product;
 import beans.Review;
 import beans.User;
 import dao.ProductDAO;
@@ -151,5 +153,28 @@ public class UserService {
 
         user.setFeedback(feedback);
         return Response.ok().entity(user).build();
+    }
+    
+    @GET
+    @Path("/{id}/purchases")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Product> getPurchases(@PathParam("id") String userId) {
+        UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
+        ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
+
+        User user = userDAO.findById(userId);
+        if (user == null) {
+            throw new WebApplicationException("User not found", 404);
+        }
+
+        List<Product> purchased = new ArrayList<>();
+        for (String pid : user.getPurchaseList()) {
+            Product p = productDAO.findProduct(pid);
+            if (p != null) {
+                purchased.add(p);
+            }
+        }
+
+        return purchased;
     }
 }

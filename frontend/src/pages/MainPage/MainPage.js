@@ -49,9 +49,21 @@ export default function MainPage() {
                   <img className="menu" src="/icons/menu.png" alt="Menu"/>
                 </button>
                 <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <li><a className="dropdown-item" onClick={() => navigate(`/profile/${user.id}`)}>My account</a></li>
-                  <li><a className="dropdown-item" onClick={() => navigate("/listingpage")}>My listings</a></li>
-                  <li><a className="dropdown-item" onClick={handleLogout}>Log out</a></li>
+                  <li>
+                    <a className="dropdown-item" onClick={() => navigate(`/profile/${user?.id}`)}>
+                      Account settings
+                    </a>
+                  </li>
+                  <li>
+                    <a className="dropdown-item" onClick={() => navigate(`/user/${user?.id}`)}>
+                      My profile
+                    </a>
+                  </li>
+                  <li>
+                    <a className="dropdown-item" onClick={handleLogout}>
+                      Log out
+                    </a>
+                  </li>
                 </ul>
               </div>
           </>
@@ -68,7 +80,7 @@ export default function MainPage() {
       </div>
       </nav>
       <div className="products-table mt-3">
-        <ProductTable products={products} />
+        <ProductTable products={products.filter(p => (p.status != "PROCESSING") && (p.status != "SOLD") )} />
       </div>
     </div>
   );

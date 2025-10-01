@@ -15,23 +15,43 @@ export default function ProductTable({ products }) {
 
   return (
     <div className="product-grid">
-      {products
-        .filter((p) => p.status !== "SOLD")
-        .map((p) => (
+      {products.map((p) => {
+        let firstPicture = null;
+        if (Array.isArray(p.productPictures) && p.productPictures.length > 0) {
+          firstPicture = p.productPictures[0];
+        }
+        else if (typeof p.productPictures === 'string' && p.productPictures.trim() !== '') {
+          let pictureString = p.productPictures.trim();
+          if (pictureString.includes('|')) {
+            firstPicture = pictureString.split('|')[0];
+          } else {
+            firstPicture = pictureString;
+          }
+        }
+
+        if (firstPicture) {
+          firstPicture = firstPicture.replace(/;+$/, '').trim();
+        }
+
+        const imageUrl = firstPicture 
+          ? `http://localhost:8080/WebShopAppREST/images/products/${firstPicture}`
+          : "/icons/no_image.jpg";
+
+        return (
           <div key={p.id} className="product-card" onClick={() => handleClick(p.id)}>
             <img
-              src={
-                p.productPictures && p.productPictures.length > 0
-                  ? `http://localhost:8080/WebShopAppREST/images/products/${p.productPictures[0]}`
-                  : "/icons/no_image.jpg"
-              }
+              src={imageUrl}
               alt={p.name}
               className="product-image"
+              onError={(e) => {
+                e.target.src = "/icons/no_image.jpg";
+              }}
             />
             <div className="product-name">{p.name}</div>
             <div className="product-price">{p.price} RSD</div>
           </div>
-        ))}
+        );
+      })}
     </div>
   );
 }

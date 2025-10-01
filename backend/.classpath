@@ -8,7 +8,6 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
-	<classpathentry kind="lib" path="C:/Users/Nevenica/Desktop/Veb/Projekat/backend/src/main/webapp/WEB-INF/lib/jersey-media-multipart-2.35.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/mimepull-1.10.0.jar"/>
 	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/jakarta.inject-2.6.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v9.0">
@@ -16,5 +15,6 @@
 			<attribute name="owner.project.facets" value="jst.web"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="src/main/webapp/WEB-INF/lib/jersey-media-multipart-2.35.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

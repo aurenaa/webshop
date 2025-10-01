@@ -15,15 +15,16 @@ public class Product {
     private String sellerId;
     private List<Bid> bids;
     private Status status;
+    private double biggestBid;
     private List<String> productPictures;
-    
+
     public enum SaleType {
     	FIXED_PRICE,
         AUCTION
     }
     
     public enum Status {
-    	PROCESSING, SOLD, REJECTED, CANCELED
+    	AVAILABLE, PROCESSING, SOLD, REJECTED, CANCELED
     }
 
     public Product() {
@@ -31,6 +32,7 @@ public class Product {
         this.bids = new ArrayList<>();
         this.productPictures = new ArrayList<>();
     }
+
 
     public Product(String id, String name, String description, Category category, double price, SaleType saleType, String sellerId) {
         this.id = id;
@@ -137,6 +139,25 @@ public class Product {
     	this.status = status; 
     }
     
+    public double getBiggestBid()
+    {
+    	return biggestBid;
+    }
+    
+    public void setBiggestBid(double bBid)
+    {
+    	this.biggestBid = bBid;
+    }
+    
+    public double getMaxBid()
+    {
+    	if(bids == null || bids.isEmpty())
+    	{
+    		return price;
+    	}
+    	return bids.stream().mapToDouble(Bid::getOffer).max().orElse(price);
+    }
+
     public List<String> getProductPictures() { 
     	return productPictures; 
     }
