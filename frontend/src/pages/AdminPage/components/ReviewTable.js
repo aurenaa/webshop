@@ -42,6 +42,19 @@ export default function ReviewTable({ reviews: initialReviews }) {
     }
   };
 
+  const handleDeleteClick = async (reviewId) => {
+    if (!window.confirm("Are you sure you want to delete this review?")) return;
+
+    try {
+      await axios.delete(`http://localhost:8080/WebShopAppREST/rest/reviews/${reviewId}`);
+      
+      setReviews((prevReviews) => prevReviews.filter((r) => r.id !== reviewId));
+    } catch (err) {
+      console.error("Error deleting review", err);
+      alert("Failed to delete review.");
+    }
+  };
+
   if (!reviews || reviews.length === 0) {
     return <div>No reviews found.</div>;
   }
@@ -91,7 +104,7 @@ export default function ReviewTable({ reviews: initialReviews }) {
                   <button className="btn btn-sm btn-primary me-2" onClick={() => handleEditClick(r)}>
                     Edit
                   </button>
-              <button className="btn btn-sm btn-danger" onClick={() => console.log("Delete review", r.id)}>
+              <button className="btn btn-sm btn-danger" onClick={() => handleDeleteClick(r.id)}>
                 Delete
               </button>
                 </>
