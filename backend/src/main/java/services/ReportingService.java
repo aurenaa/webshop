@@ -57,7 +57,7 @@ public class ReportingService {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response rejectReport(@PathParam("id") String id, ProfileReportDTO updates) {
-        ProfileReportDAO profileReportDAO = (ProfileReportDAO) ctx.getAttribute("profileReportDAO");
+        ProfileReportDAO profileReportDAO = (ProfileReportDAO) ctx.getAttribute("reportDAO");
         ProfileReport updated = profileReportDAO.rejectReport(id, updates, ctx.getRealPath(""));
         if (updated == null) {
             return Response.status(404).entity("Report not found").build();
@@ -71,7 +71,7 @@ public class ReportingService {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response submitReport(ProfileReportDTO dto) {
-        String reason = dto.getReason();
+        String reason = dto.getRejectionReason();
         String submittedByUserId = dto.getSubmittedByUserId();
         String reportedUserId = dto.getReportedUserId();
         ReportStatus status = dto.getStatus();

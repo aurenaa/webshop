@@ -40,7 +40,7 @@ export default function ReportTable({ reports: initialReports }) {
 
     try {
       await axios.patch(
-        `http://localhost:8080/WebShopAppREST/rest/reports/${reportId}/reject`,
+        `http://localhost:8080/WebShopAppREST/rest/report/${reportId}/reject`,
         { rejectionReason: rejectReason },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -85,7 +85,7 @@ export default function ReportTable({ reports: initialReports }) {
           <tr key={r.id}>
             <td>{r.submittedByUserId}</td>
             <td>{r.reportedUserId}</td>
-            <td>{r.reason}</td>
+            <td>{r.reportReason}</td>
             <td>{r.submissionDate}</td>
             <td>{r.status}</td>
             <td>

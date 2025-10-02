@@ -15,9 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 import beans.ProfileReport;
-import beans.Review;
+import beans.ProfileReport.ReportStatus;
 import dto.ProfileReportDTO;
-import dto.ReviewDTO;
 
 public class ProfileReportDAO {
 	private Map<String, ProfileReport> reports = new HashMap<>();
@@ -52,7 +51,7 @@ public class ProfileReportDAO {
 
 	            String[] tokens = line.split(";", -1);
 	            
-	            if (tokens.length < 6) {
+	            if (tokens.length < 7) {
 	                System.err.println("Invalid line format: " + line);
 	                continue;
 	            }
@@ -123,17 +122,15 @@ public class ProfileReportDAO {
 	
 	public ProfileReport rejectReport(String id, ProfileReportDTO updated, String contextPath) {
 		ProfileReport r = findById(id);
-		if(updated.getRejectionReason() == null)
-		{
-			r.setRejectionReason(updated.getRejectionReason());
-		}
+		r.setRejectionReason(updated.getRejectionReason());
+		r.setStatus(ReportStatus.REJECTED);
 		editReport(r, contextPath);
 		return r;
 	}
 	
 	
 	public void editReport(ProfileReport updated, String contextPath) {
-	    File file = new File(contextPath + "/reviews.txt");
+	    File file = new File(contextPath + "/reports.txt");
 	    try {
 	        List<String> lines = new ArrayList<>();
 	        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -144,7 +141,7 @@ public class ProfileReportDAO {
 
 	                String[] parts = line.split(";");
 	                if (parts[0].equals(updated.getId())) {
-	                    String newLine = String.format("%s;%s;%s;%d;%s;%s;%s",
+	                    String newLine = String.format("%s;%s;%s;%s;%s;%s;%s",
 	                            updated.getId(),
 	                            updated.getReportReason(),
 	                            updated.getSubmittedByUserId(),
