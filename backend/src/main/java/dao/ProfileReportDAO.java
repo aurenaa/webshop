@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import beans.ProfileReport;
+import beans.ProfileReport.ReportStatus;
 
 public class ProfileReportDAO {
 	private Map<String, ProfileReport> reports = new HashMap<>();
@@ -82,7 +83,7 @@ public class ProfileReportDAO {
 	        String dateStr = sdf.format(report.getSubmissionDate());
 	        
 	        try (PrintWriter out = new PrintWriter(new FileWriter(file, true))) {
-	            out.println(String.format("%s;%s;%s;%s;%s;%s;%s",
+	            out.println(String.format("%s;%s;%s;%s;%s;%s",
 	            		report.getId(),
 	            		report.getReason(),
 	            		report.getSubmissionDate(),

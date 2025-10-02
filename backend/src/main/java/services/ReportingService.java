@@ -1,10 +1,12 @@
 package services;
 
 import java.time.LocalDate;
+import java.util.Collection;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -29,7 +31,20 @@ public class ReportingService {
     @PostConstruct
     public void init() {
         String contextPath = ctx.getRealPath("");
-        ctx.setAttribute("userDAO", new UserDAO(contextPath));
+        if (ctx.getAttribute("userDAO") == null) {
+            ctx.setAttribute("userDAO", new UserDAO(contextPath));
+        }
+        if (ctx.getAttribute("reportDAO") == null) {
+            ctx.setAttribute("reportDAO", new ProfileReportDAO(contextPath));
+        }
+    }
+    
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Collection<ProfileReport> getReport() {
+    	ProfileReportDAO dao = (ProfileReportDAO) ctx.getAttribute("reportDAO");
+	    Collection<ProfileReport> reports = dao.findAll();
+	    return reports;
     }
     
     @POST

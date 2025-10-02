@@ -1,5 +1,3 @@
-import { useNavigate } from 'react-router-dom';
-import { useAuthorize } from "../../../contexts/AuthorizeContext";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ReviewTable from './ReviewTable';
 import { useReviewsList } from "../../../hooks/useReviewsList";
