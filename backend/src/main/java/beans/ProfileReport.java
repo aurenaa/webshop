@@ -4,41 +4,54 @@ import java.util.Date;
 
 public class ProfileReport {
     private String id;
-    private String reason;
+    private String reportReason;
     private Date submissionDate;
     private String submittedByUserId;
     private String reportedUserId;
     private ReportStatus status;
+    private String rejectionReason;
     
     public enum ReportStatus { SUBMITTED, REJECTED, ACCEPTED }    
     public ProfileReport() {}
 
-    public ProfileReport(String id, String reason, String submittedByUserId, String reportedUserId, ReportStatus status, Date submissionDate) {
+    public ProfileReport(String id, String reportReason, String submittedByUserId, String reportedUserId, ReportStatus status, Date submissionDate, String rejectionReason) {
         this.id = id;
-        this.reason = reason;
+        this.reportReason = reportReason;
         this.submissionDate = submissionDate;
         this.submittedByUserId = submittedByUserId;
         this.reportedUserId = reportedUserId;
         this.status = status;
+        this.rejectionReason = rejectionReason;
     }
 
     public String getId() { 
     	return id; 
     }
+    
     public void setId(String id) { 
     	this.id = id; 
     }
 
-    public String getReason() { 
-    	return reason; 
+    public String getReportReason() { 
+    	return reportReason; 
     }
-    public void setReason(String reason) { 
-    	this.reason = reason; 
+    
+    public void setReportReason(String reportReason) { 
+    	this.reportReason = reportReason; 
+    }
+    
+    public String getRejectionReason() { 
+    	return rejectionReason; 
+    }
+    
+    public void setRejectionReason(String rejectionReason) { 
+    	this.rejectionReason = rejectionReason; 
     }
 
     public Date getSubmissionDate() { 
     	return submissionDate; 
     }
+    
     public void setSubmissionDate(Date submissionDate) { 
     	this.submissionDate = submissionDate;
     }
@@ -46,6 +59,7 @@ public class ProfileReport {
     public String getSubmittedByUserId() {
     	return submittedByUserId; 
     }
+    
     public void setSubmittedByUserId(String submittedByUserId) { 
     	this.submittedByUserId = submittedByUserId;
     }

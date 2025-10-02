@@ -1,12 +1,16 @@
 package services;
 
 import java.time.LocalDate;
+import java.util.Collection;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -29,7 +33,50 @@ public class ReportingService {
     @PostConstruct
     public void init() {
         String contextPath = ctx.getRealPath("");
-        ctx.setAttribute("userDAO", new UserDAO(contextPath));
+        if (ctx.getAttribute("userDAO") == null) {
+            ctx.setAttribute("userDAO", new UserDAO(contextPath));
+        }
+        if (ctx.getAttribute("reportDAO") == null) {
+            ctx.setAttribute("reportDAO", new ProfileReportDAO(contextPath));
+        }
+    }
+    
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Collection<ProfileReport> getReport() {
+    	ProfileReportDAO dao = (ProfileReportDAO) ctx.getAttribute("reportDAO");
+	    Collection<ProfileReport> reports = dao.findAll();
+	    return reports;
+    }
+    
+    @PATCH
+    @Path("/{id}/reject")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response rejectReport(@PathParam("id") String id, ProfileReportDTO updates) {
+        ProfileReportDAO profileReportDAO = (ProfileReportDAO) ctx.getAttribute("reportDAO");
+        ProfileReport updated = profileReportDAO.rejectReport(id, updates, ctx.getRealPath(""));
+        if (updated == null) {
+            return Response.status(404).entity("Report not found").build();
+        }
+    
+        return Response.ok(updated).build();
+    }
+    
+    @PATCH
+    @Path("/{id}/accept")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response acceptReport(@PathParam("id") String id, ProfileReportDTO updates) {
+        ProfileReportDAO profileReportDAO = (ProfileReportDAO) ctx.getAttribute("reportDAO");
+        UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
+
+        ProfileReport updated = profileReportDAO.acceptReport(id, updates, ctx.getRealPath(""), userDAO);
+        if (updated == null) {
+            return Response.status(404).entity("Report not found").build();
+        }
+    
+        return Response.ok(updated).build();
     }
     
     @POST
@@ -37,7 +84,7 @@ public class ReportingService {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response submitReport(ProfileReportDTO dto) {
-        String reason = dto.getReason();
+        String reason = dto.getRejectionReason();
         String submittedByUserId = dto.getSubmittedByUserId();
         String reportedUserId = dto.getReportedUserId();
         ReportStatus status = dto.getStatus();
@@ -53,7 +100,7 @@ public class ReportingService {
         }
 
         ProfileReport report = new ProfileReport();
-        report.setReason(reason);
+        report.setReportReason(reason);
         report.setStatus(ProfileReport.ReportStatus.valueOf(status.name()));
         report.setSubmittedByUserId(submittedByUserId);
         report.setReportedUserId(reportedUserId);

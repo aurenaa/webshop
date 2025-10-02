@@ -16,6 +16,7 @@ import PurchasedProductsPage from "./pages/PurchasedProductsPage/PurchasedProduc
 import OfferPage from './pages/OfferPage/OfferPage';
 import AdminPage from './pages/AdminPage/AdminPage';
 import ReviewsPage from './pages/AdminPage/components/ReviewPage';
+import ReportPage from './pages/AdminPage/components/ReportPage';
 
 function App() {
   return (
@@ -36,7 +37,8 @@ function App() {
                 <Route path="/purchasedpage" element={<PurchasedProductsPage />} />
                 <Route path="/offer/:id" element={<OfferPage/>} />
                 <Route path="/adminpage" element={<AdminPage/>} />       
-                <Route path="/admin/reviews" element={<ReviewsPage/>} />           
+                <Route path="/admin/reviews" element={<ReviewsPage/>} />     
+                <Route path="/admin/reports" element={<ReportPage/>} />                 
                 <Route
                   path="/add-product"
                   element={
