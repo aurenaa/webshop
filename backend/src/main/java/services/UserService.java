@@ -1,7 +1,7 @@
 package services;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -9,7 +9,6 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -44,6 +43,15 @@ public class UserService {
             ctx.setAttribute("productDAO", new ProductDAO(contextPath));
         }
     }
+    
+	@GET
+	@Path("/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Collection<User> getUsers() {
+	    UserDAO dao = (UserDAO) ctx.getAttribute("userDAO");
+	    Collection<User> users = dao.findAll();
+	    return users;
+	}
     
     @GET
     @Path("/{id}")
@@ -88,40 +96,6 @@ public class UserService {
     	return Response.status(201).entity("Auction ended successfully").build();
     }
     
-    @POST
-    @Path("/reviews")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response submitReview(ReviewDTO dto) {
-        String reviewedUserId = dto.getReviewedUserId();
-        String reviewerId = dto.getReviewerId();
-        int rating = dto.getRating();
-        String comment = dto.getComment();
-
-        UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
-        ReviewDAO reviewDAO = new ReviewDAO(ctx.getRealPath(""));
-
-        User reviewedUser = userDAO.findById(reviewedUserId);
-        User reviewer = userDAO.findById(reviewerId);
-
-        if (reviewedUser == null || reviewer == null) {
-            return Response.status(404).entity("User not found").build();
-        }
-
-        Review review = new Review();
-        review.setReviewerId(reviewerId);
-        review.setReviewedUserId(reviewedUserId);
-        review.setRating(rating);
-        review.setComment(comment);
-        review.setDate(java.sql.Date.valueOf(LocalDate.now()));
-
-        review = reviewDAO.save(review);
-        reviewDAO.addReview(review, ctx.getRealPath(""));
-       
-        userDAO.addReviewId(reviewedUser, review.getId(), ctx.getRealPath(""), reviewDAO);
-        
-        return Response.status(201).entity(review).build();
-    }
     
     @GET
     @Path("/{id}/withFeedback")

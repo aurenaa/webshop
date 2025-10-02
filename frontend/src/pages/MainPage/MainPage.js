@@ -13,17 +13,17 @@ export default function MainPage() {
   const { products, dispatch } = useProducts();
   const productsList = useProductsList() || [];
   const navigate = useNavigate();
-  const { isLoggedIn, setIsLoggedIn, logout } = useAuthorize();
+  const { isLoggedIn, setIsLoggedIn } = useAuthorize();
   const { user } = useUser();
   
   useEffect(() => {
     dispatch({ type: "SET", payload: productsList });
   }, [productsList]);
 
-    const handleLogout = () => {
+  const handleLogout = () => {
         setIsLoggedIn(false);
         navigate('/mainpage');
-    };
+  };
 
   return (
     <div className="main-page">

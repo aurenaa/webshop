@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthorize } from "../../contexts/AuthorizeContext";
+import { useUsersList } from "../../hooks/useUsersList";
 import axios from "axios";
 import "./LoginPage.css";
 
@@ -11,6 +12,9 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+
+  const usersList = useUsersList() || [];
+  const admins = usersList.filter(u => u.role == "ADMINISTRATOR");
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -26,10 +30,18 @@ export default function LoginPage() {
         { username, password }
       );
 
-      login(response.data.userId);
+      const { userId } = response.data;
 
+      login(userId);
       setIsLoggedIn(true);
-      navigate("/");
+
+      const isAdmin = admins.some(a => a.id === userId);
+      
+      if (isAdmin) {
+        navigate("/adminpage");
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       setMessage("Wrong username or password.");
     }
