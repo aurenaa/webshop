@@ -14,6 +14,7 @@ import { ProductsProvider } from "./contexts/ProductsContext";
 import { UserProvider } from "./contexts/UserContext";
 import PurchasedProductsPage from "./pages/PurchasedProductsPage/PurchasedProducts";
 import OfferPage from './pages/OfferPage/OfferPage';
+import AdminPage from './pages/AdminPage/AdminPage';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
                 <Route path='/user/:id' element={<UserProfilePage/>}/>
                 <Route path="/purchasedpage" element={<PurchasedProductsPage />} />
                 <Route path="/offer/:id" element={<OfferPage/>} />
+                <Route path="/adminpage" element={<AdminPage/>} />                
                 <Route
                   path="/add-product"
                   element={

@@ -2,6 +2,7 @@ package services;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -44,6 +45,15 @@ public class UserService {
             ctx.setAttribute("productDAO", new ProductDAO(contextPath));
         }
     }
+    
+	@GET
+	@Path("/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Collection<User> getUsers() {
+	    UserDAO dao = (UserDAO) ctx.getAttribute("userDAO");
+	    Collection<User> users = dao.findAll();
+	    return users;
+	}
     
     @GET
     @Path("/{id}")
