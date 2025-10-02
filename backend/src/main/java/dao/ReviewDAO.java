@@ -14,12 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import beans.Bid;
-import beans.Category;
-import beans.Product;
-import beans.Purchase;
 import beans.Review;
-import dto.ProductUpdateDTO;
 import dto.ReviewDTO;
 
 public class ReviewDAO {
@@ -144,7 +139,7 @@ public class ReviewDAO {
 		return false;
 	}
 	
-	public Review updateReview(String id, ReviewDTO updated, String contextPath) {
+	public Review updateComment(String id, ReviewDTO updated, String contextPath) {
 		Review r = findById(id);
 		if(updated.getComment() != null)
 		{

@@ -2,6 +2,7 @@ package services;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -34,9 +35,10 @@ public class ReviewService {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Review> getAllReviews() {
-        ReviewDAO reviewDAO = (ReviewDAO) ctx.getAttribute("reviewDAO");
-        return new ArrayList<>(reviewDAO.findAll());
+    public Collection<Review> getReviews() {
+        ReviewDAO dao = (ReviewDAO) ctx.getAttribute("reviewDAO");
+	    Collection<Review> reviews = dao.findAll();
+	    return reviews;
     }
 
     @POST
@@ -84,7 +86,7 @@ public class ReviewService {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateReview(@PathParam("id") String id, ReviewDTO updates) {
         ReviewDAO reviewDAO = (ReviewDAO) ctx.getAttribute("reviewDAO");
-        Review updated = reviewDAO.updateReview(id, updates, ctx.getRealPath(""));
+        Review updated = reviewDAO.updateComment(id, updates, ctx.getRealPath(""));
         if (updated == null) {
             return Response.status(404).entity("Review not found").build();
         }
