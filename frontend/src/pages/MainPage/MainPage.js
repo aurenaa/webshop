@@ -20,10 +20,10 @@ export default function MainPage() {
     dispatch({ type: "SET", payload: productsList });
   }, [productsList]);
 
-    const handleLogout = () => {
+  const handleLogout = () => {
         setIsLoggedIn(false);
         navigate('/mainpage');
-    };
+  };
 
   return (
     <div className="main-page">

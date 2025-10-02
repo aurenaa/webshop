@@ -1,4 +1,3 @@
-import { use } from "react";
 import "./ProductTable.css";
 import { useNavigate } from "react-router-dom";
 
