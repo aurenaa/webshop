@@ -41,7 +41,7 @@ export default function ReportTable({ reports: initialReports }) {
     try {
       await axios.patch(
         `http://localhost:8080/WebShopAppREST/rest/reports/${reportId}/reject`,
-        { reason: rejectReason },
+        { rejectionReason: rejectReason },
         { headers: { "Content-Type": "application/json" } }
       );
 

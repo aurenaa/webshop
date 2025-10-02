@@ -7,13 +7,17 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import beans.ProfileReport;
-import beans.ProfileReport.ReportStatus;
+import beans.Review;
+import dto.ProfileReportDTO;
+import dto.ReviewDTO;
 
 public class ProfileReportDAO {
 	private Map<String, ProfileReport> reports = new HashMap<>();
@@ -59,10 +63,11 @@ public class ProfileReportDAO {
 	            String reportedUserId = tokens[3].trim();
 	            String status = tokens[4].trim();
 	            String submissionDate = tokens[5].trim();
+	            String rejectionReason = tokens[6].trim();
 	            
 	            Date date = java.sql.Date.valueOf(submissionDate);
 	            ProfileReport.ReportStatus statusEnum = ProfileReport.ReportStatus.valueOf(status);
-	            reports.put(id, new ProfileReport(id, reason, submittedByUserId, reportedUserId, statusEnum, date));
+	            reports.put(id, new ProfileReport(id, reason, submittedByUserId, reportedUserId, statusEnum, date, rejectionReason));
 	        }
 	    } catch (Exception ex) {
 	        ex.printStackTrace();
@@ -83,14 +88,14 @@ public class ProfileReportDAO {
 	        String dateStr = sdf.format(report.getSubmissionDate());
 	        
 	        try (PrintWriter out = new PrintWriter(new FileWriter(file, true))) {
-	            out.println(String.format("%s;%s;%s;%s;%s;%s",
+	            out.println(String.format("%s;%s;%s;%s;%s;%s;%s",
 	            		report.getId(),
-	            		report.getReason(),
-	            		report.getSubmissionDate(),
+	            		report.getReportReason(),
 	            		report.getSubmittedByUserId(),
 	            		report.getReportedUserId(),
 	            		report.getStatus(),
-	            		dateStr
+	            		dateStr,
+	                    report.getRejectionReason() == null ? "" : report.getRejectionReason()	            		
 	            ));
 	            out.println();
 	        }
@@ -114,5 +119,54 @@ public class ProfileReportDAO {
 	    report.setSubmissionDate(java.sql.Date.valueOf(LocalDate.now()));
 	    reports.put(report.getId(), report);
 	    return report;
+	}
+	
+	public ProfileReport rejectReport(String id, ProfileReportDTO updated, String contextPath) {
+		ProfileReport r = findById(id);
+		if(updated.getRejectionReason() == null)
+		{
+			r.setRejectionReason(updated.getRejectionReason());
+		}
+		editReport(r, contextPath);
+		return r;
+	}
+	
+	
+	public void editReport(ProfileReport updated, String contextPath) {
+	    File file = new File(contextPath + "/reviews.txt");
+	    try {
+	        List<String> lines = new ArrayList<>();
+	        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+	            String line;
+	            while ((line = reader.readLine()) != null) {
+	                if (line.trim().isEmpty()) continue;
+
+	                String[] parts = line.split(";");
+	                if (parts[0].equals(updated.getId())) {
+	                    String newLine = String.format("%s;%s;%s;%d;%s;%s;%s",
+	                            updated.getId(),
+	                            updated.getReportReason(),
+	                            updated.getSubmittedByUserId(),
+	                            updated.getReportedUserId(),
+	                            updated.getStatus(),
+	                            sdf.format(updated.getSubmissionDate()),
+	                            updated.getRejectionReason()
+	                    );
+	                    lines.add(newLine);
+	                } else {
+	                    lines.add(line);
+	                }
+	            }
+	        }
+
+	        try (PrintWriter writer = new PrintWriter(new FileWriter(file, false))) {
+	            for (String l : lines) {
+	                writer.println(l);
+	            }
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 	}
 }

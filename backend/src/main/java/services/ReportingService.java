@@ -7,19 +7,24 @@ import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import beans.ProfileReport;
+import beans.Review;
 import beans.User;
 import dao.ProfileReportDAO;
+import dao.ReviewDAO;
 import dao.UserDAO;
 
 import dto.ProfileReportDTO;
+import dto.ReviewDTO;
 import dto.ProfileReportDTO.ReportStatus;
 
 @Path("/report")
@@ -47,6 +52,20 @@ public class ReportingService {
 	    return reports;
     }
     
+    @PATCH
+    @Path("/{id}/reject")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response rejectReport(@PathParam("id") String id, ProfileReportDTO updates) {
+        ProfileReportDAO profileReportDAO = (ProfileReportDAO) ctx.getAttribute("profileReportDAO");
+        ProfileReport updated = profileReportDAO.rejectReport(id, updates, ctx.getRealPath(""));
+        if (updated == null) {
+            return Response.status(404).entity("Report not found").build();
+        }
+    
+        return Response.ok(updated).build();
+    }
+    
     @POST
     @Path("/reports")
     @Produces(MediaType.APPLICATION_JSON)
@@ -68,7 +87,7 @@ public class ReportingService {
         }
 
         ProfileReport report = new ProfileReport();
-        report.setReason(reason);
+        report.setReportReason(reason);
         report.setStatus(ProfileReport.ReportStatus.valueOf(status.name()));
         report.setSubmittedByUserId(submittedByUserId);
         report.setReportedUserId(reportedUserId);
