@@ -11,16 +11,18 @@ public class Review implements Serializable {
 	private int rating;
 	private String comment;
 	private Date date;
+    private boolean deleted = false;
     
 	public Review() { }
 	
-	public Review(String id, String reviewerId, String reviewedUserId, int rating, String comment, Date date) {
+	public Review(String id, String reviewerId, String reviewedUserId, int rating, String comment, Date date, boolean deleted) {
 		this.id = id;
 		this.reviewerId = reviewerId;
 		this.reviewedUserId = reviewedUserId;
 		this.rating = rating;
 		this.comment = comment;
 		this.date = date;
+		this.deleted = deleted;
 	}
 	
     public String getId() {
@@ -69,5 +71,13 @@ public class Review implements Serializable {
     
     public Date getDate() {
     	return date;
+    }
+    
+    public void setDeleted(boolean deleted) {
+    	this.deleted = deleted;
+    }
+    
+    public boolean getDeleted() {
+    	return deleted;
     }
 }

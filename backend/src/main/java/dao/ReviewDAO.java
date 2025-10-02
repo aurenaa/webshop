@@ -14,7 +14,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import beans.Bid;
+import beans.Category;
+import beans.Product;
+import beans.Purchase;
 import beans.Review;
+import dto.ProductUpdateDTO;
+import dto.ReviewDTO;
 
 public class ReviewDAO {
 	private Map<String, Review> reviews = new HashMap<>();
@@ -49,7 +55,7 @@ public class ReviewDAO {
 
 	            String[] tokens = line.split(";", -1);
 	            
-	            if (tokens.length < 6) {
+	            if (tokens.length < 7) {
 	                System.err.println("Invalid line format: " + line);
 	                continue;
 	            }
@@ -60,9 +66,11 @@ public class ReviewDAO {
 	            String rating = tokens[3].trim();
 	            String comment = tokens[4].trim();
 	            String datePosted = tokens[5].trim();
+	            String deleted = tokens[6].trim();
 	            
 	            Date date = java.sql.Date.valueOf(datePosted);
-	            reviews.put(id, new Review(id, reviewerId, reviewedUserId, Integer.parseInt(rating), comment, date));
+	            boolean flag = Boolean.parseBoolean(deleted);
+	            reviews.put(id, new Review(id, reviewerId, reviewedUserId, Integer.parseInt(rating), comment, date, flag));
 	        }
 	    } catch (Exception ex) {
 	        ex.printStackTrace();
@@ -82,13 +90,14 @@ public class ReviewDAO {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	        String dateStr = sdf.format(review.getDate());
 	        try (PrintWriter out = new PrintWriter(new FileWriter(file, true))) {
-	            out.println(String.format("%s;%s;%s;%s;%s;%s",
+	            out.println(String.format("%s;%s;%s;%s;%s;%s;%s",
 	            		review.getId(),
 	            		review.getReviewerId(),
 	            		review.getReviewedUserId(),
 	            		review.getRating(),
 	            		review.getComment(),
-	            		dateStr
+	            		dateStr,
+	            		false
 	            ));
 	            out.println();
 	        }
@@ -123,5 +132,64 @@ public class ReviewDAO {
 	        }
 	    }
 	    return result;
+	}
+	
+	public boolean deleteReview(String id, String contextPath) {
+		Review reviewToDelete = findById(id);
+		if (reviewToDelete != null) {
+			reviewToDelete.setDeleted(true);
+			editReview(reviewToDelete, contextPath);
+			return true;
+		}
+		return false;
+	}
+	
+	public Review updateReview(String id, ReviewDTO updated, String contextPath) {
+		Review r = findById(id);
+		if(updated.getComment() != null)
+		{
+			r.setComment(updated.getComment());
+		}
+		editReview(r, contextPath);
+		return r;
+	}
+	
+	
+	public void editReview(Review updated, String contextPath) {
+	    File file = new File(contextPath + "/reviews.txt");
+	    try {
+	        List<String> lines = new ArrayList<>();
+	        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+	            String line;
+	            while ((line = reader.readLine()) != null) {
+	                if (line.trim().isEmpty()) continue;
+
+	                String[] parts = line.split(";");
+	                if (parts[0].equals(updated.getId())) {
+	                    String newLine = String.format("%s;%s;%s;%d;%s;%s;%b",
+	                            updated.getId(),
+	                            updated.getReviewerId(),
+	                            updated.getReviewedUserId(),
+	                            updated.getRating(),
+	                            updated.getComment(),
+	                            sdf.format(updated.getDate()),
+	                            updated.getDeleted()
+	                    );
+	                    lines.add(newLine);
+	                } else {
+	                    lines.add(line);
+	                }
+	            }
+	        }
+
+	        try (PrintWriter writer = new PrintWriter(new FileWriter(file, false))) {
+	            for (String l : lines) {
+	                writer.println(l);
+	            }
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 	}
 }
