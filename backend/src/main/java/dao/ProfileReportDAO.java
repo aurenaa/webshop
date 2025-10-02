@@ -16,6 +16,7 @@ import java.util.Map;
 
 import beans.ProfileReport;
 import beans.ProfileReport.ReportStatus;
+import beans.User;
 import dto.ProfileReportDTO;
 
 public class ProfileReportDAO {
@@ -128,6 +129,21 @@ public class ProfileReportDAO {
 		return r;
 	}
 	
+	public ProfileReport acceptReport(String reportId, ProfileReportDTO updated, String contextPath, UserDAO userDAO) {
+	    ProfileReport r = findById(reportId);
+	    if (r == null) return null;
+
+	    r.setStatus(ProfileReport.ReportStatus.ACCEPTED);
+
+	    User reportedUser = userDAO.findById(r.getReportedUserId());
+	    if (reportedUser != null) {
+	        reportedUser.setBlocked(true); 
+	        userDAO.editFileUser(reportedUser, contextPath); 
+	    }
+
+	    editReport(r, contextPath);
+	    return r;
+	}
 	
 	public void editReport(ProfileReport updated, String contextPath) {
 	    File file = new File(contextPath + "/reports.txt");

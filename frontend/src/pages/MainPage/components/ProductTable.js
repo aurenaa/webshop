@@ -1,9 +1,10 @@
 import "./ProductTable.css";
 import { useNavigate } from "react-router-dom";
-
+import { useUsersList } from "../../../hooks/useUsersList";
 export default function ProductTable({ products }) {
   const navigate = useNavigate();
-  
+  const users = useUsersList() || [];
+
   if (!products || products.length === 0) {
     return <div>No products found.</div>;
   }
@@ -12,9 +13,19 @@ export default function ProductTable({ products }) {
     navigate(`/products/${id}`);
   };
 
+  const filteredProducts = products.filter(p => {
+    if (p.status === "PROCESSING" || p.status === "SOLD") {
+      return false;
+    }
+    const seller = users.find(u => u.id === p.sellerId);
+    if (!seller) return false; 
+    if (seller.blocked) return false;
+    return true;
+  });
+
   return (
     <div className="product-grid">
-      {products.map((p) => {
+      {filteredProducts.map((p) => {
         let firstPicture = null;
         if (Array.isArray(p.productPictures) && p.productPictures.length > 0) {
           firstPicture = p.productPictures[0];

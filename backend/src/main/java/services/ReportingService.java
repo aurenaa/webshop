@@ -17,14 +17,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import beans.ProfileReport;
-import beans.Review;
 import beans.User;
 import dao.ProfileReportDAO;
-import dao.ReviewDAO;
 import dao.UserDAO;
 
 import dto.ProfileReportDTO;
-import dto.ReviewDTO;
 import dto.ProfileReportDTO.ReportStatus;
 
 @Path("/report")
@@ -59,6 +56,22 @@ public class ReportingService {
     public Response rejectReport(@PathParam("id") String id, ProfileReportDTO updates) {
         ProfileReportDAO profileReportDAO = (ProfileReportDAO) ctx.getAttribute("reportDAO");
         ProfileReport updated = profileReportDAO.rejectReport(id, updates, ctx.getRealPath(""));
+        if (updated == null) {
+            return Response.status(404).entity("Report not found").build();
+        }
+    
+        return Response.ok(updated).build();
+    }
+    
+    @PATCH
+    @Path("/{id}/accept")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response acceptReport(@PathParam("id") String id, ProfileReportDTO updates) {
+        ProfileReportDAO profileReportDAO = (ProfileReportDAO) ctx.getAttribute("reportDAO");
+        UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
+
+        ProfileReport updated = profileReportDAO.acceptReport(id, updates, ctx.getRealPath(""), userDAO);
         if (updated == null) {
             return Response.status(404).entity("Report not found").build();
         }

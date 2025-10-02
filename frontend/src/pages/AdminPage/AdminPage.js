@@ -4,12 +4,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import "./AdminPage.css";
 
 export default function AdminPage() {
-  const { logout } = useAuthorize();
   const navigate = useNavigate();
-
+  const { isLoggedIn, setIsLoggedIn } = useAuthorize();
+  
   const handleLogout = () => {
-    logout();
-    navigate('/login');
+    setIsLoggedIn(false);
+    navigate('/mainpage');
   };
 
   return (

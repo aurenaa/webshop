@@ -13,7 +13,7 @@ export default function MainPage() {
   const { products, dispatch } = useProducts();
   const productsList = useProductsList() || [];
   const navigate = useNavigate();
-  const { isLoggedIn, setIsLoggedIn, logout } = useAuthorize();
+  const { isLoggedIn, setIsLoggedIn } = useAuthorize();
   const { user } = useUser();
   
   useEffect(() => {

@@ -10,16 +10,15 @@ export default function ReportTable({ reports: initialReports }) {
     setReports(initialReports);
   }, [initialReports]);
 
-  const handleAcceptClick = async (reportId) => {
+  const handleAcceptClick = async (reportId, reportedUserId) => {
     try {
       const response = await axios.patch(
-        `http://localhost:8080/WebShopAppREST/rest/reports/${reportId}/accept`
+        `http://localhost:8080/WebShopAppREST/rest/report/${reportId}/accept`,
+        { reportedUserId: reportedUserId },
+        { headers: { "Content-Type": "application/json" } }
       );
 
-      setReports((prev) =>
-        prev.map((r) =>
-          r.id === reportId ? { ...r, status: "ACCEPTED" } : r
-        )
+      setReports((prev) => prev.map((r) => r.id === reportId ? { ...r, status: "ACCEPTED" } : r)
       );
     } catch (err) {
       console.error("Error accepting report", err);
@@ -45,10 +44,7 @@ export default function ReportTable({ reports: initialReports }) {
         { headers: { "Content-Type": "application/json" } }
       );
 
-      setReports((prev) =>
-        prev.map((r) =>
-          r.id === reportId ? { ...r, status: "REJECTED", reason: rejectReason } : r
-        )
+      setReports((prev) => prev.map((r) => r.id === reportId ? { ...r, status: "REJECTED", reason: rejectReason } : r)
       );
 
       setRejectingId(null);
@@ -91,7 +87,7 @@ export default function ReportTable({ reports: initialReports }) {
             <td>
               {r.status === "SUBMITTED" && (
                 <>
-                  <button className="btn btn-sm btn-success me-2" onClick={() => handleAcceptClick(r.id)}>
+                  <button className="btn btn-sm btn-success me-2" onClick={() => handleAcceptClick(r.id, r.reportedUserId)}>
                     Accept
                   </button>
 
