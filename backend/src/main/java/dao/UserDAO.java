@@ -462,10 +462,10 @@ public class UserDAO {
         for (User user : users.values()) {
             int cancelCount = 0;
             List<Purchase> userPurchases = new ArrayList<>();
-
-            for (String productId : user.getPurchaseList()) {
-                Purchase p = purchaseDAO.findPurchaseByProductId(productId);
-                if (p != null) userPurchases.add(p);
+            for (Purchase p : purchaseDAO.findAll()) {
+                if (p.getBuyerId().equals(user.getId())) {
+                    userPurchases.add(p);
+                }
             }
 
             for (Purchase p : userPurchases) {
