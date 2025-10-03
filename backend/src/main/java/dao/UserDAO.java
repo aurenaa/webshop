@@ -11,11 +11,16 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
+import beans.Product;
+import beans.Purchase;
 import beans.Review;
 import beans.User;
 import beans.User.Role;
@@ -448,4 +453,37 @@ public class UserDAO {
 
         return newFileName;
     }
+    
+    public List<User> getSuspiciousUsers(PurchaseDAO purchaseDAO, ProductDAO productDAO) {
+        List<User> suspicious = new ArrayList<>();
+        LocalDate now = LocalDate.now();
+        LocalDate thirtyDaysAgo = now.minusDays(30);
+
+        for (User user : users.values()) {
+            int cancelCount = 0;
+            List<Purchase> userPurchases = new ArrayList<>();
+            for (Purchase p : purchaseDAO.findAll()) {
+                if (p.getBuyerId().equals(user.getId())) {
+                    userPurchases.add(p);
+                }
+            }
+
+            for (Purchase p : userPurchases) {
+                Product prod = productDAO.findProduct(p.getProductId());
+                if (prod != null && prod.getStatus() == Product.Status.CANCELED) {
+                    LocalDate purchaseDate = p.getDate();
+                    if (purchaseDate != null && (purchaseDate.isAfter(thirtyDaysAgo) || purchaseDate.isEqual(thirtyDaysAgo))) {
+                        cancelCount++;
+                    }
+                }
+            }
+
+            if (cancelCount > 5) {
+                suspicious.add(user);
+            }
+        }
+
+        return suspicious;
+    }
+    
 }

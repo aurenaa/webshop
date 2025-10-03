@@ -5,7 +5,25 @@ export default function UserTable({ users: initialUsers }) {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    setUsers(initialUsers);
+    const fetchSuspiciousUsers = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8080/WebShopAppREST/rest/users/suspicious"
+        );
+        const suspiciousUsers = response.data.map((u) => u.id);
+
+        const updatedUsers = initialUsers.map((u) => ({
+          ...u,
+          suspicious: suspiciousUsers.includes(u.id),
+        }));
+        setUsers(updatedUsers);
+      } catch (err) {
+        console.error("Error fetching suspicious users", err);
+        setUsers(initialUsers);
+      }
+    };
+
+    fetchSuspiciousUsers();
   }, [initialUsers]);
 
   const handleBlockToggle = async (user) => {
@@ -49,7 +67,8 @@ export default function UserTable({ users: initialUsers }) {
       </thead>
       <tbody>
         {users.map((u) => (
-          <tr key={u.id}>
+          <tr key={u.id}
+              style={{ border: u.suspicious ? "2px solid red" : "none" }}>
             <td>{u.username}</td>
             <td>{u.email}</td>
             <td>{u.role}</td>

@@ -20,7 +20,7 @@ import beans.Product;
 import beans.User;
 import dao.ProductDAO;
 import dao.UserDAO;
-import dto.ProductUpdateDTO;
+import dto.ProductDTO;
 
 
 @Path("/mainpage")
@@ -105,7 +105,7 @@ public class ProductService {
 	@Path("/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Product patchProduct(@PathParam("id") String id, ProductUpdateDTO updates) {
+	public Product patchProduct(@PathParam("id") String id, ProductDTO updates) {
 	    ProductDAO dao = (ProductDAO) ctx.getAttribute("productDAO");
 	    String contextPath = ctx.getRealPath("");
 	    Product product = dao.updateProduct(id, updates, contextPath);
