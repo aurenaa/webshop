@@ -73,7 +73,6 @@ public class UserService {
         UserDAO dao = (UserDAO) ctx.getAttribute("userDAO");
         String contextPath = ctx.getRealPath("");
         User updatedUser = dao.updateUser(id, updates, contextPath);
-        //dao.editFileUser(updatedUser, contextPath);
         return Response.ok(updatedUser).build();
     }
     
