@@ -14,12 +14,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Date;
 
 import beans.Category;
 import beans.Location;
 import beans.Bid;
 import beans.Product;
+import beans.Product.SaleType;
 import beans.Product.Status;
 import dto.ProductUpdateDTO;
 
@@ -404,5 +406,20 @@ public class ProductDAO {
 
 	    editFileProduct(p, contextPath);
 	    return newFileName;
+	}
+	
+	public Collection<Product> searchProduct(String name, String description, Double minPrice, Double maxPrice, SaleType productType, 
+											 String categoryName, String address)
+	{
+		return products.values()
+					   .stream()
+					   .filter(x -> name == null || x.getName().contains(name))
+					   .filter(x -> description == null || x.getDescription().contains(description))
+					   .filter(x -> minPrice == null || x.getPrice() >= minPrice)
+					   .filter(x -> maxPrice == null || x.getPrice() <= maxPrice)
+					   .filter(x -> productType == null || x.getSaleType().equals(productType))
+					   .filter(x -> categoryName == null || x.getCategory().getName().equals(categoryName))
+					   .filter(x -> address == null || x.getLocation().getAddress().equals(address))
+					   .collect(Collectors.toList());
 	}
 }
