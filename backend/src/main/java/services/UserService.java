@@ -21,6 +21,7 @@ import beans.Product;
 import beans.Review;
 import beans.User;
 import dao.ProductDAO;
+import dao.PurchaseDAO;
 import dao.ReviewDAO;
 import dao.UserDAO;
 import dto.AuctionEndDTO;
@@ -150,4 +151,22 @@ public class UserService {
 
         return purchased;
     }
+    
+    @GET
+    @Path("/suspicious")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<User> getSuspiciousUsers() {
+        UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
+        PurchaseDAO purchaseDAO = (PurchaseDAO) ctx.getAttribute("purchaseDAO");
+        ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
+
+        if (purchaseDAO == null) {
+            purchaseDAO = new PurchaseDAO(ctx.getRealPath(""));
+            ctx.setAttribute("purchaseDAO", purchaseDAO);
+        }
+
+        List<User> suspicious = userDAO.getSuspiciousUsers(purchaseDAO, productDAO);
+        return suspicious;
+    }
+    
 }

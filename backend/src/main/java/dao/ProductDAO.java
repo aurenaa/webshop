@@ -21,7 +21,7 @@ import beans.Location;
 import beans.Bid;
 import beans.Product;
 import beans.Product.Status;
-import dto.ProductUpdateDTO;
+import dto.ProductDTO;
 
 public class ProductDAO {
 	
@@ -67,7 +67,7 @@ public class ProductDAO {
 	            Category category = new Category(tokens[3].trim());
 	            String price = tokens[4].trim();
 	            String saleType = tokens[5].trim();
-	            String datePosted = tokens[6].trim();
+	            String datePostedStr = tokens[6].trim();
 	            String sellerId = tokens[7].trim();
 	            String locationId = tokens[8].trim();
 	            String status = tokens[9].trim();
@@ -100,10 +100,10 @@ public class ProductDAO {
 
 	            Product.SaleType saleEnum = Product.SaleType.valueOf(saleType);
 	            Product.Status statusEnum = Product.Status.valueOf(status);
-	            Date date = java.sql.Date.valueOf(datePosted);
+	            LocalDate datePosted = LocalDate.parse(datePostedStr);
 	            Location location = locationDAO.findLocation(locationId);
 	            
-	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, date, sellerId, location, statusEnum, productPictures, bids));
+	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, datePosted, sellerId, location, statusEnum, productPictures, bids));
 	        }
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -123,10 +123,9 @@ public class ProductDAO {
 	        if (idNum > maxId) maxId = idNum;
 	    }
 	    int newId = maxId + 1;
+	    
 	    product.setId(String.valueOf(newId));
-	    
-	    product.setDatePosted(java.sql.Date.valueOf(LocalDate.now()));
-	    
+        product.setDatePosted(LocalDate.now());
 	    products.put(product.getId(), product);
 	    return product;
 	}
@@ -247,6 +246,8 @@ public class ProductDAO {
 	            while ((line = reader.readLine()) != null) {
 	                if (line.trim().isEmpty()) continue;
 
+	                
+	                
 	                String[] parts = line.split(";");
 	                if (parts[0].equals(updatedProduct.getId())) {
 	                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -322,11 +323,10 @@ public class ProductDAO {
 			
 			editFileProduct(p, contextPath);
 		}
-		
 		return p;
 	}
 
-	public Product updateProduct(String id, ProductUpdateDTO updated, String contextPath)
+	public Product updateProduct(String id, ProductDTO updated, String contextPath)
 	{
 		Product p = products.containsKey(id) ? products.get(id) : null;
 		
