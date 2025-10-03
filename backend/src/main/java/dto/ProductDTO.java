@@ -4,7 +4,7 @@ import beans.Category;
 import beans.Product.SaleType;
 import beans.Product.Status;;
 
-public class ProductUpdateDTO
+public class ProductDTO
 {
 	private String name;
 	private String description;

@@ -2,6 +2,7 @@ package dao;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 import beans.Purchase;
 
@@ -53,7 +54,7 @@ public class PurchaseDAO {
                 String rejectionReason = tokens.length > 3 ? tokens[3].trim() : "";
                 String datePosted = tokens[4].trim();
                 
-                Date date = java.sql.Date.valueOf(datePosted);
+	            LocalDate date = LocalDate.parse(datePosted);
                 
                 purchases.put(id, new Purchase(id, productId, buyerId, rejectionReason, date));
             }

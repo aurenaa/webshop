@@ -1,6 +1,7 @@
 package beans;
 
-import java.util.Date;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,7 @@ public class Product {
     private Category category;
     private double price;
     private SaleType saleType;
-    private Date datePosted;
+    private LocalDate datePosted;
     private String sellerId;
     private List<Bid> bids;
     private Status status;
@@ -29,7 +30,7 @@ public class Product {
     }
 
     public Product() {
-        this.datePosted = new Date();
+    	this.datePosted = LocalDate.now();
         this.bids = new ArrayList<>();
         this.productPictures = new ArrayList<>();
     }
@@ -42,11 +43,11 @@ public class Product {
         this.category = category;
         this.price = price;
         this.saleType = saleType;
-        this.datePosted = new Date();
+        this.datePosted = LocalDate.now();
         this.sellerId = sellerId;
     }
     
-    public Product(String id, String name, String description, Category category, double price, SaleType saleType, Date datePosted, String sellerId, Location locationId, Status status, List<String> productPictures, List<Bid> bids) {
+    public Product(String id, String name, String description, Category category, double price, SaleType saleType, LocalDate datePosted, String sellerId, Location locationId, Status status, List<String> productPictures, List<Bid> bids) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -108,12 +109,12 @@ public class Product {
         this.saleType = saleType;
     }
 
-    public Date getDatePosted() {
+    public LocalDate getDatePosted() {
         return datePosted;
     }
 
-    public void setDatePosted(Date datePosted) {
-        this.datePosted = datePosted;
+    public void setDatePosted(LocalDate date) {
+        this.datePosted = date;
     }
     
     public String getSellerId() {

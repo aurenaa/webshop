@@ -1,17 +1,17 @@
 package beans;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Purchase {
     private String id;
     private String productId;
     private String buyerId;
     private String rejectionReason;
-    private Date date;
+    private LocalDate date;
     
     public Purchase() {}
 
-    public Purchase(String id, String productId, String buyerId, String rejectionReason, Date date) {
+    public Purchase(String id, String productId, String buyerId, String rejectionReason, LocalDate date) {
         this.id = id;
         this.productId = productId;
         this.buyerId = buyerId;
@@ -51,11 +51,11 @@ public class Purchase {
         this.rejectionReason = rejectionReason;
     }
     
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
     
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 }
