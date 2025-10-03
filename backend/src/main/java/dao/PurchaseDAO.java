@@ -1,6 +1,7 @@
 package dao;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import beans.Purchase;
 
@@ -44,14 +45,17 @@ public class PurchaseDAO {
                 if (line.equals("") || line.startsWith("#")) continue;
 
                 String[] tokens = line.split(";");
-                if (tokens.length < 3) continue;
+                if (tokens.length < 4) continue;
 
                 String id = tokens[0].trim();
                 String productId = tokens[1].trim();
                 String buyerId = tokens[2].trim();
                 String rejectionReason = tokens.length > 3 ? tokens[3].trim() : "";
-
-                purchases.put(id, new Purchase(id, productId, buyerId, rejectionReason));
+                String datePosted = tokens[4].trim();
+                
+                Date date = java.sql.Date.valueOf(datePosted);
+                
+                purchases.put(id, new Purchase(id, productId, buyerId, rejectionReason, date));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -79,11 +83,17 @@ public class PurchaseDAO {
             File file = new File(contextPath + "/purchases.txt");
             try (FileWriter fw = new FileWriter(file, true);
                  PrintWriter out = new PrintWriter(fw)) {
-                String line = String.format("%s;%s;%s;%s",
-                        purchase.getId(),
-                        purchase.getProductId(),
-                        purchase.getBuyerId(),
-                        purchase.getRejectionReason() != null ? purchase.getRejectionReason() : "");
+            	
+            	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	            String dateStr = sdf.format(purchase.getDate());
+	            
+	            String line = String.format("%s;%s;%s;%s;%s",
+	                    purchase.getId(),
+	                    purchase.getProductId(),
+	                    purchase.getBuyerId(),
+	                    purchase.getRejectionReason() != null ? purchase.getRejectionReason() : "",
+	                    dateStr
+	            );
                 out.println(line);
             }
         } catch (Exception e) {
@@ -102,11 +112,16 @@ public class PurchaseDAO {
 
                     String[] parts = line.split(";");
                     if (parts[0].equals(updated.getId())) {
+                    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	                    String dateStr = sdf.format(updated.getDate());
+                    	
                         String newLine = String.format("%s;%s;%s;%s",
                                 updated.getId(),
                                 updated.getProductId(),
                                 updated.getBuyerId(),
-                                updated.getRejectionReason() != null ? updated.getRejectionReason() : "");
+                                updated.getRejectionReason() != null ? updated.getRejectionReason() : "",
+                                dateStr
+                       );
                         lines.add(newLine);
                     } else {
                         lines.add(line);
