@@ -30,17 +30,18 @@ export default function AdminPage() {
             Manage Reports
           </li>
           <li 
+            className="nav-item nav-link cursor-pointer"
+            onClick={() => navigate("/admin/accounts")}
+          >
+            Manage Accounts
+          </li>          
+          <li 
             className="nav-item nav-link text-danger cursor-pointer mt-3"
             onClick={handleLogout}
           >
             Logout
           </li>
         </ul>
-      </div>
-
-      <div className="content p-4 flex-grow-1">
-        <h2>Welcome, Admin!</h2>
-        <p>Select an option from the sidebar to manage the system.</p>
       </div>
     </div>
   );
