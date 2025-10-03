@@ -31,7 +31,14 @@ export default function LoginPage() {
       );
 
       const { userId } = response.data;
+      const responseUser = await axios.get(`http://localhost:8080/WebShopAppREST/rest/users/${userId}`);
+      const user = responseUser.data;
 
+      if (user.isBlocked) {
+        setMessage("Your account is blocked.");
+        return;
+      }
+      
       login(userId);
       setIsLoggedIn(true);
 

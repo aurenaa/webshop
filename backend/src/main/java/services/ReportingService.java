@@ -79,6 +79,30 @@ public class ReportingService {
         return Response.ok(updated).build();
     }
     
+    @PATCH
+    @Path("/{id}/block")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response blockAccount(@PathParam("id") String id) {
+        ProfileReportDAO profileReportDAO = (ProfileReportDAO) ctx.getAttribute("reportDAO");
+        UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
+        boolean updated;
+        
+        User u = userDAO.findById(id);
+        if(u.isBlocked()) {
+            updated = profileReportDAO.unblockAccount(id, ctx.getRealPath(""), userDAO);
+        }
+        else {
+            updated = profileReportDAO.blockAccount(id, ctx.getRealPath(""), userDAO);        	
+        }
+
+        if (!updated) {
+            return Response.status(404).entity("User not found").build();
+        }
+    
+        return Response.ok(updated).build();
+    }
+    
     @POST
     @Path("/reports")
     @Produces(MediaType.APPLICATION_JSON)

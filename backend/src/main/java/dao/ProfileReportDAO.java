@@ -145,6 +145,26 @@ public class ProfileReportDAO {
 	    return r;
 	}
 	
+	public boolean blockAccount(String userId, String contextPath, UserDAO userDAO) {
+	    User u = userDAO.findById(userId);
+	    if (u != null) {
+	        u.setBlocked(true); 
+	        userDAO.editFileUser(u, contextPath); 
+	        return true;
+	    }
+	    return false;
+	}
+	
+	public boolean unblockAccount(String userId, String contextPath, UserDAO userDAO) {
+	    User u = userDAO.findById(userId);
+	    if (u != null) {
+	        u.setBlocked(false); 
+	        userDAO.editFileUser(u, contextPath); 
+	        return true;
+	    }
+	    return false;
+	}
+	
 	public void editReport(ProfileReport updated, String contextPath) {
 	    File file = new File(contextPath + "/reports.txt");
 	    try {
