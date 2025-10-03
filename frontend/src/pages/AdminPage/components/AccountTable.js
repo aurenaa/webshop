@@ -16,7 +16,7 @@ export default function UserTable({ users: initialUsers }) {
 
     try {
       const response = await axios.patch(
-        `http://localhost:8080/WebShopAppREST/rest/users/${user.id}/block`,
+        `http://localhost:8080/WebShopAppREST/rest/report/${user.id}/block`,
         { blocked: !user.blocked },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -55,10 +55,7 @@ export default function UserTable({ users: initialUsers }) {
             <td>{u.role}</td>
             <td>{u.blocked ? "Blocked" : "Active"}</td>
             <td>
-              <button
-                className={`btn btn-sm ${u.blocked ? "btn-success" : "btn-danger"}`}
-                onClick={() => handleBlockToggle(u)}
-              >
+              <button className={`btn btn-sm ${u.blocked ? "btn-success" : "btn-danger"}`}onClick={() => handleBlockToggle(u)}>
                 {u.blocked ? "Unblock" : "Block"}
               </button>
             </td>
