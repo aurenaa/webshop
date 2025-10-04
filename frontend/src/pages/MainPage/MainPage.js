@@ -116,8 +116,105 @@ export default function MainPage() {
         )}
       </div>
       </nav>
-      <div className="products-table mt-3">
-        <ProductTable products={products.filter(p => (p.status != "PROCESSING") && (p.status != "SOLD") )} />
+      
+      <div className="container-xxl mt-3">
+        <div className="row g-1">
+          <aside className="col-12 col-lg-2">
+            <div className="filter-sidebar">
+              <h6 className="filters-title text-center mb-2">Filters</h6>
+
+              <div className="accordion accordion-flush" id="filtersAccordion">
+                <div className="accordion-item">
+                  <h2 className="accordion-header" id="headingCategory">
+                    <button className="accordion-button collapsed" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#collapseCategory">
+                      Category
+                    </button>
+                  </h2>
+                  <div id="collapseCategory" className="accordion-collapse collapse" data-bs-parent="#filtersAccordion">
+                    <div className="accordion-body">
+                      <input type="text" className="form-control" placeholder="category"
+                            value={categoryName} onChange={(e) => setCategoryName(e.target.value)} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="accordion-item">
+                  <h2 className="accordion-header" id="headingPrice">
+                    <button className="accordion-button collapsed" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#collapsePrice">
+                      Price
+                    </button>
+                  </h2>
+                  <div id="collapsePrice" className="accordion-collapse collapse" data-bs-parent="#filtersAccordion">
+                    <div className="accordion-body d-flex gap-2">
+                      <input type="number" className="form-control" placeholder="Min"
+                            value={minPrice} onChange={(e) => setMinPrice(e.target.value)} />
+                      <input type="number" className="form-control" placeholder="Max"
+                            value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="accordion-item">
+                  <h2 className="accordion-header" id="headingType">
+                    <button className="accordion-button collapsed" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#collapseType">
+                      Sale type
+                    </button>
+                  </h2>
+                  <div id="collapseType" className="accordion-collapse collapse" data-bs-parent="#filtersAccordion">
+                    <div className="accordion-body">
+                      <select className="form-select" value={productType}
+                              onChange={(e) => setProductType(e.target.value)}>
+                        <option value="">All</option>
+                        <option value="FIXED_PRICE">Fixed price</option>
+                        <option value="AUCTION">Auction</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="accordion-item">
+                  <h2 className="accordion-header" id="headingLocation">
+                    <button className="accordion-button collapsed" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#collapseLocation">
+                      Location
+                    </button>
+                  </h2>
+                  <div id="collapseLocation" className="accordion-collapse collapse" data-bs-parent="#filtersAccordion">
+                    <div className="accordion-body">
+                      <input type="text" className="form-control" placeholder="location"
+                            value={locationId} onChange={(e) => setLocationId(e.target.value)} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button className="btn btn-success me-2 mt-4" onClick={handleSearch}>
+                Filter products
+              </button>
+              <button
+                className="btn btn-outline-success me-2 mt-4"
+                onClick={() => {
+                  setQuery(""); setMinPrice(""); setMaxPrice("");
+                  setCategoryName(""); setProductType(""); setLocationId("");
+                  dispatch({ type: "SET", payload: productsList });
+                }}
+              >
+                Reset
+              </button>
+            </div>
+          </aside>
+
+        <main className="col-12 col-lg-10">
+          <div className="products-container">
+            <ProductTable
+              products={products.filter(p => p.status !== "PROCESSING" && p.status !== "SOLD")}
+            />
+          </div>
+        </main>
+      </div>
       </div>
     </div>
   );
