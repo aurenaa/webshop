@@ -11,7 +11,13 @@ import beans.Location;
 
 public class LocationDAO {
     private HashMap<String, Location> locations = new HashMap<>();
-
+    
+    public LocationDAO() {}
+    
+    public LocationDAO(String contextPath) {
+        loadLocations(contextPath); 
+    }
+    
     public Location findLocation(String id) {
         return locations.get(id);
     }
@@ -47,7 +53,7 @@ public class LocationDAO {
                 double lat = Double.parseDouble(parts[1]);
                 double lon = Double.parseDouble(parts[2]);
                 String addr = parts[3];
-                locations.put(id, new Location(lat, lon, addr));
+                locations.put(id, new Location(id, lat, lon, addr));
             }
         } catch (Exception e) { e.printStackTrace(); }
     }

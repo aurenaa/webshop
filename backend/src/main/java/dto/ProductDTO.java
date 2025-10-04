@@ -1,5 +1,5 @@
 package dto;
-
+import beans.Location;
 import beans.Category;
 import beans.Product.SaleType;
 import beans.Product.Status;;
@@ -15,6 +15,15 @@ public class ProductDTO
     private boolean sellerReviewed;
     private Status status;
     private double biggestBid;
+    private Location location;
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
     
     public String getName() { return name; }
     public void setName(String name) {this.name = name; }

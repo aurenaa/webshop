@@ -8,36 +8,42 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Date;
+import java.util.stream.Collectors;
 
 import beans.Category;
 import beans.Location;
 import beans.Bid;
 import beans.Product;
+import beans.Product.SaleType;
 import beans.Product.Status;
 import dto.ProductDTO;
 
 public class ProductDAO {
 	
 	private HashMap<String, Product> products = new HashMap<String, Product>();
-	
+	private LocationDAO locationDAO;
+
 	public ProductDAO() {
-		
 	}
 	
 	public ProductDAO(String contextPath) {
+		this.locationDAO = new LocationDAO(contextPath);	
 		loadProducts(contextPath);
 	}
 	
 	public Collection<Product> findAll() {
 		return products.values();
 	}
+	
+    public LocationDAO getLocationDAO() {
+        return locationDAO;
+    }
 	
 	public Product findProduct(String id) {
 		return products.containsKey(id) ? products.get(id) : null;
@@ -47,9 +53,7 @@ public class ProductDAO {
 	    BufferedReader in = null;
 	    try {
 	        File file = new File(contextPath + "/products.txt");
-	        
-            LocationDAO locationDAO = new LocationDAO();
-            locationDAO.loadLocations(contextPath);
+	       
             
 	        in = new BufferedReader(new FileReader(file));
 	        String line;
@@ -70,6 +74,7 @@ public class ProductDAO {
 	            String datePostedStr = tokens[6].trim();
 	            String sellerId = tokens[7].trim();
 	            String locationId = tokens[8].trim();
+	            
 	            String status = tokens[9].trim();
 	            
 	            
@@ -101,8 +106,8 @@ public class ProductDAO {
 	            Product.SaleType saleEnum = Product.SaleType.valueOf(saleType);
 	            Product.Status statusEnum = Product.Status.valueOf(status);
 	            LocalDate datePosted = LocalDate.parse(datePostedStr);
-	            Location location = locationDAO.findLocation(locationId);
-	            
+	            Location location = this.locationDAO.findLocation(locationId);
+
 	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, datePosted, sellerId, location, statusEnum, productPictures, bids));
 	        }
 	    } catch (Exception e) {
@@ -137,18 +142,16 @@ public class ProductDAO {
 	        try (FileWriter fw = new FileWriter(file, true);
 	             PrintWriter out = new PrintWriter(fw)) {
 	            
-	            LocationDAO locationDAO = new LocationDAO();
-	            locationDAO.loadLocations(contextPath);
 	            Location location = product.getLocation();
 	            if (location != null) {
-	                Location existing = locationDAO.findLocation(location.getId());
+	                Location existing = this.locationDAO.findLocation(location.getId());
 	                if (existing == null) {
-	                    locationDAO.save(location, contextPath);
+	                    this.locationDAO.save(location, contextPath);
 	                }
 	            }
 	            
-	            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-	            String dateStr = sdf.format(product.getDatePosted());
+	            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	            String dateStr = product.getDatePosted().format(formatter);
 
 	            if (product.getStatus() == null) product.setStatus(Product.Status.AVAILABLE);	          
 	            if (product.getProductPictures() == null) product.setProductPictures(new ArrayList<>());
@@ -246,12 +249,9 @@ public class ProductDAO {
 	            while ((line = reader.readLine()) != null) {
 	                if (line.trim().isEmpty()) continue;
 
-	                
-	                
 	                String[] parts = line.split(";");
 	                if (parts[0].equals(updatedProduct.getId())) {
-	                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-	                    String dateStr = sdf.format(updatedProduct.getDatePosted());
+	                    String dateStr = updatedProduct.getDatePosted().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 	                    String productPicturesStr = updatedProduct.getProductPictures() != null ? String.join("|", updatedProduct.getProductPictures()) : "";
 	                    
 	                    String bidsStr = "";
@@ -405,4 +405,21 @@ public class ProductDAO {
 	    editFileProduct(p, contextPath);
 	    return newFileName;
 	}
+	
+	public Collection<Product> searchProduct(String query, Double minPrice, Double maxPrice, String categoryName, SaleType productType, String address)
+	{
+		return products.values()
+					   .stream()
+					   .filter(x -> query == null || query.isBlank()
+					   		  || (x.getName() != null && x.getName().toLowerCase().contains(query.toLowerCase())) 
+							  || (x.getDescription() != null && x.getDescription().toLowerCase().contains(query.toLowerCase())) 
+							  || (x.getCategory() != null && x.getCategory().getName() != null && x.getCategory().getName().toLowerCase().contains(query.toLowerCase()))) 
+					   .filter(x -> minPrice == null || x.getPrice() >= minPrice)
+					   .filter(x -> maxPrice == null || x.getPrice() <= maxPrice)
+					   .filter(x -> productType == null || x.getSaleType().equals(productType))
+					   .filter(x -> categoryName == null || x.getCategory().getName().equals(categoryName))
+					   .filter(x -> address == null || x.getLocation().getAddress().equals(address))
+					   .collect(Collectors.toList());
+	}
+	
 }

@@ -1,8 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthorize } from "../../contexts/AuthorizeContext";
 import { useProducts } from "../../contexts/ProductsContext";
 import axios from "axios";
+
+import { Map, View } from 'ol';
+import TileLayer from 'ol/layer/Tile';
+import OSM from 'ol/source/OSM';
+import { fromLonLat, toLonLat } from 'ol/proj';
+import Overlay from 'ol/Overlay';
+import 'ol/ol.css';
+
 import "./AddProductPage.css";
 
 export default function AddProductPage() {
@@ -14,7 +22,8 @@ export default function AddProductPage() {
         price: "",
         description: "",
         category: "",
-        saleType: "FIXED_PRICE"
+        saleType: "FIXED_PRICE",
+        location: null
     });
 
     const [message, setMessage] = useState("");
@@ -22,11 +31,92 @@ export default function AddProductPage() {
     const [newCategory, setNewCategory] = useState("");
     const [productImage, setProductImage] = useState(null);
 
+    const mapRef = useRef();
+    const popupRef = useRef();
+    const [map, setMap] = useState(null);
+
+    const fetchAddress = async (lat, lon) => {
+        try {
+            const res = await axios.get(
+                `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
+            );
+            const addr = res.data.address;
+
+            const road = addr.road || "";
+            const houseNumber = addr.house_number ? `${addr.house_number} ` : "";
+            const city = addr.city || addr.town || addr.village || "";
+            const postcode = addr.postcode || "";
+
+            return `${road} ${houseNumber}, ${city} ${postcode}`.trim();
+        } catch (err) {
+            console.error("Failed to fetch address:", err);
+            return `Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)}`;
+        }
+    };
+
+    useEffect(() => {
+        if (!mapRef.current) return;
+
+        const initialMap = new Map({
+            target: mapRef.current,
+            layers: [
+                new TileLayer({
+                    source: new OSM()
+                })
+            ],
+            view: new View({
+                center: fromLonLat([19.8335, 45.2671]),
+                zoom: 10
+            })
+        });
+
+        const popup = new Overlay({
+            element: popupRef.current,
+            positioning: 'bottom-center',
+            stopEvent: false,
+        });
+
+        initialMap.addOverlay(popup);
+
+        initialMap.on('click', async (event) => {
+            const coordinates = event.coordinate;
+            const lonLat = toLonLat(coordinates);
+            const lat = lonLat[1];
+            const lon = lonLat[0];
+            const address = await fetchAddress(lat, lon);
+            const location = {
+                latitude: lonLat[1],
+                longitude: lonLat[0],
+                address: address
+            };
+
+            setSelectedProduct(prev => ({
+                ...prev,
+                location: location
+            }));
+
+            popup.setPosition(coordinates);
+        });
+
+        setMap(initialMap);
+
+        return () => {
+            if (initialMap) {
+                initialMap.setTarget(null);
+            }
+        };
+    }, []);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!isLoggedIn) {
             navigate("/login");
+            return;
+        }
+
+        if (!selectedProduct.location) {
+            setMessage("Please select a location on the map.");
             return;
         }
 
@@ -38,10 +128,16 @@ export default function AddProductPage() {
                 );
             }
 
+            const locationResponse = await axios.post(
+                "http://localhost:8080/WebShopAppREST/rest/locations/",
+                selectedProduct.location
+            );
+
             const productToSend = {
                 ...selectedProduct,
                 sellerId: userId,
-                category: { name: selectedProduct.category }
+                category: { name: selectedProduct.category },
+                location: locationResponse.data
             };
 
             const productResponse = await axios.post(
@@ -73,13 +169,13 @@ export default function AddProductPage() {
     };
 
     useEffect(() => {
-    axios
-        .get("http://localhost:8080/WebShopAppREST/rest/categories/")
-        .then((res) => {
-            console.log("Fetched categories:", res.data);
-            setCategories(res.data)
-        })
-        .catch((err) => console.error("Failed to fetch categories:", err));
+        axios
+            .get("http://localhost:8080/WebShopAppREST/rest/categories/")
+            .then((res) => {
+                console.log("Fetched categories:", res.data);
+                setCategories(res.data)
+            })
+            .catch((err) => console.error("Failed to fetch categories:", err));
     }, []);
 
     return (
@@ -121,19 +217,17 @@ export default function AddProductPage() {
                     onChange={(e) => {
                         const value = e.target.value;
                         if (value === "NEW") {
-                        setSelectedProduct({ ...selectedProduct, category: "" });
+                            setSelectedProduct({ ...selectedProduct, category: "" });
                         } else {
-                        setSelectedProduct({ ...selectedProduct, category: value });
+                            setSelectedProduct({ ...selectedProduct, category: value });
                         }
                     }}
                 >
-                <option value="">-- Choose category --</option>
-                {categories.map((cat) => (
-                    <option key={cat.name} value={cat.name}>
-                    {cat.name}
-                    </option>
-                ))}
-                <option value="NEW">+ Add new category</option>
+                    <option value="">-- Choose category --</option>
+                    {categories.map((cat) => (
+                        <option key={cat.name} value={cat.name}>{cat.name}</option>
+                    ))}
+                    <option value="NEW">+ Add new category</option>
                 </select>
 
                 {selectedProduct.category === "" && (
@@ -168,6 +262,31 @@ export default function AddProductPage() {
                         onChange={(e) => setProductImage(e.target.files[0])} 
                         required
                         />
+
+                    <div className="map-section">
+                            <label>Select Location *</label>
+                            <p className="text-muted">Click on the map to choose product location</p>
+                            <div 
+                                ref={mapRef} 
+                                className="map-container" 
+                                style={{ height: '400px', width: '100%', marginBottom: '10px' }}
+                            ></div>
+                            
+                            <div ref={popupRef} className="popup">
+                                <div className="popup-content">
+                                    Location selected!
+                                </div>
+                            </div>
+
+                            {selectedProduct.location && (
+                                <div className="selected-location">
+                                    <strong>Selected Location:</strong><br/>
+                                    Latitude: {selectedProduct.location.latitude.toFixed(4)}<br/>
+                                    Longitude: {selectedProduct.location.longitude.toFixed(4)}<br/>
+                                    Address: {selectedProduct.location.address}
+                                </div>
+                            )}
+                        </div>                
                 <button className="btn btn-secondary mt-2" type="submit">Add Product</button>
             </form>
             </div>

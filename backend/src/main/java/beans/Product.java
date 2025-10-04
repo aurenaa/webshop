@@ -1,6 +1,5 @@
 package beans;
 
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +46,7 @@ public class Product {
         this.sellerId = sellerId;
     }
     
-    public Product(String id, String name, String description, Category category, double price, SaleType saleType, LocalDate datePosted, String sellerId, Location locationId, Status status, List<String> productPictures, List<Bid> bids) {
+    public Product(String id, String name, String description, Category category, double price, SaleType saleType, LocalDate datePosted, String sellerId, Location location, Status status, List<String> productPictures, List<Bid> bids) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -59,6 +58,7 @@ public class Product {
         this.status = status;
         this.productPictures = productPictures;
 	    this.bids = bids;
+	    this.location = location;
     }
 
     public String getId() {

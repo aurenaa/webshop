@@ -1,5 +1,5 @@
-1;Sony TV;Sony brand TV, 55 cm screen size;Electronics;22000;FIXED_PRICE;2025-09-01;1;AVAILABLE;product_1_1.jpg|product_1_2.jpg|product_1_3.jpg|product_1_4.jpg;
-2;Sony Camera;Sony digital camera;Electronics;32000.00;AUCTION;2025-09-02;1;SOLD;product_2_1.jpg;2:25000.0|4:27000.0
-3;Samsung Monitor;Samsung 17" monitor;Electronics;35000;AUCTION;2025-09-03;3;AVAILABLE;product_3_1.jpg;
-4;Pioneer DVD;Pioneer DVD writer;Electronics;7100;FIXED_PRICE;2025-09-04;3;AVAILABLE;product_4_1.jpg;
-5;OMEGA Constellation distinctive octagonal "TV" case shape;OMEGA old watch in good shape;Wristwatches;700000.00;FIXED_PRICE;2025-09-29;1;AVAILABLE;product_5_1.jpg;
+1;Sony TV;Sony brand TV, 55 cm screen size;Electronics;22000;FIXED_PRICE;2025-09-01;1;;AVAILABLE;product_1_1.jpg|product_1_2.jpg|product_1_3.jpg|product_1_4.jpg;
+2;Sony Camera;Sony digital camera;Electronics;32000.00;AUCTION;2025-09-02;1;;SOLD;product_2_1.jpg;2:25000.0|4:27000.0
+3;Samsung Monitor;Samsung 17" monitor;Electronics;35000;AUCTION;2025-09-03;3;;AVAILABLE;product_3_1.jpg;
+4;Pioneer DVD;Pioneer DVD writer;Electronics;7100;FIXED_PRICE;2025-09-04;3;;AVAILABLE;product_4_1.jpg;
+5;OMEGA Constellation distinctive octagonal "TV" case shape;OMEGA old watch in good shape;Wristwatches;700000.00;FIXED_PRICE;2025-09-29;1;;AVAILABLE;product_5_1.jpg;

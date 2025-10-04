@@ -26,7 +26,7 @@ export default function ListingPage() {
     }, [productsList]);
 
   const userProducts = isLoggedIn ? products.filter(p => p.sellerId === user.id && p.status !== "SOLD") : [];
-   
+
     return (
        <div className="main-page">
             <nav className="navbar navbar-expand-lg navbar-light bg-light px-3 position-relative">
