@@ -50,7 +50,7 @@ public class ReviewDAO {
 
 	            String[] tokens = line.split(";", -1);
 	            
-	            if (tokens.length < 7) {
+	            if (tokens.length < 6) {
 	                System.err.println("Invalid line format: " + line);
 	                continue;
 	            }

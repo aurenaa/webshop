@@ -11,12 +11,9 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 import beans.Product;
@@ -87,7 +84,7 @@ public class UserDAO {
 	                continue;
 
 	            String[] tokens = line.split(";", -1);
-	            
+	           
 	            if (tokens.length < 10) {
 	                System.err.println("Invalid line format: " + line);
 	                continue;

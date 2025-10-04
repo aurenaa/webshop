@@ -136,18 +136,18 @@ export default function UserProfilePage() {
         }
 
         axios.post(`http://localhost:8080/WebShopAppREST/rest/report/reports`, {
-        submittedByUserId: user.id,
-        reportedUserId: reviewTargetUser.id,
-        reason: reasonToSend,
-        status: "SUBMITTED"
+            submittedByUserId: user.id,
+            reportedUserId: reviewTargetUser.id,
+            reason: reasonToSend,
+            status: "SUBMITTED"
         })
-        .then(res => {
-        console.log("Report submitted:", res.data);
-        setShowReportModal(false);
+            .then(res => {
+            console.log("Report submitted:", res.data);
+            setShowReportModal(false);
         })
         .catch(err => console.error(err));
     };
-
+    
     return (
         <div className="main-page">
             <nav className="navbar navbar-expand-lg navbar-light bg-light px-3 position-relative">

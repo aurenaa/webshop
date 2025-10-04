@@ -21,6 +21,32 @@ export default function ProfilePage() {
     }
   }, [user]);
 
+  const validateCriticalChanges = () => {
+    const criticalFields = ['username', 'email', 'password'];
+    const hasCriticalChange = criticalFields.some(field => {
+      if (field === 'password') {
+        return editedUser.password && editedUser.password !== "";
+      }
+      return editedUser[field] !== user[field];
+    });
+
+    return hasCriticalChange;
+  };
+
+const validatePassword = () => {
+    if (editedUser.password && editedUser.password !== "") {
+      if (editedUser.password.length < 6) {
+        setMessage("New password must be at least 6 characters long.");
+        return false;
+      }
+      if (!editedUser.currentPassword) {
+        setMessage("Current password is required to change your password.");
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleProfileImageChange = (e) => {
     const file = e.target.files[0];
     if (file) setProfileImage(file);
@@ -57,8 +83,21 @@ export default function ProfilePage() {
     navigate('/mainpage');
   };
 
+  const isCriticalChange = editedUser.username !== user.username || 
+                           editedUser.email !== user.email || 
+                           (editedUser.password && editedUser.password !== "");
+
   const handleSaveClick = async () => {
     try {
+      if (validateCriticalChanges() && !editedUser.currentPassword) {
+        setMessage("Current password is required to change username, email or password.");
+        return;
+      }
+
+      if (!validatePassword()) {
+        return;
+      }
+
       let updatedProfileImage = editedUser.profilePicture;
 
       if (profileImage) {
@@ -83,6 +122,7 @@ export default function ProfilePage() {
         birthDate: editedUser.birthDate || null,
         description: editedUser.description,
         password: editedUser.password && editedUser.password !== "" ? editedUser.password : undefined,
+        currentPassword: editedUser.currentPassword || undefined
       };
 
       const response = await axios.patch(
@@ -99,7 +139,13 @@ export default function ProfilePage() {
 
     } catch (error) {
       console.error(error);
-      setMessage("Failed to update profile.");
+      if (error.response && error.response.status === 401) {
+        setMessage("Current password is incorrect.");
+      } else if (error.response && error.response.status === 409) {
+        setMessage("Username or email already exists.");
+      } else {
+        setMessage("Failed to update profile.");
+      }
     }
   };
   
@@ -199,10 +245,20 @@ export default function ProfilePage() {
                 <label>About Yourself</label>
                 <textarea name="description" value={editedUser.description || ""} onChange={handleChange}/>
                 <div className="form-row">
-                  <div>
-                    <label>Current Password</label>
-                    <input type="password" name="currentPassword" value={editedUser.currentPassword || ""} onChange={handleChange}/>
-                  </div>
+                <div>
+                  <label>Current Password</label>
+                  <input 
+                    type="password" 
+                    name="currentPassword" 
+                    value={editedUser.currentPassword || ""} 
+                    onChange={handleChange}
+                    placeholder={
+                      editedUser.username !== user.username || 
+                      editedUser.email !== user.email || 
+                      editedUser.password ? "Required for username/email/password changes" : "Optional"
+                    }
+                  />
+                </div>
                   <div>
                     <label>New Password</label>
                     <input type="password" name="password" value={editedUser.password || ""} onChange={handleChange}/>
