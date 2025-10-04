@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useProducts } from "../../contexts/ProductsContext";
 import { useUser } from "../../contexts/UserContext";
@@ -16,6 +17,13 @@ export default function MainPage() {
   const { isLoggedIn, setIsLoggedIn } = useAuthorize();
   const { user } = useUser();
   
+  const [query, setQuery] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [categoryName, setCategoryName] = useState("");
+  const [productType, setProductType] = useState("");
+  const [locationId, setLocationId] = useState("");
+  
   useEffect(() => {
     dispatch({ type: "SET", payload: productsList });
   }, [productsList]);
@@ -23,6 +31,33 @@ export default function MainPage() {
   const handleLogout = () => {
         setIsLoggedIn(false);
         navigate('/mainpage');
+  };
+
+  const handleSearch = async () => { 
+    try {
+      const params = new URLSearchParams();
+
+      if (query) params.append("query", query);
+      if (minPrice) params.append("minPrice", minPrice);
+      if (maxPrice) params.append("maxPrice", maxPrice);
+      if (categoryName) params.append("categoryName", categoryName);
+      if (productType) params.append("productType", productType);
+      if (locationId) params.append("locationId", locationId);
+
+      const url = `http://localhost:8080/WebShopAppREST/rest/mainpage/search?${params.toString()}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: { "Accept": "application/json" }
+      });
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+      const data = await response.json();
+      dispatch({ type: "SET", payload: data });
+    } catch (err) {
+      console.error("Search failed:", err);
+    }
   };
 
   return (
@@ -35,8 +70,10 @@ export default function MainPage() {
                  type="search"
                  placeholder="Search"
                  aria-label="Search"
+                 value = {query}
+                 onChange={(e) => setQuery(e.target.value)}
           />
-          <button className="btn btn-outline-success" type="submit">Search</button>
+          <button className="btn btn-outline-success" type="submit" onClick={handleSearch}>Search</button>
         </div>
         
     <div className="d-flex align-items-center ms-auto">

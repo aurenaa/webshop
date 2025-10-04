@@ -119,20 +119,12 @@ public class ProductService {
 	@GET
 	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<Product> searchProduct(@QueryParam("name") String name, @QueryParam("description") String description, @QueryParam("minPrice") Double minPrice, 
-											 @QueryParam("maxPrice") Double maxPrice, @QueryParam("productType") SaleType productType, 
-											 @QueryParam("categoryName") String categoryName, @QueryParam("locationId") String address)
+	public Collection<Product> searchProduct(@QueryParam("query") String query, @QueryParam("minPrice") Double minPrice, @QueryParam("maxPrice") Double maxPrice, 
+											 @QueryParam("categoryName") String categoryName,  @QueryParam("productType") SaleType productType, 
+											 @QueryParam("locationId") String address)
 	{
-		ProductDAO dao = (ProductDAO) ctx.getAttribute("");
-		return dao.searchProduct(name, description, minPrice, maxPrice, productType, categoryName, address);
+		ProductDAO dao = (ProductDAO) ctx.getAttribute("productDAO");
+		return dao.searchProduct(query, minPrice, maxPrice, categoryName, productType, address); 
 	}
 	
-	@GET
-	@Path("/search")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<Product> searchCategory(@QueryParam("category") String category)
-	{
-		ProductDAO dao = (ProductDAO) ctx.getAttribute("");
-		return dao.searchCategory(category);
-	}
 }

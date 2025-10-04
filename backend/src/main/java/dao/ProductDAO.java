@@ -408,13 +408,14 @@ public class ProductDAO {
 	    return newFileName;
 	}
 	
-	public Collection<Product> searchProduct(String name, String description, Double minPrice, Double maxPrice, SaleType productType, 
-											 String categoryName, String address)
+	public Collection<Product> searchProduct(String query, Double minPrice, Double maxPrice, String categoryName, SaleType productType, String address)
 	{
 		return products.values()
 					   .stream()
-					   .filter(x -> name == null || x.getName().contains(name))
-					   .filter(x -> description == null || x.getDescription().contains(description))
+					   .filter(x -> query == null || query.isBlank()
+					   		  || (x.getName() != null && x.getName().toLowerCase().contains(query.toLowerCase())) 
+							  || (x.getDescription() != null && x.getDescription().toLowerCase().contains(query.toLowerCase())) 
+							  || (x.getCategory() != null && x.getCategory().getName() != null && x.getCategory().getName().toLowerCase().contains(query.toLowerCase()))) 
 					   .filter(x -> minPrice == null || x.getPrice() >= minPrice)
 					   .filter(x -> maxPrice == null || x.getPrice() <= maxPrice)
 					   .filter(x -> productType == null || x.getSaleType().equals(productType))
@@ -423,11 +424,4 @@ public class ProductDAO {
 					   .collect(Collectors.toList());
 	}
 	
-	public Collection<Product> searchCategory(String category)
-	{
-		return products.values()
-					   .stream()
-					   .filter(x -> x.getCategory().getName().contains(category))
-					   .collect(Collectors.toList());
-	}
 }
