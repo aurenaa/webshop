@@ -14,12 +14,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Date;
 
 import beans.Category;
 import beans.Location;
 import beans.Bid;
 import beans.Product;
+import beans.Product.SaleType;
 import beans.Product.Status;
 import dto.ProductDTO;
 
@@ -405,4 +407,21 @@ public class ProductDAO {
 	    editFileProduct(p, contextPath);
 	    return newFileName;
 	}
+	
+	public Collection<Product> searchProduct(String query, Double minPrice, Double maxPrice, String categoryName, SaleType productType, String address)
+	{
+		return products.values()
+					   .stream()
+					   .filter(x -> query == null || query.isBlank()
+					   		  || (x.getName() != null && x.getName().toLowerCase().contains(query.toLowerCase())) 
+							  || (x.getDescription() != null && x.getDescription().toLowerCase().contains(query.toLowerCase())) 
+							  || (x.getCategory() != null && x.getCategory().getName() != null && x.getCategory().getName().toLowerCase().contains(query.toLowerCase()))) 
+					   .filter(x -> minPrice == null || x.getPrice() >= minPrice)
+					   .filter(x -> maxPrice == null || x.getPrice() <= maxPrice)
+					   .filter(x -> productType == null || x.getSaleType().equals(productType))
+					   .filter(x -> categoryName == null || x.getCategory().getName().equals(categoryName))
+					   .filter(x -> address == null || x.getLocation().getAddress().equals(address))
+					   .collect(Collectors.toList());
+	}
+	
 }

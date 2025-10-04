@@ -13,10 +13,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import beans.Product;
+import beans.Product.SaleType;
 import beans.User;
 import dao.ProductDAO;
 import dao.UserDAO;
@@ -113,4 +115,16 @@ public class ProductService {
 	    dao.editFileProduct(product, contextPath);
 	    return product;
 	}
+	
+	@GET
+	@Path("/search")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Collection<Product> searchProduct(@QueryParam("query") String query, @QueryParam("minPrice") Double minPrice, @QueryParam("maxPrice") Double maxPrice, 
+											 @QueryParam("categoryName") String categoryName,  @QueryParam("productType") SaleType productType, 
+											 @QueryParam("locationId") String address)
+	{
+		ProductDAO dao = (ProductDAO) ctx.getAttribute("productDAO");
+		return dao.searchProduct(query, minPrice, maxPrice, categoryName, productType, address); 
+	}
+	
 }
