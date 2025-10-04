@@ -1,7 +1,7 @@
 package dao;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
 import java.util.*;
 import beans.Purchase;
@@ -85,8 +85,8 @@ public class PurchaseDAO {
             try (FileWriter fw = new FileWriter(file, true);
                  PrintWriter out = new PrintWriter(fw)) {
             	
-            	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-	            String dateStr = sdf.format(purchase.getDate());
+            	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            	String dateStr = purchase.getDate().format(formatter);
 	            
 	            String line = String.format("%s;%s;%s;%s;%s",
 	                    purchase.getId(),
@@ -113,8 +113,8 @@ public class PurchaseDAO {
 
                     String[] parts = line.split(";");
                     if (parts[0].equals(updated.getId())) {
-                    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-	                    String dateStr = sdf.format(updated.getDate());
+                    	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    	String dateStr = updated.getDate().format(formatter);
                     	
                         String newLine = String.format("%s;%s;%s;%s",
                                 updated.getId(),
