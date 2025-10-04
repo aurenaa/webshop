@@ -1,10 +1,9 @@
 package beans;
 
-import java.io.Serializable;
 import java.util.Date;
 
 
-public class Review implements Serializable {
+public class Review {
 	private String id;
 	private String reviewerId;
 	private String reviewedUserId;

@@ -8,7 +8,8 @@ public class Location {
 
     public Location() {}
 
-    public Location(double latitude, double longitude, String address) {
+    public Location(String id, double latitude, double longitude, String address) {
+    	this.id = id;
         this.latitude = latitude;
         this.longitude = longitude;
         this.address = address;
@@ -53,11 +54,12 @@ public class Location {
 
     public static Location fromString(String str) {
         if (str == null || str.isEmpty()) return null;
-        String[] parts = str.split(",", 3);
-        if (parts.length < 3) return null;
-        double lat = Double.parseDouble(parts[0]);
-        double lon = Double.parseDouble(parts[1]);
-        String addr = parts[2];
-        return new Location(lat, lon, addr);
+        String[] parts = str.split(",", 4);
+        if (parts.length < 4) return null;
+        String id = parts[0];
+        double lat = Double.parseDouble(parts[1]);
+        double lon = Double.parseDouble(parts[2]);
+        String addr = parts[3];
+        return new Location(id, lat, lon, addr);
     }
 }

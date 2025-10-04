@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Date;
 
 import beans.Category;
 import beans.Location;
@@ -28,18 +27,23 @@ import dto.ProductDTO;
 public class ProductDAO {
 	
 	private HashMap<String, Product> products = new HashMap<String, Product>();
-	
+	private LocationDAO locationDAO;
+
 	public ProductDAO() {
-		
 	}
 	
 	public ProductDAO(String contextPath) {
+		this.locationDAO = new LocationDAO(contextPath);	
 		loadProducts(contextPath);
 	}
 	
 	public Collection<Product> findAll() {
 		return products.values();
 	}
+	
+    public LocationDAO getLocationDAO() {
+        return locationDAO;
+    }
 	
 	public Product findProduct(String id) {
 		return products.containsKey(id) ? products.get(id) : null;
@@ -49,9 +53,7 @@ public class ProductDAO {
 	    BufferedReader in = null;
 	    try {
 	        File file = new File(contextPath + "/products.txt");
-	        
-            LocationDAO locationDAO = new LocationDAO();
-            locationDAO.loadLocations(contextPath);
+	       
             
 	        in = new BufferedReader(new FileReader(file));
 	        String line;
@@ -72,6 +74,7 @@ public class ProductDAO {
 	            String datePostedStr = tokens[6].trim();
 	            String sellerId = tokens[7].trim();
 	            String locationId = tokens[8].trim();
+	            
 	            String status = tokens[9].trim();
 	            
 	            
@@ -103,8 +106,8 @@ public class ProductDAO {
 	            Product.SaleType saleEnum = Product.SaleType.valueOf(saleType);
 	            Product.Status statusEnum = Product.Status.valueOf(status);
 	            LocalDate datePosted = LocalDate.parse(datePostedStr);
-	            Location location = locationDAO.findLocation(locationId);
-	            
+	            Location location = this.locationDAO.findLocation(locationId);
+
 	            products.put(id, new Product(id, name, description, category, Double.parseDouble(price), saleEnum, datePosted, sellerId, location, statusEnum, productPictures, bids));
 	        }
 	    } catch (Exception e) {

@@ -74,6 +74,7 @@ public class ProductService {
 	public Product getProductById(@PathParam("id") String id) {
 	    ProductDAO dao = (ProductDAO) ctx.getAttribute("productDAO");
 	    Product product = dao.findProduct(id);
+
 	    return product;
 	}
 	
