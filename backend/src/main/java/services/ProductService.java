@@ -29,16 +29,19 @@ import dto.ProductDTO;
 public class ProductService {
 	@Context
 	ServletContext ctx;
-	
+    private String contextPath;
 	public ProductService() {
 	}
 	
 	@PostConstruct
 	public void init() {
+	    String contextPath = ctx.getRealPath("");
 		if (ctx.getAttribute("productDAO") == null) {
-	    	String contextPath = ctx.getRealPath("");
 			ctx.setAttribute("productDAO", new ProductDAO(contextPath));
 		}
+	    if (ctx.getAttribute("userDAO") == null) {
+	        ctx.setAttribute("userDAO", new UserDAO(contextPath));
+	    }
 	}
 	
 	@GET

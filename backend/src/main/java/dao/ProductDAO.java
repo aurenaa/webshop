@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -142,18 +142,16 @@ public class ProductDAO {
 	        try (FileWriter fw = new FileWriter(file, true);
 	             PrintWriter out = new PrintWriter(fw)) {
 	            
-	            LocationDAO locationDAO = new LocationDAO();
-	            locationDAO.loadLocations(contextPath);
 	            Location location = product.getLocation();
 	            if (location != null) {
-	                Location existing = locationDAO.findLocation(location.getId());
+	                Location existing = this.locationDAO.findLocation(location.getId());
 	                if (existing == null) {
-	                    locationDAO.save(location, contextPath);
+	                    this.locationDAO.save(location, contextPath);
 	                }
 	            }
 	            
-	            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-	            String dateStr = sdf.format(product.getDatePosted());
+	            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	            String dateStr = product.getDatePosted().format(formatter);
 
 	            if (product.getStatus() == null) product.setStatus(Product.Status.AVAILABLE);	          
 	            if (product.getProductPictures() == null) product.setProductPictures(new ArrayList<>());
@@ -251,12 +249,9 @@ public class ProductDAO {
 	            while ((line = reader.readLine()) != null) {
 	                if (line.trim().isEmpty()) continue;
 
-	                
-	                
 	                String[] parts = line.split(";");
 	                if (parts[0].equals(updatedProduct.getId())) {
-	                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-	                    String dateStr = sdf.format(updatedProduct.getDatePosted());
+	                    String dateStr = updatedProduct.getDatePosted().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 	                    String productPicturesStr = updatedProduct.getProductPictures() != null ? String.join("|", updatedProduct.getProductPictures()) : "";
 	                    
 	                    String bidsStr = "";
