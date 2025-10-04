@@ -126,4 +126,13 @@ public class ProductService {
 		ProductDAO dao = (ProductDAO) ctx.getAttribute("");
 		return dao.searchProduct(name, description, minPrice, maxPrice, productType, categoryName, address);
 	}
+	
+	@GET
+	@Path("/search")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Collection<Product> searchCategory(@QueryParam("category") String category)
+	{
+		ProductDAO dao = (ProductDAO) ctx.getAttribute("");
+		return dao.searchCategory(category);
+	}
 }

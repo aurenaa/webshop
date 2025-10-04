@@ -422,4 +422,12 @@ public class ProductDAO {
 					   .filter(x -> address == null || x.getLocation().getAddress().equals(address))
 					   .collect(Collectors.toList());
 	}
+	
+	public Collection<Product> searchCategory(String category)
+	{
+		return products.values()
+					   .stream()
+					   .filter(x -> x.getCategory().getName().contains(category))
+					   .collect(Collectors.toList());
+	}
 }
