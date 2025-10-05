@@ -108,7 +108,7 @@ public class ReportingService {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response submitReport(ProfileReportDTO dto) {
-        String reason = dto.getRejectionReason();
+        String reason = dto.getReportReason();
         String submittedByUserId = dto.getSubmittedByUserId();
         String reportedUserId = dto.getReportedUserId();
         ReportStatus status = dto.getStatus();

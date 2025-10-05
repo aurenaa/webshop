@@ -42,6 +42,11 @@ public class ProfileReportDAO {
 	    BufferedReader in = null;
 	    try {
 	        File file = new File(contextPath + "/reports.txt");
+	        if (!file.exists()) {
+	            System.out.println("Reports file does not exist, will be created on first report");
+	            return;
+	        }
+	        
 	        in = new BufferedReader(new FileReader(file));
 	        String line;
 	        
@@ -65,10 +70,19 @@ public class ProfileReportDAO {
 	            String submissionDate = tokens[5].trim();
 	            String rejectionReason = tokens[6].trim();
 	            
-	            Date date = java.sql.Date.valueOf(submissionDate);
-	            ProfileReport.ReportStatus statusEnum = ProfileReport.ReportStatus.valueOf(status);
-	            reports.put(id, new ProfileReport(id, reason, submittedByUserId, reportedUserId, statusEnum, date, rejectionReason));
-	        }
+	            System.out.println("Loading report: id=" + id + ", reason=" + reason + 
+	                    ", submittedBy=" + submittedByUserId + ", reportedUser=" + reportedUserId +
+	                    ", status=" + status + ", date=" + submissionDate);
+	                
+	                try {
+	                    Date date = java.sql.Date.valueOf(submissionDate);
+	                    ProfileReport.ReportStatus statusEnum = ProfileReport.ReportStatus.valueOf(status);
+	                    reports.put(id, new ProfileReport(id, reason, submittedByUserId, reportedUserId, statusEnum, date, rejectionReason));
+	                } catch (IllegalArgumentException e) {
+	                    System.err.println("Error parsing report line: " + line);
+	                    e.printStackTrace();
+	                }
+	            }
 	    } catch (Exception ex) {
 	        ex.printStackTrace();
 	    } finally {
@@ -87,17 +101,22 @@ public class ProfileReportDAO {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	        String dateStr = sdf.format(report.getSubmissionDate());
 	        
+	        boolean fileExists = file.exists() && file.length() > 0;
+	        
 	        try (PrintWriter out = new PrintWriter(new FileWriter(file, true))) {
+	            if (fileExists) {
+	                out.println();
+	            }
+	            
 	            out.println(String.format("%s;%s;%s;%s;%s;%s;%s",
-	            		report.getId(),
-	            		report.getReportReason(),
-	            		report.getSubmittedByUserId(),
-	            		report.getReportedUserId(),
-	            		report.getStatus(),
-	            		dateStr,
-	                    report.getRejectionReason() == null ? "" : report.getRejectionReason()	            		
-	            ));
-	            out.println();
+	                    report.getId(),
+	                    report.getReportReason(),
+	                    report.getSubmittedByUserId(),    
+	                    report.getReportedUserId(),        
+	                    report.getStatus(),               
+	                    dateStr,                         
+	                    report.getRejectionReason() == null ? "" : report.getRejectionReason()
+	                ));
 	        }
 	    } catch (Exception ex) {
 	        ex.printStackTrace();

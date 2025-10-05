@@ -182,10 +182,10 @@ export default function UserProfilePage() {
         axios.post(`http://localhost:8080/WebShopAppREST/rest/report/reports`, {
             submittedByUserId: user.id,
             reportedUserId: reviewTargetUser.id,
-            reason: reasonToSend,
+            reportReason: reasonToSend,
             status: "SUBMITTED"
         })
-            .then(res => {
+        .then(res => {
             console.log("Report submitted:", res.data);
             setShowReportModal(false);
         })
