@@ -55,7 +55,8 @@
 }
 
 .tabel {
-    margin-left: 30px;
+    margin-left: 50px;
+    margin-right: 50px;
 }
 
 .search {
@@ -102,4 +103,23 @@
 
 .input-group {
     margin-top: 10px;
+}
+
+.tabel .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    justify-content: start;
+    margin-left: 0;
+}
+
+.tabel .col {
+    flex: 0 0 20%;
+    margin: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.tabel .col > * {
+    width: 100%;
 }

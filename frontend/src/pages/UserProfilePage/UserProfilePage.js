@@ -40,26 +40,37 @@ export default function UserProfilePage() {
     }
 
     useEffect(() => {
-        if (isLoggedIn && user && Number(id) === user.id) {
-            setUserProfile(user);
-        } else {
-            axios.get(`http://localhost:8080/WebShopAppREST/rest/users/${id}/withFeedback`)
-                .then(res => setUserProfile(res.data))
-                .catch(err => console.error("Error fetching user", err));
-        }
-    }, [id, isLoggedIn, user]);
+            if (isLoggedIn && user && Number(id) === user.id) {
+                setUserProfile(user);
+            } else {
+                axios.get(`http://localhost:8080/WebShopAppREST/rest/users/${id}/withFeedback`)
+                    .then(res => setUserProfile(res.data))
+                    .catch(err => console.error("Error fetching user", err));
+            }
+        }, [id, isLoggedIn, user]);
 
+        
     const userProducts = useMemo(() => {
         if (!userProfile) return [];
-        if (!userProfile.productList) return [];
 
-        const productIds = typeof userProfile.productList === "string"
-            ? userProfile.productList.split("|").map(id => Number(id))
-            : userProfile.productList;
-
-        return products.filter(p => productIds.includes(p.id));
+        if (userProfile.role === "SELLER") {
+            const sellerProducts = products.filter(p => p.sellerId === userProfile.id);
+            return sellerProducts;
+        } else if (userProfile.role === "BUYER") {
+            const purchaseIds = userProfile.purchaseList || userProfile.productList || [];
+            
+            const buyerProducts = products.filter(p => {
+                const productId = typeof p.id === 'string' ? parseInt(p.id) : p.id;
+                const normalizedPurchaseIds = purchaseIds.map(id => 
+                    typeof id === 'string' ? parseInt(id) : id
+                );
+                return normalizedPurchaseIds.includes(productId);
+            });
+            
+            return buyerProducts; 
+        }
+        return [];
     }, [userProfile, products]);
-
 
     const canReviewBuyer = () => {
         if (!user || !userProfile) return false;
@@ -194,10 +205,10 @@ export default function UserProfilePage() {
                     ) : (
                     <>
                         <button onClick={() => navigate("/signup")} className="btn btn-outline-primary me-2">
-                        Sign Up
+                            Sign Up
                         </button>
                         <span onClick={() => navigate("/login")} className="nav-link" style={{ cursor: "pointer" }}>
-                        Log in
+                            Log in
                         </span>
                     </>
                     )}
@@ -253,11 +264,10 @@ export default function UserProfilePage() {
                                 <div className={`profile-click ${activeTab === "feedback" ? "active" : ""}`} onClick={() => setActiveTab("feedback")}>
                                     Feedback
                                 </div>                  
-
                                 <nav className="navbar bg-body">
                                     <div className="container-fluid">
                                         <form className="d-flex" role="search">
-                                            <input className="form-control me-2 search" type="search" placeholder={`Search all ${userProfile?.productList?.length || 0} items`} aria-label="Search"/>
+                                            <input className="form-control me-2 search" type="search" placeholder={`Search all ${userProfile?.purchaseList?.length || 0} items`} aria-label="Search"/>
                                             <button className="btn" type="submit">
                                                 <img className="search-img" src="/icons/search.png"/>
                                             </button>
@@ -271,15 +281,15 @@ export default function UserProfilePage() {
                                     {userProducts.length > 0 ? (
                                         Array.from({ length: Math.ceil(userProducts.length / 3) }).map((_, rowIndex) => (
                                             <div className="row row-cols-auto mb-3" key={rowIndex}>
-                                                {userProducts.slice(rowIndex * 3, rowIndex * 3 + 3).map((product) => (
-                                                    <div className="col" key={product.id}>
-                                                    <ProductTable products={[product]} />
-                                                    </div>
-                                                ))}
+                                            {userProducts.slice(rowIndex * 3, rowIndex * 3 + 3).map((product) => (
+                                                <div className="col" key={product.id}>
+                                                <ProductTable products={[product]} />
+                                                </div>
+                                            ))}
                                             </div>
                                         ))
-                                            ) : (
-                                            <p>No items to display.</p>
+                                    ) : (
+                                    <p>No items to display.</p>
                                     )}
                                 </div>
                                 )}
@@ -353,7 +363,7 @@ export default function UserProfilePage() {
                             </div>
                             <div className="profile-details">
                                 <div className={`profile-click ${activeTab === "items" ? "active" : ""}`} onClick={() => setActiveTab("items")}>
-                                    Purchases ({userProfile?.productList?.length || 0})
+                                    Purchases ({userProfile?.purchaseList?.length || 0})
                                 </div>
                                 <div className={`profile-click ${activeTab === "about" ? "active" : ""}`} onClick={() => setActiveTab("about")}>
                                     About
@@ -364,23 +374,22 @@ export default function UserProfilePage() {
                             </div>
                             <div className="profile-content mt-3 tabel">
                                 {activeTab === "items" && (
-                                <div>
-                                    {userProducts.length > 0 ? (
-                                        Array.from({ length: Math.ceil(userProducts.length / 3) }).map((_, rowIndex) => (
-                                            <div className="row row-cols-auto mb-3" key={rowIndex}>
+                                    <div>
+                                        {userProducts.length > 0 ? (
+                                            Array.from({ length: Math.ceil(userProducts.length / 3) }).map((_, rowIndex) => (
+                                                <div className="row row-cols-auto mb-3" key={rowIndex}>
                                                 {userProducts.slice(rowIndex * 3, rowIndex * 3 + 3).map((product) => (
                                                     <div className="col" key={product.id}>
                                                     <ProductTable products={[product]} />
                                                     </div>
                                                 ))}
-                                            </div>
-                                        ))
-                                            ) : (
-                                            <p>No items to display.</p>
+                                                </div>
+                                            ))
+                                        ) : (
+                                        <p>No items to display.</p>
+                                        )}
+                                    </div>
                                     )}
-                                </div>
-                                )}
-
                             {activeTab === "about" && (
                                 <div className="about-section">
                                     <p className="section">Description:</p>

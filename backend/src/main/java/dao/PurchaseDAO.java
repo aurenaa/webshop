@@ -72,6 +72,9 @@ public class PurchaseDAO {
             if (idNum > maxId) maxId = idNum;
         }
         int newId = maxId + 1;
+        if (purchase.getDate() == null) {
+            purchase.setDate(LocalDate.now());
+        }
         purchase.setId(String.valueOf(newId));
         purchases.put(purchase.getId(), purchase);
 

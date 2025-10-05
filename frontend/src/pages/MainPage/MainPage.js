@@ -120,10 +120,7 @@ export default function MainPage() {
       </nav>
       
     <div className="categories-bar d-flex gap-3 flex-wrap py-2 px-3">
-      <span
-        className={`category-item ${categoryName === "" ? "active" : ""}`}
-        onClick={() => { setCategoryName(""); handleSearch(); }}
-      >
+      <span className={`category-item ${categoryName === "" ? "active" : ""}`} onClick={() => { setCategoryName(""); handleSearch(); }}>
         All
       </span>
       {categories.map((cat) => (

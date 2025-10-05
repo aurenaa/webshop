@@ -324,7 +324,7 @@ const validatePassword = () => {
                             src={user?.profilePicture ? `http://localhost:8080/WebShopAppREST/images/profiles/${user.profilePicture}` : "/icons/account_circle.png"}
                             alt="User"
                             className="rounded-circle mb-3"
-                            style={{ width: "50", height: "50", objectFit: "cover" }}
+                            style={{ width: 80, height: 80, objectFit: "cover" }}
                           />
                           <h4 className="mb-1">{user.username}</h4>
                           <p className="text-muted">{user.email}</p>

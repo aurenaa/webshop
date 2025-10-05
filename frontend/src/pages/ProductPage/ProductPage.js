@@ -12,6 +12,7 @@ export default function ProductPage() {
     const [showRejectInput, setShowRejectInput] = useState(false);
     const [rejectReason, setRejectReason] = useState("");
     const [purchase, setPurchase] = useState(null);
+    const [showBuyConfirm, setShowBuyConfirm] = useState(false);
 
     const handleDeleteClick = async () =>
     {
@@ -152,8 +153,15 @@ export default function ProductPage() {
         endAuction();
     };
 
-    const handleBuyClick = async () =>
-    {
+    const handleBuyClick = () => {
+        if (!isLoggedIn) {
+            navigate("/login");
+            return;
+        }
+        setShowBuyConfirm(true);
+    };
+
+    const confirmPurchase = async () => {
         try {
             const response = await axios.post(
                 `http://localhost:8080/WebShopAppREST/rest/purchases/${product.id}/buy`,
@@ -162,9 +170,13 @@ export default function ProductPage() {
             );
 
             const purchase = response.data;
-            navigate("/mainpage");
+            setShowBuyConfirm(false);
+            setTimeout(() => {
+            navigate(`/user/${user.id}`);
+            }, 500);
         } catch (err) {
             console.error("Error buying product", err);
+            setShowBuyConfirm(false);
         }
     };
 
@@ -400,6 +412,21 @@ export default function ProductPage() {
                                             <button onClick={() => isLoggedIn ? navigate("/offer") : navigate("/login")} className="btn btn-danger">Add to wishlist</button>                               
                                         </>
                                     )}
+                                </div>
+                            </>
+                        )}
+                        {showBuyConfirm && (
+                            <>
+                                <div className="modal-overlay" onClick={() => setShowBuyConfirm(false)}></div>
+                                <div className="modal-custom">
+                                    <div className="modal-content">
+                                        <h5>Are you sure you want to buy this product?</h5>
+                                        <p>You can view all your purchases on your profile after buying.</p>
+                                        <div className="modal-buttons">
+                                            <button className="btn btn-secondary" onClick={() => setShowBuyConfirm(false)}>No</button>
+                                            <button className="btn btn-primary" onClick={confirmPurchase}>Yes</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </>
                         )}

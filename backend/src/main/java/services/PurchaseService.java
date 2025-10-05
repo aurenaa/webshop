@@ -43,6 +43,7 @@ public class PurchaseService {
     public Purchase buyProduct(@PathParam("productId") String productId, Purchase purchaseRequest) {
         ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
         PurchaseDAO purchaseDAO = (PurchaseDAO) ctx.getAttribute("purchaseDAO");
+        UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
 
         Product product = productDAO.findProduct(productId);
         if (product.getStatus() != Status.AVAILABLE) {
@@ -56,7 +57,12 @@ public class PurchaseService {
 
         product.setStatus(Status.PROCESSING);
         productDAO.editFileProduct(product, ctx.getRealPath(""));
-
+        
+        User buyer = userDAO.findById(purchase.getBuyerId());
+        if (buyer != null) {
+            userDAO.addPurchaseId(buyer, product.getId(), ctx.getRealPath(""));
+            userDAO.editFileUser(buyer, ctx.getRealPath(""));
+        }
         return purchase;
     }
 
