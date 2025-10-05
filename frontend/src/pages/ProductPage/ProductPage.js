@@ -12,7 +12,9 @@ export default function ProductPage() {
     const [showRejectInput, setShowRejectInput] = useState(false);
     const [rejectReason, setRejectReason] = useState("");
     const [purchase, setPurchase] = useState(null);
-
+    const [showBuyConfirm, setShowBuyConfirm] = useState(false);
+    const [showOfferInput, setShowOfferInput] = useState(false);
+    const [offer, setOffer] = useState("");
     const handleDeleteClick = async () =>
     {
         try
@@ -94,7 +96,7 @@ export default function ProductPage() {
                 `http://localhost:8080/WebShopAppREST/rest/purchases/${purchase.id}/sell`,
                 {}
             );
-            navigate("/listingpage");
+            navigate("/mainpage");
         } catch (err) {
             console.error("Error selling product", err);
         }
@@ -111,7 +113,7 @@ export default function ProductPage() {
             await axios.post(
                 `http://localhost:8080/WebShopAppREST/rest/purchases/${purchase.id}/reject?reason=${encodeURIComponent(rejectReason)}`
             );
-            navigate("/listingpage");
+            navigate("/mainpage");
         } catch (err) {
             console.error("Error rejecting product", err);
         }
@@ -152,8 +154,15 @@ export default function ProductPage() {
         endAuction();
     };
 
-    const handleBuyClick = async () =>
-    {
+    const handleBuyClick = () => {
+        if (!isLoggedIn) {
+            navigate("/login");
+            return;
+        }
+        setShowBuyConfirm(true);
+    };
+
+    const confirmPurchase = async () => {
         try {
             const response = await axios.post(
                 `http://localhost:8080/WebShopAppREST/rest/purchases/${product.id}/buy`,
@@ -162,9 +171,47 @@ export default function ProductPage() {
             );
 
             const purchase = response.data;
-            navigate("/mainpage");
+            setShowBuyConfirm(false);
+            setTimeout(() => {
+            navigate(`/user/${user.id}`);
+            }, 500);
         } catch (err) {
             console.error("Error buying product", err);
+            setShowBuyConfirm(false);
+        }
+    };
+
+    const handleOfferSubmit = async () => {
+        if (!user || !user.id) {
+            alert("Please log in first!");
+            return;
+        }
+
+        const offerValue = parseFloat(offer);
+        if (isNaN(offerValue) || offerValue <= 0) {
+            alert("Enter a valid offer amount!");
+            return;
+        }
+
+        try {
+            const response = await axios.post(
+            `http://localhost:8080/WebShopAppREST/rest/purchases/${product.id}/bid`,
+            {
+                buyerId: user.id,
+                offer: offerValue
+            }
+            );
+
+            if (!response.data) {
+            alert("Bid not accepted. Make sure your offer is higher than current max bid.");
+            } else {
+            alert("Bid placed successfully!");
+            setOffer("");
+            setShowOfferInput(false);
+            }
+        } catch (err) {
+            console.error("Error while submitting offer:", err);
+            alert("Failed to submit offer. Try again later.");
         }
     };
 
@@ -233,6 +280,7 @@ export default function ProductPage() {
                                 type="search"
                                 placeholder="Search"
                                 aria-label="Search"
+                                style={{ width: "400px" }}                                
                         />
                         <button className="btn btn-outline-success" type="submit">Search</button>
                     </div>
@@ -390,15 +438,59 @@ export default function ProductPage() {
                                             </>
                                     ) : (
                                         <>
-                                            {product.saleType === "AUCTION" ? (
-                                                <button onClick={() => isLoggedIn ? navigate(`/offer/${product.id}`) : navigate("/login")} className="btn btn-primary">Make offer</button>
-                                            ) : (
+                                        {product.saleType === "AUCTION" ? (
+                                        <>
+                                            <button
+                                            onClick={() => {
+                                                if (!isLoggedIn) {
+                                                navigate("/login");
+                                                } else {
+                                                setShowOfferInput(!showOfferInput);
+                                                }
+                                            }}
+                                            className="btn btn-primary"
+                                            >
+                                            Make offer
+                                            </button>
+
+                                            {showOfferInput && (
+                                            <div className="mt-3">
+                                                <input
+                                                type="number"
+                                                value={offer}
+                                                onChange={(e) => setOffer(e.target.value)}
+                                                placeholder="Enter your bid"
+                                                className="form-control mb-2"
+                                                style={{ maxWidth: "250px", margin: "0 auto" }}
+                                                />
+                                                <button onClick={handleOfferSubmit} className="btn btn-success">
+                                                Submit offer
+                                                </button>
+                                            </div>
+                                            )}
+                                        </>
+                                        ) : (
                                                 <button onClick={() => isLoggedIn ? handleBuyClick() : navigate("/login")} className="btn btn-primary">Buy it now</button>                                            
                                             )}    
                                             <button onClick={() => isLoggedIn ? navigate("/offer") : navigate("/login")} className="btn btn-primary">Add to cart</button>
                                             <button onClick={() => isLoggedIn ? navigate("/offer") : navigate("/login")} className="btn btn-danger">Add to wishlist</button>                               
                                         </>
                                     )}
+                                </div>
+                            </>
+                        )}
+                        {showBuyConfirm && (
+                            <>
+                                <div className="modal-overlay" onClick={() => setShowBuyConfirm(false)}></div>
+                                <div className="modal-custom">
+                                    <div className="modal-content">
+                                        <h5>Are you sure you want to buy this product?</h5>
+                                        <p>You can view all your purchases on your profile after buying.</p>
+                                        <div className="modal-buttons">
+                                            <button className="btn btn-secondary" onClick={() => setShowBuyConfirm(false)}>No</button>
+                                            <button className="btn btn-primary" onClick={confirmPurchase}>Yes</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </>
                         )}

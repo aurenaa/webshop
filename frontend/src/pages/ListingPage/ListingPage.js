@@ -37,6 +37,7 @@ export default function ListingPage() {
                         type="search"
                         placeholder="Search"
                         aria-label="Search"
+                        style={{ width: "400px" }}
                 />
                 <button className="btn btn-outline-success" type="submit">Search</button>
                 </div>

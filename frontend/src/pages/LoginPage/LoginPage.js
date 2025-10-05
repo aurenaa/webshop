@@ -40,7 +40,7 @@ export default function LoginPage() {
       }
       
       login(userId);
-      setIsLoggedIn(true);
+      //setIsLoggedIn(true);
 
       const isAdmin = admins.some(a => a.id === userId);
       

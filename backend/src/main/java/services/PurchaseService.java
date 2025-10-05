@@ -5,6 +5,8 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import java.util.ArrayList;
 import beans.Bid;
 import beans.Product;
@@ -43,6 +45,7 @@ public class PurchaseService {
     public Purchase buyProduct(@PathParam("productId") String productId, Purchase purchaseRequest) {
         ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
         PurchaseDAO purchaseDAO = (PurchaseDAO) ctx.getAttribute("purchaseDAO");
+        UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
 
         Product product = productDAO.findProduct(productId);
         if (product.getStatus() != Status.AVAILABLE) {
@@ -56,7 +59,12 @@ public class PurchaseService {
 
         product.setStatus(Status.PROCESSING);
         productDAO.editFileProduct(product, ctx.getRealPath(""));
-
+        
+        User buyer = userDAO.findById(purchase.getBuyerId());
+        if (buyer != null) {
+            userDAO.addPurchaseId(buyer, product.getId(), ctx.getRealPath(""));
+            userDAO.editFileUser(buyer, ctx.getRealPath(""));
+        }
         return purchase;
     }
 
@@ -79,13 +87,6 @@ public class PurchaseService {
             userDAO.removeProductId(seller, product.getId(), ctx.getRealPath(""));
             userDAO.editFileUser(seller, ctx.getRealPath(""));
         }
-
-        User buyer = userDAO.findById(purchase.getBuyerId());
-        if (buyer != null) {
-            userDAO.addPurchaseId(buyer, product.getId(), ctx.getRealPath(""));
-            userDAO.editFileUser(buyer, ctx.getRealPath(""));
-        }
-
         return purchase;
     }
 
@@ -104,7 +105,7 @@ public class PurchaseService {
     public Purchase rejectPurchase(@PathParam("purchaseId") String purchaseId, @QueryParam("reason") String reason) {
         PurchaseDAO purchaseDAO = (PurchaseDAO) ctx.getAttribute("purchaseDAO");
         ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
-
+        UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
         Purchase purchase = purchaseDAO.findPurchase(purchaseId);
         Product product = productDAO.findProduct(purchase.getProductId());
 
@@ -113,7 +114,11 @@ public class PurchaseService {
 
         product.setStatus(Status.REJECTED);
         productDAO.editFileProduct(product, ctx.getRealPath(""));
-
+        User buyer = userDAO.findById(purchase.getBuyerId());
+        if (buyer != null) {
+            userDAO.removePurchaseId(buyer, product.getId(), ctx.getRealPath(""));
+            userDAO.editFileUser(buyer, ctx.getRealPath(""));
+        }
         return purchase;
     }
 
@@ -123,12 +128,19 @@ public class PurchaseService {
     public Purchase cancelPurchase(@PathParam("purchaseId") String purchaseId) {
         PurchaseDAO purchaseDAO = (PurchaseDAO) ctx.getAttribute("purchaseDAO");
         ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
-
+        UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
+        
         Purchase purchase = purchaseDAO.findPurchase(purchaseId);
         Product product = productDAO.findProduct(purchase.getProductId());
 
         product.setStatus(Status.CANCELED);
         productDAO.editFileProduct(product, ctx.getRealPath(""));
+        
+        User buyer = userDAO.findById(purchase.getBuyerId());
+        if (buyer != null) {
+            userDAO.removePurchaseId(buyer, product.getId(), ctx.getRealPath(""));
+            userDAO.editFileUser(buyer, ctx.getRealPath(""));
+        }
 
         return purchase;
     }
@@ -161,4 +173,20 @@ public class PurchaseService {
 	        return null;
 	    }
 	}
+    
+    @GET
+    @Path("/by-product/{productId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPurchaseByProductId(@PathParam("productId") String productId) {
+        PurchaseDAO dao = (PurchaseDAO) ctx.getAttribute("purchaseDAO");
+        Purchase purchase = dao.findPurchaseByProductId(productId);
+        
+        if (purchase == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                          .entity("Purchase not found for product: " + productId)
+                          .build();
+        }
+        
+        return Response.ok(purchase).build();
+    }
 }

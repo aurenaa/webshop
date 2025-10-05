@@ -91,11 +91,10 @@ public class UserService {
     	User buyer = userDAO.findById(buyerId);
 		
     	userDAO.removeProductId(seller, productId, ctx.getRealPath(""));
-    	userDAO.addProductId(buyer, productId, ctx.getRealPath(""));
+    	userDAO.addPurchaseId(buyer, productId, ctx.getRealPath(""));
     	productDAO.statusSold(productId, ctx.getRealPath(""));
     	return Response.status(201).entity("Auction ended successfully").build();
     }
-    
     
     @GET
     @Path("/{id}/withFeedback")

@@ -8,8 +8,7 @@ import "./ProfilePage.css";
 export default function ProfilePage() {
   const { user, setUser } = useUser();
   const navigate = useNavigate();
-  const { isLoggedIn, logout, setIsLoggedIn } = useAuthorize();
-
+  const { isLoggedIn, setIsLoggedIn } = useAuthorize();
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState(null);
   const [profileImage, setProfileImage] = useState(null);
@@ -20,6 +19,34 @@ export default function ProfilePage() {
       setEditedUser({ ...user });
     }
   }, [user]);
+
+
+  const validateCriticalChanges = () => {
+    if (!editedUser) return false;
+    const criticalFields = ['username', 'email', 'password'];
+    const hasCriticalChange = criticalFields.some(field => {
+      if (field === 'password') {
+        return editedUser.password && editedUser.password !== "";
+      }
+      return editedUser[field] !== user[field];
+    });
+
+    return hasCriticalChange;
+  };
+
+const validatePassword = () => {
+    if (editedUser.password && editedUser.password !== "") {
+      if (editedUser.password.length < 6) {
+        setMessage("New password must be at least 6 characters long.");
+        return false;
+      }
+      if (!editedUser.currentPassword) {
+        setMessage("Current password is required to change your password.");
+        return false;
+      }
+    }
+    return true;
+  };
 
   const handleProfileImageChange = (e) => {
     const file = e.target.files[0];
@@ -58,7 +85,19 @@ export default function ProfilePage() {
   };
 
   const handleSaveClick = async () => {
+    const isCriticalChange = editedUser.username !== user.username || 
+                             editedUser.email !== user.email || 
+                             (editedUser.password && editedUser.password !== "");    
     try {
+      if (validateCriticalChanges() && !editedUser.currentPassword) {
+        setMessage("Current password is required to change username, email or password.");
+        return;
+      }
+
+      if (!validatePassword()) {
+        return;
+      }
+
       let updatedProfileImage = editedUser.profilePicture;
 
       if (profileImage) {
@@ -83,6 +122,7 @@ export default function ProfilePage() {
         birthDate: editedUser.birthDate || null,
         description: editedUser.description,
         password: editedUser.password && editedUser.password !== "" ? editedUser.password : undefined,
+        currentPassword: editedUser.currentPassword || undefined
       };
 
       const response = await axios.patch(
@@ -99,7 +139,13 @@ export default function ProfilePage() {
 
     } catch (error) {
       console.error(error);
-      setMessage("Failed to update profile.");
+      if (error.response && error.response.status === 401) {
+        setMessage("Current password is incorrect.");
+      } else if (error.response && error.response.status === 409) {
+        setMessage("Username or email already exists.");
+      } else {
+        setMessage("Failed to update profile.");
+      }
     }
   };
   
@@ -113,6 +159,7 @@ export default function ProfilePage() {
             type="search"
             placeholder="Search"
             aria-label="Search"
+            style={{ width: "400px" }}            
           />
           <button className="btn btn-outline-success" type="submit">Search</button>
         </div>
@@ -157,109 +204,174 @@ export default function ProfilePage() {
         )}
       </div>
         </nav>
+
     <div className="profile">
-        <div className="profile-container">
-          <div className="left">
-            {isEditing ? (
-              <form className="edit-form">
-                <h3>Edit Profile</h3>
-                <label>Profile Image</label>
-                <input type="file" accept="image/*" onChange={handleProfileImageChange} />
-                <div className="form-row">
-                  <div>
-                    <label>First Name</label>
-                    <input type="text" name="firstName" value={editedUser.firstName || ""} onChange={handleChange}/>
+        <div className="container mt-4">
+          <div className="row justify-content-center">
+            <div className="col-12 col-lg-10">
+              {isEditing ? (
+                <div className="card shadow-sm">
+                  <div className="card-header bg-secondary text-white">
+                    <h4 className="mb-0">Edit Account</h4>
                   </div>
-                  <div>
-                    <label>Last Name</label>
-                    <input type="text" name="lastName" value={editedUser.lastName || ""} onChange={handleChange}/>
+                  <div className="card-body">
+                    <form className="edit-form">
+                      <div className="row mb-4">
+                        <div className="col-12">
+                          <label className="form-label fw-bold">Profile Image</label>
+                          <input type="file" className="form-control" accept="image/*" onChange={handleProfileImageChange} />
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label fw-bold">First Name</label>
+                            <input type="text" className="form-control" name="firstName" value={editedUser.firstName || ""} onChange={handleChange}/>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label fw-bold">Last Name</label>
+                            <input type="text" className="form-control" name="lastName" value={editedUser.lastName || ""} onChange={handleChange}/>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label fw-bold">Username</label>
+                            <input type="text" className="form-control" name="username" value={editedUser.username || ""} onChange={handleChange}/>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label fw-bold">Email</label>
+                            <input type="email" className="form-control" name="email" value={editedUser.email || ""} onChange={handleChange}/>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-3">
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label fw-bold">Phone Number</label>
+                            <input type="tel" className="form-control" name="phoneNumber" value={editedUser.phoneNumber || ""} onChange={handleChange}/>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label fw-bold">Date of Birth</label>
+                            <input type="date" className="form-control" name="birthDate" value={editedUser.birthDate || ""} onChange={handleChange}/>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row mb-4">
+                        <div className="col-12">
+                          <label className="form-label fw-bold">About Yourself</label>
+                          <textarea className="form-control" rows="4" name="description" value={editedUser.description || ""} onChange={handleChange}/>
+                        </div>
+                      </div>
+
+                      <div className="row mb-4">
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label fw-bold">Current Password</label>
+                            <input 
+                              type="password" 
+                              className="form-control" 
+                              name="currentPassword" 
+                              value={editedUser.currentPassword || ""} 
+                              onChange={handleChange}
+                              placeholder={
+                                editedUser.username !== user.username || 
+                                editedUser.email !== user.email || 
+                                editedUser.password ? "Required for username/email/password changes" : "Optional"
+                              }
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label fw-bold">New Password</label>
+                            <input type="password" className="form-control" name="password" value={editedUser.password || ""} onChange={handleChange}/>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="row">
+                        <div className="col-12">
+                          <div className="d-flex gap-3">
+                            <button type="button" onClick={handleSaveClick} className="btn btn-success">Save Changes</button>
+                            <button type="button" onClick={handleCancelClick} className="btn btn-danger">Cancel</button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {message && <div className="alert alert-info mt-3">{message}</div>}
+                    </form>
                   </div>
                 </div>
-                <div className="form-row">
-                  <div>
-                    <label>Username</label>
-                    <input type="text" name="username" value={editedUser.username || ""} onChange={handleChange}/>
-                  </div>
-                  <div>
-                    <label>Email</label>
-                    <input type="email" name="email" value={editedUser.email || ""} onChange={handleChange}/>
-                  </div>
-                </div>
-                <div className="form-row">
-                  <div>
-                    <label>Phone Number</label>
-                    <input type="tel" name="phoneNumber" value={editedUser.phoneNumber || ""} onChange={handleChange}/>
-                  </div>
-                  <div>
-                    <label>Date of Birth</label>
-                    <input type="date" name="birthDate" value={editedUser.birthDate || ""} onChange={handleChange}/>
-                  </div>
-                </div>
-                <label>About Yourself</label>
-                <textarea name="description" value={editedUser.description || ""} onChange={handleChange}/>
-                <div className="form-row">
-                  <div>
-                    <label>Current Password</label>
-                    <input type="password" name="currentPassword" value={editedUser.currentPassword || ""} onChange={handleChange}/>
-                  </div>
-                  <div>
-                    <label>New Password</label>
-                    <input type="password" name="password" value={editedUser.password || ""} onChange={handleChange}/>
-                  </div>
-                </div>
-                <div className="buttons">
-                  <button type="button" onClick={handleSaveClick} className="btn btn-success me-2">Save</button>
-                  <button type="button" onClick={handleCancelClick} className="btn btn-secondary">Cancel</button>
-                </div>
-                {message && <p className="message">{message}</p>}
-              </form>
-            ) : (
-              <div className="basic-info-container">
-                <div className="left-column">
-                  <img
-                    src={editedUser?.profilePicture ? `http://localhost:8080/WebShopAppREST/images/profiles/${editedUser.profilePicture}` : "/icons/account_circle.png"}
-                    alt="User"
-                    className="account"
-                  />
-                  <div className="username-email">
-                    <p>{user.username}</p>
-                    <p>{user.email}</p>
-                  </div>
-                  <div className="buttons">
-                    <button onClick={handleEditClick} className="btn btn-outline-primary edit-btn">Edit</button>
-                  </div>
-                </div>
-                <div className="right-column">
-                  <div className="user-info-row">
-                    <div className="user-info">
-                      <label>First Name</label>
-                      <div className="user-field">{user.firstName}</div>
+              ) : (
+                <div className="card shadow-sm">
+                  <div className="card-body">
+                    <div className="row">
+                      <div className="col-md-4 border-end">
+                        <div className="text-center mb-4">
+                          <img
+                            src={user?.profilePicture ? `http://localhost:8080/WebShopAppREST/images/profiles/${user.profilePicture}` : "/icons/account_circle.png"}
+                            alt="User"
+                            className="rounded-circle mb-3"
+                            style={{ width: 80, height: 80, objectFit: "cover" }}
+                          />
+                          <h4 className="mb-1">{user.username}</h4>
+                          <p className="text-muted">{user.email}</p>
+                          <button onClick={handleEditClick} className="btn btn-outline-primary btn-sm">Edit Profile</button>
+                        </div>
+                      </div>
+
+                      <div className="col-md-8">
+                        <h5 className="mb-4">Personal Information</h5>
+                        
+                        <div className="row mb-3">
+                          <div className="col-sm-6">
+                            <label className="form-label fw-bold text-muted">First Name</label>
+                            <div className="p-2 bg-light rounded">{user.firstName}</div>
+                          </div>
+                          <div className="col-sm-6">
+                            <label className="form-label fw-bold text-muted">Last Name</label>
+                            <div className="p-2 bg-light rounded">{user.lastName}</div>
+                          </div>
+                        </div>
+
+                        <div className="row mb-3">
+                          <div className="col-sm-6">
+                            <label className="form-label fw-bold text-muted">Phone Number</label>
+                            <div className="p-2 bg-light rounded">{user.phoneNumber || "Not provided"}</div>
+                          </div>
+                          <div className="col-sm-6">
+                            <label className="form-label fw-bold text-muted">Date of Birth</label>
+                            <div className="p-2 bg-light rounded">{user?.birthDate || "Not provided"}</div>
+                          </div>
+                        </div>
+
+                        <div className="mb-3">
+                          <label className="form-label fw-bold text-muted">Description</label>
+                          <div className="p-3 bg-light rounded" style={{ minHeight: "80px" }}>
+                            {user?.description || "No description provided"}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="user-info">
-                      <label>Last Name</label>
-                      <div className="user-field">{user.lastName}</div>
-                    </div>
-                  </div>
-                  <div className="user-info-row">
-                    <div className="user-info">
-                      <label>Phone Number</label>
-                      <div className="user-field">{user.phoneNumber}</div>
-                    </div>
-                    <div className="user-info">
-                      <label>Date of Birth</label>
-                      <div className="user-field">{user?.birthDate || "Optional"}</div>
-                    </div>
-                  </div>
-                  <div className="user-description">
-                    <label>Description</label>
-                    <div className="description-field">{user?.description || "Optional"}</div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
-        </div>
+      </div>
     </div>
   );
 }

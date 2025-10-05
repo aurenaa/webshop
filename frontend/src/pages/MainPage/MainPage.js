@@ -6,6 +6,7 @@ import { useUser } from "../../contexts/UserContext";
 import ProductTable from "./components/ProductTable";
 import { useProductsList } from "../../hooks/useProductsList";
 import { useAuthorize } from "../../contexts/AuthorizeContext";
+import { useCategoriesList } from "../../hooks/useCategoriesList";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import "./MainPage.css";
@@ -16,7 +17,7 @@ export default function MainPage() {
   const navigate = useNavigate();
   const { isLoggedIn, setIsLoggedIn } = useAuthorize();
   const { user } = useUser();
-  
+  const categories = useCategoriesList();
   const [query, setQuery] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -71,6 +72,7 @@ export default function MainPage() {
                  placeholder="Search"
                  aria-label="Search"
                  value = {query}
+                 style={{ width: "400px" }}
                  onChange={(e) => setQuery(e.target.value)}
           />
           <button className="btn btn-outline-success" type="submit" onClick={handleSearch}>Search</button>
@@ -117,6 +119,21 @@ export default function MainPage() {
       </div>
       </nav>
       
+    <div className="categories-bar d-flex gap-3 flex-wrap py-2 px-3">
+      <span className={`category-item ${categoryName === "" ? "active" : ""}`} onClick={() => { setCategoryName(""); handleSearch(); }}>
+        All
+      </span>
+      {categories.map((cat) => (
+        <span
+          key={cat.id}
+          className={`category-item ${categoryName === cat.name ? "active" : ""}`}
+          onClick={() => { setCategoryName(cat.name); handleSearch(); }}
+        >
+          {cat.name}
+        </span>
+      ))}
+    </div>
+
       <div className="container-xxl mt-3">
         <div className="row g-1">
           <aside className="col-12 col-lg-2">
@@ -195,7 +212,7 @@ export default function MainPage() {
                 Filter products
               </button>
               <button
-                className="btn btn-outline-success me-2 mt-4"
+                className="btn btn-outline-primary me-2 mt-4"
                 onClick={() => {
                   setQuery(""); setMinPrice(""); setMaxPrice("");
                   setCategoryName(""); setProductType(""); setLocationId("");
@@ -209,9 +226,10 @@ export default function MainPage() {
 
         <main className="col-12 col-lg-10">
           <div className="products-container">
-            <ProductTable
-              products={products.filter(p => p.status !== "PROCESSING" && p.status !== "SOLD")}
-            />
+          <ProductTable
+            products={products.filter(p => p.status !== "PROCESSING" && p.status !== "SOLD")}
+            onProductClick={(id) => navigate(`/products/${id}`)}
+          />
           </div>
         </main>
       </div>

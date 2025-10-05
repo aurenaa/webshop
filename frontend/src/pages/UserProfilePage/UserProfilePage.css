@@ -55,7 +55,8 @@
 }
 
 .tabel {
-    margin-left: 30px;
+    margin-left: 50px;
+    margin-right: 50px;
 }
 
 .search {
@@ -100,6 +101,37 @@
     flex-direction: column;
 }
 
+.feedback-item {
+    background-color: #fafafa;
+    padding: 10px 15px;
+}
+
+.comment {
+    text-align: left;
+    margin-top: 6px;
+    margin-left: 2px;
+    font-size: 15px;
+}
+
 .input-group {
     margin-top: 10px;
+}
+
+.tabel .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    justify-content: start;
+    margin-left: 0;
+}
+
+.tabel .col {
+    flex: 0 0 20%;
+    margin: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.tabel .col > * {
+    width: 100%;
 }

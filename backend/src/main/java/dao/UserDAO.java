@@ -11,12 +11,9 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 import beans.Product;
@@ -87,7 +84,7 @@ public class UserDAO {
 	                continue;
 
 	            String[] tokens = line.split(";", -1);
-	            
+	           
 	            if (tokens.length < 10) {
 	                System.err.println("Invalid line format: " + line);
 	                continue;
@@ -158,41 +155,40 @@ public class UserDAO {
 	                }
 	            }
 
-	            if (tokens.length > 11 && !tokens[11].trim().isEmpty() && productList.isEmpty()) {
-	                String productsStr = tokens[11].trim();
-	                for (String productId : productsStr.split("\\|")) {
-	                    if (!productId.trim().isEmpty()) {
-	                        productList.add(productId.trim());
+	            if (tokens.length > 11 && !tokens[11].trim().isEmpty()) {
+	                String listStr = tokens[11].trim();
+	                
+	                if (role == Role.SELLER) {
+	                    for (String productId : listStr.split("\\|")) {
+	                        if (!productId.trim().isEmpty()) {
+	                            productList.add(productId.trim());
+	                        }
+	                    }
+	                } else if (role == Role.BUYER) {
+	                    for (String productId : listStr.split("\\|")) {
+	                        if (!productId.trim().isEmpty()) {
+	                            purchaseList.add(productId.trim());
+	                        }
 	                    }
 	                }
 	            }
-	            
-	            if (tokens.length > 12 && !tokens[12].trim().isEmpty() && purchaseList.isEmpty()) {
-	                String productsStr = tokens[12].trim();
-	                for (String productId : productsStr.split("\\|")) {
-	                    if (!productId.trim().isEmpty()) {
-	                    	purchaseList.add(productId.trim());
-	                    }
-	                }
-	            }	          
 	            
 	            String profilePicture = "";
-	            if (tokens.length > 13 && !tokens[13].trim().isEmpty()) {
-	                profilePicture = tokens[13].trim();
-	            }
+	            if (tokens.length > 12 && !tokens[12].trim().isEmpty()) {
+	                profilePicture = tokens[12].trim();
+	            }        
 	            
 	            double averageRating = 0.0;
-	            if (tokens.length > 14 && !tokens[14].trim().isEmpty()) {
+	            if (tokens.length > 13 && !tokens[13].trim().isEmpty()) {
 	                try {
-	                    averageRating = Double.parseDouble(tokens[14].trim());
+	                    averageRating = Double.parseDouble(tokens[13].trim());
 	                } catch (NumberFormatException e) {
-	                    System.err.println("Invalid average rating for user " + id + ": " + tokens[14].trim());
 	                }
 	            }
 	            
 	            List<String> reviewsReceived = new ArrayList<>();
-	            if (tokens.length > 15 && !tokens[15].trim().isEmpty()) {
-	                String reviewsStr = tokens[15].trim();
+	            if (tokens.length > 14 && !tokens[14].trim().isEmpty()) {
+	                String reviewsStr = tokens[14].trim();
 	                for (String reviewId : reviewsStr.split(",")) {
 	                    if (!reviewId.trim().isEmpty()) {
 	                    	reviewsReceived.add(reviewId.trim());
@@ -217,8 +213,12 @@ public class UserDAO {
 	public void registerUser(User user, String contextPath) {
 	    try {
 	        File file = new File(contextPath + "/users.txt");
-	        String productsStr = user.getProductList() != null ? String.join("|", user.getProductList()) : "";
-	        String purchaseStr = user.getPurchaseList() != null ? String.join("|", user.getPurchaseList()) : "";
+	        String combinedListStr = "";
+	        if (user.getRole() == Role.SELLER) {
+	            combinedListStr = user.getProductList() != null ? String.join("|", user.getProductList()) : "";
+	        } else if (user.getRole() == Role.BUYER) {
+	            combinedListStr = user.getPurchaseList() != null ? String.join("|", user.getPurchaseList()) : "";
+	        }
 	        String birthDateStr = user.getBirthDate() != null ? user.getBirthDate().toString() : "";
 	        String descriptionStr = user.getDescription() != null ? user.getDescription() : "";
 	        String profilePictureStr = user.getProfilePicture() != null ? user.getProfilePicture() : "";
@@ -227,7 +227,7 @@ public class UserDAO {
 	        
 	        try (PrintWriter out = new PrintWriter(new FileWriter(file, true))) {
 	            out.println();
-	            out.println(String.format("%s;%s;%s;%s;%s;%s;%s;%s;%b;%s;%s;%s;%s;%s;%s;%s",
+	            out.println(String.format("%s;%s;%s;%s;%s;%s;%s;%s;%b;%s;%s;%s;%s;%s;%s",
 	                    user.getId(),
 	                    user.getFirstName(),
 	                    user.getLastName(),
@@ -239,8 +239,7 @@ public class UserDAO {
 	                    user.isBlocked(),           
 	                    birthDateStr,      
 	                    descriptionStr,
-	                    productsStr,
-	                    purchaseStr,
+	                    combinedListStr,
 	                    profilePictureStr,
 	                    avgRating,
 	                    reviewsStr
@@ -325,14 +324,18 @@ public class UserDAO {
 
 	                String[] parts = line.split(";");
 	                if (parts[0].equals(user.getId())) {
-	                    String productsStr = user.getProductList() != null ? String.join("|", user.getProductList()) : "";
-	                    String purchaseStr = user.getPurchaseList() != null ? String.join("|", user.getPurchaseList()) : "";
+	                	String combinedListStr = "";
+	                    if (user.getRole() == Role.SELLER) {
+	                        combinedListStr = user.getProductList() != null ? String.join("|", user.getProductList()) : "";
+	                    } else if (user.getRole() == Role.BUYER) {
+	                        combinedListStr = user.getPurchaseList() != null ? String.join("|", user.getPurchaseList()) : "";
+	                    }
 	                    String birthDateStr = user.getBirthDate() != null ? user.getBirthDate().toString() : "";
 	                    String descriptionStr = user.getDescription() != null ? user.getDescription() : "";
 	                    String profilePictureStr = user.getProfilePicture() != null ? user.getProfilePicture() : "";
 	                    String reviewsStr = user.getReviewsList() != null ? String.join(",", user.getReviewsList()) : "";
 	                    
-	                    String newLine = String.format("%s;%s;%s;%s;%s;%s;%s;%s;%b;%s;%s;%s;%s;%s;%s;%s",
+	                    String newLine = String.format("%s;%s;%s;%s;%s;%s;%s;%s;%b;%s;%s;%s;%s;%s;%s",
 	                        user.getId(),
 	                        user.getFirstName(),
 	                        user.getLastName(),
@@ -344,8 +347,7 @@ public class UserDAO {
 	                        user.isBlocked(),             
 	                        birthDateStr,   
 	                        descriptionStr,
-	                        productsStr,
-	                        purchaseStr,
+	                        combinedListStr,
 	                        profilePictureStr,
 	                        user.getRating(),
 	                        reviewsStr

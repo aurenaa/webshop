@@ -1,79 +1,45 @@
-.basic-info-container {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 80px;
-  align-items: start;
-  margin-top: 40px;
-  justify-self: center;
+.profile {
+  min-height: calc(100vh - 76px);
+  background-color: #f8f9fa;
+  padding: 20px 0;
 }
 
-.left-column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
+.card {
+  border: none;
+  border-radius: 10px;
+  max-width: 1500px;
+  margin: 0 auto;
+  width: 800px;
 }
 
-.right-column {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-right: 30px;
+.card-header {
+  border-radius: 10px 10px 0 0 !important;
 }
 
-.user-info-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
+.form-label {
+  color: #495057;
 }
 
-.user-info {
-  display: flex;
-  flex-direction: column;
+.bg-light {
+  background-color: #f8f9fa !important;
 }
 
-.user-info label {
-  font-weight: bold;
-  margin-bottom: 3px;
+.btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
 }
 
-.account {
-  width: 50px;
-  height: 50px;
-  border-radius: 25px;
+.btn-success:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
 }
 
-.user-field {
-  padding: 6px 8px;
-  background-color: #f5f5f5;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.card-body .col-md-8 {
+  flex: 0 0 74%;
+  max-width: 74%;
 }
 
-.user-description label {
-  font-weight: bold;
-  margin-bottom: 3px;
-}
-
-.description-field {
-  min-height: 60px;
-  padding: 6px 8px;
-  background-color: #f5f5f5;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.edit-btn {
-  padding: 10px;
-  font-size: 16px;
-  width: 100%;
-}
-
-.edit-form {
-  display: flex;
-  flex-direction: column;
-  margin-top: 20px;
-  margin-left: 20px;
-  margin-right: 20px;
-  justify-self: center;
+.card-body .col-md-4 {
+  flex: 0 0 26%;
+  max-width: 26%;
 }

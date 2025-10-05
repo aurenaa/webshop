@@ -18,7 +18,7 @@ export default function UserProfilePage() {
     const { products } = useProducts();
     const [activeTab, setActiveTab] = useState("items");
     const [otherReason, setOtherReason] = useState("");
-
+    const [myReviews, setMyReviews] = useState([]);
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
     const [showOthers, setShowOthers] = useState(false);
@@ -26,6 +26,14 @@ export default function UserProfilePage() {
     const [reviewComment, setReviewComment] = useState("");
     const [reviewTargetUser, setReviewTargetUser] = useState(null);
     const [selectedValue, setSelectedValue] = useState('');
+
+    useEffect(() => {
+        if (user && userProfile) {
+            axios.get(`http://localhost:8080/WebShopAppREST/rest/reviews/by-reviewer/${user.id}`)
+                .then(res => setMyReviews(res.data))
+                .catch(err => console.error("Error fetching user reviews", err));
+        }
+    }, [user, userProfile]);    
 
     const openReviewModal = (userToReview) => {
         setReviewTargetUser(userToReview);
@@ -40,26 +48,59 @@ export default function UserProfilePage() {
     }
 
     useEffect(() => {
-        if (isLoggedIn && user && Number(id) === user.id) {
-            setUserProfile(user);
-        } else {
-            axios.get(`http://localhost:8080/WebShopAppREST/rest/users/${id}/withFeedback`)
-                .then(res => setUserProfile(res.data))
-                .catch(err => console.error("Error fetching user", err));
+            if (isLoggedIn && user && Number(id) === user.id) {
+                setUserProfile(user);
+            } else {
+                axios.get(`http://localhost:8080/WebShopAppREST/rest/users/${id}/withFeedback`)
+                    .then(res => setUserProfile(res.data))
+                    .catch(err => console.error("Error fetching user", err));
+            }
+        }, [id, isLoggedIn, user]);
+
+
+    const getVisibleFeedback = () => {
+        if (!userProfile || !userProfile.feedback) return [];
+        
+        if (user && Number(id) === user.id) {
+            return userProfile.feedback;
         }
-    }, [id, isLoggedIn, user]);
+        
+        if (!user) return [];
+        
+        const hasReviewedThisUser = myReviews.some(review => 
+            review.reviewedUserId === userProfile.id
+        );
+        
+        if (hasReviewedThisUser) {
+            return userProfile.feedback;
+        } else {
+            return userProfile.feedback.filter(f => 
+                f.reviewerId === user.id
+            );
+        }
+    };
 
     const userProducts = useMemo(() => {
         if (!userProfile) return [];
-        if (!userProfile.productList) return [];
 
-        const productIds = typeof userProfile.productList === "string"
-            ? userProfile.productList.split("|").map(id => Number(id))
-            : userProfile.productList;
-
-        return products.filter(p => productIds.includes(p.id));
+        if (userProfile.role === "SELLER") {
+            const sellerProducts = products.filter(p => p.sellerId === userProfile.id && p.status !== "SOLD");
+            return sellerProducts;
+        } else if (userProfile.role === "BUYER") {
+            const purchaseIds = userProfile.purchaseList || userProfile.productList || [];
+            
+            const buyerProducts = products.filter(p => {
+                const productId = typeof p.id === 'string' ? parseInt(p.id) : p.id;
+                const normalizedPurchaseIds = purchaseIds.map(id => 
+                    typeof id === 'string' ? parseInt(id) : id
+                );
+                return normalizedPurchaseIds.includes(productId);
+            });
+            
+            return buyerProducts; 
+        }
+        return [];
     }, [userProfile, products]);
-
 
     const canReviewBuyer = () => {
         if (!user || !userProfile) return false;
@@ -114,7 +155,7 @@ export default function UserProfilePage() {
 
     const submitReview = () => {
         if (!reviewTargetUser) return;
-        axios.post(`http://localhost:8080/WebShopAppREST/rest/users/reviews`, {
+        axios.post(`http://localhost:8080/WebShopAppREST/rest/reviews`, {
             reviewerId: user.id,
             reviewedUserId: reviewTargetUser.id,
             rating: reviewScore,
@@ -123,6 +164,9 @@ export default function UserProfilePage() {
         .then(res => {
             console.log("Review submitted:", res.data);
             setShowReviewModal(false);
+            axios.get(`http://localhost:8080/WebShopAppREST/rest/reviews/by-reviewer/${user.id}`)
+                .then(res => setMyReviews(res.data))
+                .catch(err => console.error("Error fetching user reviews", err));
         })
         .catch(err => console.error(err));
     };
@@ -136,18 +180,23 @@ export default function UserProfilePage() {
         }
 
         axios.post(`http://localhost:8080/WebShopAppREST/rest/report/reports`, {
-        submittedByUserId: user.id,
-        reportedUserId: reviewTargetUser.id,
-        reason: reasonToSend,
-        status: "SUBMITTED"
+            submittedByUserId: user.id,
+            reportedUserId: reviewTargetUser.id,
+            reportReason: reasonToSend,
+            status: "SUBMITTED"
         })
         .then(res => {
-        console.log("Report submitted:", res.data);
-        setShowReportModal(false);
+            console.log("Report submitted:", res.data);
+            setShowReportModal(false);
         })
         .catch(err => console.error(err));
     };
 
+    const visibleFeedback = getVisibleFeedback();
+    const hasReviewedThisUser = user && userProfile && myReviews.some(review => 
+        review.reviewedUserId === userProfile.id
+    );
+    
     return (
         <div className="main-page">
             <nav className="navbar navbar-expand-lg navbar-light bg-light px-3 position-relative">
@@ -158,6 +207,7 @@ export default function UserProfilePage() {
                         type="search"
                         placeholder="Search"
                         aria-label="Search"
+                        style={{ width: "400px" }}                        
                     />
                     <button className="btn btn-outline-success" type="submit">Search</button>
                 </div>
@@ -193,10 +243,10 @@ export default function UserProfilePage() {
                     ) : (
                     <>
                         <button onClick={() => navigate("/signup")} className="btn btn-outline-primary me-2">
-                        Sign Up
+                            Sign Up
                         </button>
                         <span onClick={() => navigate("/login")} className="nav-link" style={{ cursor: "pointer" }}>
-                        Log in
+                            Log in
                         </span>
                     </>
                     )}
@@ -252,11 +302,10 @@ export default function UserProfilePage() {
                                 <div className={`profile-click ${activeTab === "feedback" ? "active" : ""}`} onClick={() => setActiveTab("feedback")}>
                                     Feedback
                                 </div>                  
-
                                 <nav className="navbar bg-body">
                                     <div className="container-fluid">
                                         <form className="d-flex" role="search">
-                                            <input className="form-control me-2 search" type="search" placeholder={`Search all ${userProfile?.productList?.length || 0} items`} aria-label="Search"/>
+                                            <input className="form-control me-2 search" type="search" placeholder={`Search all ${userProfile?.purchaseList?.length || 0} items`} aria-label="Search"/>
                                             <button className="btn" type="submit">
                                                 <img className="search-img" src="/icons/search.png"/>
                                             </button>
@@ -270,15 +319,24 @@ export default function UserProfilePage() {
                                     {userProducts.length > 0 ? (
                                         Array.from({ length: Math.ceil(userProducts.length / 3) }).map((_, rowIndex) => (
                                             <div className="row row-cols-auto mb-3" key={rowIndex}>
-                                                {userProducts.slice(rowIndex * 3, rowIndex * 3 + 3).map((product) => (
-                                                    <div className="col" key={product.id}>
-                                                    <ProductTable products={[product]} />
-                                                    </div>
-                                                ))}
+                                            {userProducts.slice(rowIndex * 3, rowIndex * 3 + 3).map((product) => (
+                                                <div className="col" key={product.id}>
+                                                    <ProductTable 
+                                                    products={[product]} 
+                                                    onProductClick={(id) => {
+                                                        if (userProfile.role === "BUYER") {
+                                                        navigate(`/purchased-product/${id}`);
+                                                        } else {
+                                                        navigate(`/products/${id}`);
+                                                        }
+                                                    }}
+                                                    />
+                                                </div>
+                                            ))}
                                             </div>
                                         ))
-                                            ) : (
-                                            <p>No items to display.</p>
+                                    ) : (
+                                    <p>No items to display.</p>
                                     )}
                                 </div>
                                 )}
@@ -293,21 +351,35 @@ export default function UserProfilePage() {
                             )}
                             {activeTab === "feedback" && (
                             <div className="feedback-section">
-                                {userProfile?.feedback && userProfile.feedback.length > 0 ? (
-                                    userProfile.feedback.map(f => (
+                                {!user && (
+                                    <div className="alert alert-info">
+                                        Please log in to view feedback.
+                                    </div>
+                                )}
+                                {user && user.id !== userProfile.id && !hasReviewedThisUser && (
+                                    <div className="alert alert-warning">
+                                        You can only see feedback from users you have reviewed. 
+                                        Leave a review to see all feedback for this user.
+                                    </div>
+                                )}
+                                {visibleFeedback.length > 0 ? (
+                                    visibleFeedback.map(f => (
                                         <div key={f.id} className="feedback-item mb-3 p-2 border rounded">
                                             <div className="d-flex justify-content-between align-items-center">
                                                 <strong>{f.reviewerUsername}</strong>
                                                 <span>Rating: {f.rating}/5</span>
                                             </div>
                                             <div className="comment">{f.comment}</div>
+                                            {f.reviewerId === user?.id && (
+                                                <small className="text-muted">Your review</small>
+                                            )}
                                         </div>
                                     ))
                                 ) : (
                                     <p>No feedback yet.</p>
                                 )}
                             </div>
-                        )}
+                            )}
                             </div>
                         </div>
                     )}
@@ -352,7 +424,7 @@ export default function UserProfilePage() {
                             </div>
                             <div className="profile-details">
                                 <div className={`profile-click ${activeTab === "items" ? "active" : ""}`} onClick={() => setActiveTab("items")}>
-                                    Purchases ({userProfile?.productList?.length || 0})
+                                    Purchases ({userProfile?.purchaseList?.length || 0})
                                 </div>
                                 <div className={`profile-click ${activeTab === "about" ? "active" : ""}`} onClick={() => setActiveTab("about")}>
                                     About
@@ -363,23 +435,31 @@ export default function UserProfilePage() {
                             </div>
                             <div className="profile-content mt-3 tabel">
                                 {activeTab === "items" && (
-                                <div>
-                                    {userProducts.length > 0 ? (
-                                        Array.from({ length: Math.ceil(userProducts.length / 3) }).map((_, rowIndex) => (
-                                            <div className="row row-cols-auto mb-3" key={rowIndex}>
+                                    <div>
+                                        {userProducts.length > 0 ? (
+                                            Array.from({ length: Math.ceil(userProducts.length / 3) }).map((_, rowIndex) => (
+                                                <div className="row row-cols-auto mb-3" key={rowIndex}>
                                                 {userProducts.slice(rowIndex * 3, rowIndex * 3 + 3).map((product) => (
                                                     <div className="col" key={product.id}>
-                                                    <ProductTable products={[product]} />
+                                                        <ProductTable 
+                                                        products={[product]} 
+                                                        onProductClick={(id) => {
+                                                            if (userProfile.role === "BUYER") {
+                                                                navigate(`/purchased-product/${id}`);
+                                                            } else {
+                                                                navigate(`/products/${id}`);
+                                                            }
+                                                        }}
+                                                        />
                                                     </div>
                                                 ))}
-                                            </div>
-                                        ))
-                                            ) : (
-                                            <p>No items to display.</p>
+                                                </div>
+                                            ))
+                                        ) : (
+                                        <p>No items to display.</p>
+                                        )}
+                                    </div>
                                     )}
-                                </div>
-                                )}
-
                             {activeTab === "about" && (
                                 <div className="about-section">
                                     <p className="section">Description:</p>
@@ -389,16 +469,30 @@ export default function UserProfilePage() {
                                 </div>
                             )}
 
-                            {activeTab === "feedback" && (
+{activeTab === "feedback" && (
                             <div className="feedback-section">
-                                {userProfile?.feedback && userProfile.feedback.length > 0 ? (
-                                    userProfile.feedback.map(f => (
+                                {!user && (
+                                    <div className="alert alert-info">
+                                        Please log in to view feedback.
+                                    </div>
+                                )}
+                                {user && user.id !== userProfile.id && !hasReviewedThisUser && (
+                                    <div className="alert alert-warning">
+                                        You can only see feedback from users you have reviewed. 
+                                        Leave a review to see all feedback for this user.
+                                    </div>
+                                )}
+                                {visibleFeedback.length > 0 ? (
+                                    visibleFeedback.map(f => (
                                         <div key={f.id} className="feedback-item mb-3 p-2 border rounded">
                                             <div className="d-flex justify-content-between align-items-center">
                                                 <strong>{f.reviewerUsername}</strong>
                                                 <span>Rating: {f.rating}/5</span>
                                             </div>
                                             <div className="mt-1">{f.comment}</div>
+                                            {f.reviewerId === user?.id && (
+                                                <small className="text-muted">Your review</small>
+                                            )}
                                         </div>
                                     ))
                                 ) : (

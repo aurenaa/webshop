@@ -90,4 +90,13 @@ public class ReviewService {
         }
         return Response.ok(updated).build();
     }
+    
+    @GET
+    @Path("/by-reviewer/{reviewerId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Collection<Review> getReviewsByReviewer(@PathParam("reviewerId") String reviewerId) {
+        ReviewDAO dao = (ReviewDAO) ctx.getAttribute("reviewDAO");
+        Collection<Review> reviews = dao.findByReviewerId(reviewerId);
+        return reviews;
+    }
 }

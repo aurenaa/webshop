@@ -50,7 +50,7 @@ public class ReviewDAO {
 
 	            String[] tokens = line.split(";", -1);
 	            
-	            if (tokens.length < 7) {
+	            if (tokens.length < 6) {
 	                System.err.println("Invalid line format: " + line);
 	                continue;
 	            }
@@ -186,5 +186,15 @@ public class ReviewDAO {
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	    }
+	}
+	
+	public Collection<Review> findByReviewerId(String reviewerId) {
+	    List<Review> result = new ArrayList<>();
+	    for (Review review : reviews.values()) {
+	        if (review.getReviewerId().equals(reviewerId)) {
+	            result.add(review);
+	        }
+	    }
+	    return result;
 	}
 }

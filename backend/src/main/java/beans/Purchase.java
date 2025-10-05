@@ -16,7 +16,7 @@ public class Purchase {
         this.productId = productId;
         this.buyerId = buyerId;
         this.rejectionReason = rejectionReason;
-        this.date = date;
+        this.date = date != null ? date : LocalDate.now();
     }
 
     public String getId() {

@@ -12,11 +12,24 @@
     margin-right: 30px;
 }
 
-.products-table {
-  width: 100%;
+.product-card {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  align-items: center;
+  cursor: pointer;
+}
+
+.product-image {
+  width: 250px;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.product-name {
+  margin-top: 10px;
+  text-align: center;
+  font-weight: bold;
 }
 
 .menu {
@@ -33,3 +46,23 @@
   margin-left: 15px;
 }
 
+.categories-bar {
+  border-bottom: 1px solid #ddd;
+}
+
+.category-item {
+  cursor: pointer;
+  padding: 4px 8px;
+  color: grey;
+  transition: color 0.2s, text-decoration 0.2s;
+}
+
+.category-item:hover {
+  text-decoration: underline;
+  color: darkgray;
+}
+
+.category-item.active {
+  font-weight: bold;
+  color: black;
+}

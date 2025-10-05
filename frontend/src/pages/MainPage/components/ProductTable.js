@@ -1,27 +1,22 @@
 import "./ProductTable.css";
 import { useNavigate } from "react-router-dom";
 import { useUsersList } from "../../../hooks/useUsersList";
-export default function ProductTable({ products }) {
+import { useUser } from "../../../contexts/UserContext";
+export default function ProductTable({ products, onProductClick}) {
   const navigate = useNavigate();
   const users = useUsersList() || [];
-
+  const { user } = useUser();
   if (!products || products.length === 0) {
     return <div>No products found.</div>;
   }
 
   const handleClick = (id) => {
-    navigate(`/products/${id}`);
+    if (onProductClick) {
+      onProductClick(id);
+    }
   };
 
-  const filteredProducts = products.filter(p => {
-    if (p.status === "PROCESSING" || p.status === "SOLD") {
-      return false;
-    }
-    const seller = users.find(u => u.id === p.sellerId);
-    if (!seller) return false; 
-    if (seller.blocked) return false;
-    return true;
-  });
+  const filteredProducts = products.filter(p => p.status !== "CANCELED");
 
   return (
     <div className="product-grid">
