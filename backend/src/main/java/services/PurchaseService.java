@@ -5,6 +5,8 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import java.util.ArrayList;
 import beans.Bid;
 import beans.Product;
@@ -174,4 +176,20 @@ public class PurchaseService {
 	        return null;
 	    }
 	}
+    
+    @GET
+    @Path("/by-product/{productId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPurchaseByProductId(@PathParam("productId") String productId) {
+        PurchaseDAO dao = (PurchaseDAO) ctx.getAttribute("purchaseDAO");
+        Purchase purchase = dao.findPurchaseByProductId(productId);
+        
+        if (purchase == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                          .entity("Purchase not found for product: " + productId)
+                          .build();
+        }
+        
+        return Response.ok(purchase).build();
+    }
 }

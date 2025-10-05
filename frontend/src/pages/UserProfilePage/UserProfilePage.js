@@ -283,7 +283,16 @@ export default function UserProfilePage() {
                                             <div className="row row-cols-auto mb-3" key={rowIndex}>
                                             {userProducts.slice(rowIndex * 3, rowIndex * 3 + 3).map((product) => (
                                                 <div className="col" key={product.id}>
-                                                <ProductTable products={[product]} />
+                                                    <ProductTable 
+                                                    products={[product]} 
+                                                    onProductClick={(id) => {
+                                                        if (userProfile.role === "BUYER") {
+                                                        navigate(`/purchased-product/${id}`);
+                                                        } else {
+                                                        navigate(`/products/${id}`);
+                                                        }
+                                                    }}
+                                                    />
                                                 </div>
                                             ))}
                                             </div>
@@ -380,7 +389,16 @@ export default function UserProfilePage() {
                                                 <div className="row row-cols-auto mb-3" key={rowIndex}>
                                                 {userProducts.slice(rowIndex * 3, rowIndex * 3 + 3).map((product) => (
                                                     <div className="col" key={product.id}>
-                                                    <ProductTable products={[product]} />
+                                                        <ProductTable 
+                                                        products={[product]} 
+                                                        onProductClick={(id) => {
+                                                            if (userProfile.role === "BUYER") {
+                                                            navigate(`/purchased-product/${id}`);
+                                                            } else {
+                                                            navigate(`/products/${id}`);
+                                                            }
+                                                        }}
+                                                        />
                                                     </div>
                                                 ))}
                                                 </div>

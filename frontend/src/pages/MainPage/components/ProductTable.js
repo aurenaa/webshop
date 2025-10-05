@@ -2,7 +2,7 @@ import "./ProductTable.css";
 import { useNavigate } from "react-router-dom";
 import { useUsersList } from "../../../hooks/useUsersList";
 import { useUser } from "../../../contexts/UserContext";
-export default function ProductTable({ products }) {
+export default function ProductTable({ products, onProductClick}) {
   const navigate = useNavigate();
   const users = useUsersList() || [];
   const { user } = useUser();
@@ -11,14 +11,12 @@ export default function ProductTable({ products }) {
   }
 
   const handleClick = (id) => {
-    if (user.role === "BUYER") {
-        navigate(`/purchased-product/${id}`);
-    } else {
-        navigate(`/products/${id}`);
+    if (onProductClick) {
+      onProductClick(id);
     }
   };
 
-  const filteredProducts = products;
+  const filteredProducts = products.filter(p => p.status !== "CANCELED");
 
   return (
     <div className="product-grid">

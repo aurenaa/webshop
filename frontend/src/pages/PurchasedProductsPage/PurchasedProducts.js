@@ -17,19 +17,24 @@ export default function PurchasePage() {
   const productsList = useProductsList() || [];
   const navigate = useNavigate();
   const { isLoggedIn, setIsLoggedIn } = useAuthorize();
+  const [purchase, setPurchase] = useState(null);
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchProductAndPurchase = async () => {
       try {
-        const res = await axios.get(`http://localhost:8080/WebShopAppREST/rest/mainpage/${id}`);
-        setProduct(res.data);
+        const productRes = await axios.get(`http://localhost:8080/WebShopAppREST/rest/mainpage/${id}`);
+        setProduct(productRes.data);
+
+        const purchaseRes = await axios.get(`http://localhost:8080/WebShopAppREST/rest/purchases/product/${id}`);
+        setPurchase(purchaseRes.data);
       } catch (err) {
         console.error(err);
-        alert("Product not found");
+        alert("Product or purchase not found");
       }
     };
-    fetchProduct();
+    fetchProductAndPurchase();
   }, [id, navigate]);
+
 
   if (!product) {
     return <div className="text-center mt-5">Loading product...</div>;
@@ -42,10 +47,10 @@ export default function PurchasePage() {
 
   const handleCancel = async () => {
     try {
-      await axios.patch(`http://localhost:8080/WebShopAppREST/rest/purchases/${product.purchaseId}/cancel`);
+      await axios.patch(`http://localhost:8080/WebShopAppREST/rest/purchases/${purchase.id}/cancel`);
 
       alert("Purchase canceled successfully!");
-      navigate("/purchasedpage");
+      navigate("/mainpage");
     } catch (err) {
       alert(err.response?.data || "Error canceling purchase.");
     }

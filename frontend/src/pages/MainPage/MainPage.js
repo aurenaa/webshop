@@ -226,9 +226,10 @@ export default function MainPage() {
 
         <main className="col-12 col-lg-10">
           <div className="products-container">
-            <ProductTable
-              products={products.filter(p => p.status !== "PROCESSING" && p.status !== "SOLD")}
-            />
+          <ProductTable
+            products={products.filter(p => p.status !== "PROCESSING" && p.status !== "SOLD")}
+            onProductClick={(id) => navigate(`/products/${id}`)}
+          />
           </div>
         </main>
       </div>
