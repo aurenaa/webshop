@@ -13,12 +13,16 @@ export function UserProvider({ children }) {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+  }, [isLoggedIn, userId, user]);
+
+  useEffect(() => {
     const fetchUser = async () => {
       if (isLoggedIn && userId) {
         try {
           const response = await axios.get(
             `http://localhost:8080/WebShopAppREST/rest/users/${userId}`
           );
+          console.log("User fetched:", response.data);
           setUser(response.data);
         } catch (error) {
           console.error("Error fetching user:", error);

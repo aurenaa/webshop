@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthorizeContext = createContext();
 
@@ -9,6 +9,9 @@ export function useAuthorize() {
 export function AuthorizeProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+  }, [isLoggedIn, userId]);
 
   const login = (id) => {
     setIsLoggedIn(true);
