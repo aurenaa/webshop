@@ -95,7 +95,7 @@ export default function ProductPage() {
                 `http://localhost:8080/WebShopAppREST/rest/purchases/${purchase.id}/sell`,
                 {}
             );
-            navigate("/listingpage");
+            navigate("/mainpage");
         } catch (err) {
             console.error("Error selling product", err);
         }
@@ -112,7 +112,7 @@ export default function ProductPage() {
             await axios.post(
                 `http://localhost:8080/WebShopAppREST/rest/purchases/${purchase.id}/reject?reason=${encodeURIComponent(rejectReason)}`
             );
-            navigate("/listingpage");
+            navigate("/mainpage");
         } catch (err) {
             console.error("Error rejecting product", err);
         }

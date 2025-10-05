@@ -54,7 +54,7 @@ export default function UserProfilePage() {
         if (!userProfile) return [];
 
         if (userProfile.role === "SELLER") {
-            const sellerProducts = products.filter(p => p.sellerId === userProfile.id);
+            const sellerProducts = products.filter(p => p.sellerId === userProfile.id && p.status !== "SOLD");
             return sellerProducts;
         } else if (userProfile.role === "BUYER") {
             const purchaseIds = userProfile.purchaseList || userProfile.productList || [];
@@ -393,9 +393,9 @@ export default function UserProfilePage() {
                                                         products={[product]} 
                                                         onProductClick={(id) => {
                                                             if (userProfile.role === "BUYER") {
-                                                            navigate(`/purchased-product/${id}`);
+                                                                navigate(`/purchased-product/${id}`);
                                                             } else {
-                                                            navigate(`/products/${id}`);
+                                                                navigate(`/products/${id}`);
                                                             }
                                                         }}
                                                         />

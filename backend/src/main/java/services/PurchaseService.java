@@ -87,13 +87,6 @@ public class PurchaseService {
             userDAO.removeProductId(seller, product.getId(), ctx.getRealPath(""));
             userDAO.editFileUser(seller, ctx.getRealPath(""));
         }
-
-        User buyer = userDAO.findById(purchase.getBuyerId());
-        if (buyer != null) {
-            userDAO.addPurchaseId(buyer, product.getId(), ctx.getRealPath(""));
-            userDAO.editFileUser(buyer, ctx.getRealPath(""));
-        }
-
         return purchase;
     }
 
@@ -112,7 +105,7 @@ public class PurchaseService {
     public Purchase rejectPurchase(@PathParam("purchaseId") String purchaseId, @QueryParam("reason") String reason) {
         PurchaseDAO purchaseDAO = (PurchaseDAO) ctx.getAttribute("purchaseDAO");
         ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
-
+        UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
         Purchase purchase = purchaseDAO.findPurchase(purchaseId);
         Product product = productDAO.findProduct(purchase.getProductId());
 
@@ -121,7 +114,11 @@ public class PurchaseService {
 
         product.setStatus(Status.REJECTED);
         productDAO.editFileProduct(product, ctx.getRealPath(""));
-
+        User buyer = userDAO.findById(purchase.getBuyerId());
+        if (buyer != null) {
+            userDAO.removePurchaseId(buyer, product.getId(), ctx.getRealPath(""));
+            userDAO.editFileUser(buyer, ctx.getRealPath(""));
+        }
         return purchase;
     }
 
