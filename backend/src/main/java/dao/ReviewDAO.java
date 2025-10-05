@@ -187,4 +187,14 @@ public class ReviewDAO {
 	        e.printStackTrace();
 	    }
 	}
+	
+	public Collection<Review> findByReviewerId(String reviewerId) {
+	    List<Review> result = new ArrayList<>();
+	    for (Review review : reviews.values()) {
+	        if (review.getReviewerId().equals(reviewerId)) {
+	            result.add(review);
+	        }
+	    }
+	    return result;
+	}
 }

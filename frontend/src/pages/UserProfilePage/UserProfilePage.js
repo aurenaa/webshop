@@ -18,7 +18,7 @@ export default function UserProfilePage() {
     const { products } = useProducts();
     const [activeTab, setActiveTab] = useState("items");
     const [otherReason, setOtherReason] = useState("");
-
+    const [myReviews, setMyReviews] = useState([]);
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
     const [showOthers, setShowOthers] = useState(false);
@@ -26,6 +26,14 @@ export default function UserProfilePage() {
     const [reviewComment, setReviewComment] = useState("");
     const [reviewTargetUser, setReviewTargetUser] = useState(null);
     const [selectedValue, setSelectedValue] = useState('');
+
+    useEffect(() => {
+        if (user && userProfile) {
+            axios.get(`http://localhost:8080/WebShopAppREST/rest/reviews/by-reviewer/${user.id}`)
+                .then(res => setMyReviews(res.data))
+                .catch(err => console.error("Error fetching user reviews", err));
+        }
+    }, [user, userProfile]);    
 
     const openReviewModal = (userToReview) => {
         setReviewTargetUser(userToReview);
@@ -49,7 +57,29 @@ export default function UserProfilePage() {
             }
         }, [id, isLoggedIn, user]);
 
+
+    const getVisibleFeedback = () => {
+        if (!userProfile || !userProfile.feedback) return [];
         
+        if (user && Number(id) === user.id) {
+            return userProfile.feedback;
+        }
+        
+        if (!user) return [];
+        
+        const hasReviewedThisUser = myReviews.some(review => 
+            review.reviewedUserId === userProfile.id
+        );
+        
+        if (hasReviewedThisUser) {
+            return userProfile.feedback;
+        } else {
+            return userProfile.feedback.filter(f => 
+                f.reviewerId === user.id
+            );
+        }
+    };
+
     const userProducts = useMemo(() => {
         if (!userProfile) return [];
 
@@ -125,7 +155,7 @@ export default function UserProfilePage() {
 
     const submitReview = () => {
         if (!reviewTargetUser) return;
-        axios.post(`http://localhost:8080/WebShopAppREST/rest/users/reviews`, {
+        axios.post(`http://localhost:8080/WebShopAppREST/rest/reviews`, {
             reviewerId: user.id,
             reviewedUserId: reviewTargetUser.id,
             rating: reviewScore,
@@ -134,6 +164,9 @@ export default function UserProfilePage() {
         .then(res => {
             console.log("Review submitted:", res.data);
             setShowReviewModal(false);
+            axios.get(`http://localhost:8080/WebShopAppREST/rest/reviews/by-reviewer/${user.id}`)
+                .then(res => setMyReviews(res.data))
+                .catch(err => console.error("Error fetching user reviews", err));
         })
         .catch(err => console.error(err));
     };
@@ -158,6 +191,11 @@ export default function UserProfilePage() {
         })
         .catch(err => console.error(err));
     };
+
+    const visibleFeedback = getVisibleFeedback();
+    const hasReviewedThisUser = user && userProfile && myReviews.some(review => 
+        review.reviewedUserId === userProfile.id
+    );
     
     return (
         <div className="main-page">
@@ -313,21 +351,35 @@ export default function UserProfilePage() {
                             )}
                             {activeTab === "feedback" && (
                             <div className="feedback-section">
-                                {userProfile?.feedback && userProfile.feedback.length > 0 ? (
-                                    userProfile.feedback.map(f => (
+                                {!user && (
+                                    <div className="alert alert-info">
+                                        Please log in to view feedback.
+                                    </div>
+                                )}
+                                {user && user.id !== userProfile.id && !hasReviewedThisUser && (
+                                    <div className="alert alert-warning">
+                                        You can only see feedback from users you have reviewed. 
+                                        Leave a review to see all feedback for this user.
+                                    </div>
+                                )}
+                                {visibleFeedback.length > 0 ? (
+                                    visibleFeedback.map(f => (
                                         <div key={f.id} className="feedback-item mb-3 p-2 border rounded">
                                             <div className="d-flex justify-content-between align-items-center">
                                                 <strong>{f.reviewerUsername}</strong>
                                                 <span>Rating: {f.rating}/5</span>
                                             </div>
                                             <div className="comment">{f.comment}</div>
+                                            {f.reviewerId === user?.id && (
+                                                <small className="text-muted">Your review</small>
+                                            )}
                                         </div>
                                     ))
                                 ) : (
                                     <p>No feedback yet.</p>
                                 )}
                             </div>
-                        )}
+                            )}
                             </div>
                         </div>
                     )}
@@ -417,16 +469,30 @@ export default function UserProfilePage() {
                                 </div>
                             )}
 
-                            {activeTab === "feedback" && (
+{activeTab === "feedback" && (
                             <div className="feedback-section">
-                                {userProfile?.feedback && userProfile.feedback.length > 0 ? (
-                                    userProfile.feedback.map(f => (
+                                {!user && (
+                                    <div className="alert alert-info">
+                                        Please log in to view feedback.
+                                    </div>
+                                )}
+                                {user && user.id !== userProfile.id && !hasReviewedThisUser && (
+                                    <div className="alert alert-warning">
+                                        You can only see feedback from users you have reviewed. 
+                                        Leave a review to see all feedback for this user.
+                                    </div>
+                                )}
+                                {visibleFeedback.length > 0 ? (
+                                    visibleFeedback.map(f => (
                                         <div key={f.id} className="feedback-item mb-3 p-2 border rounded">
                                             <div className="d-flex justify-content-between align-items-center">
                                                 <strong>{f.reviewerUsername}</strong>
                                                 <span>Rating: {f.rating}/5</span>
                                             </div>
                                             <div className="mt-1">{f.comment}</div>
+                                            {f.reviewerId === user?.id && (
+                                                <small className="text-muted">Your review</small>
+                                            )}
                                         </div>
                                     ))
                                 ) : (

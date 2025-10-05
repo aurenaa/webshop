@@ -101,6 +101,18 @@
     flex-direction: column;
 }
 
+.feedback-item {
+    background-color: #fafafa;
+    padding: 10px 15px;
+}
+
+.comment {
+    text-align: left;
+    margin-top: 6px;
+    margin-left: 2px;
+    font-size: 15px;
+}
+
 .input-group {
     margin-top: 10px;
 }

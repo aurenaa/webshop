@@ -13,7 +13,8 @@ export default function ProductPage() {
     const [rejectReason, setRejectReason] = useState("");
     const [purchase, setPurchase] = useState(null);
     const [showBuyConfirm, setShowBuyConfirm] = useState(false);
-
+    const [showOfferInput, setShowOfferInput] = useState(false);
+    const [offer, setOffer] = useState("");
     const handleDeleteClick = async () =>
     {
         try
@@ -177,6 +178,40 @@ export default function ProductPage() {
         } catch (err) {
             console.error("Error buying product", err);
             setShowBuyConfirm(false);
+        }
+    };
+
+    const handleOfferSubmit = async () => {
+        if (!user || !user.id) {
+            alert("Please log in first!");
+            return;
+        }
+
+        const offerValue = parseFloat(offer);
+        if (isNaN(offerValue) || offerValue <= 0) {
+            alert("Enter a valid offer amount!");
+            return;
+        }
+
+        try {
+            const response = await axios.post(
+            `http://localhost:8080/WebShopAppREST/rest/purchases/${product.id}/bid`,
+            {
+                buyerId: user.id,
+                offer: offerValue
+            }
+            );
+
+            if (!response.data) {
+            alert("Bid not accepted. Make sure your offer is higher than current max bid.");
+            } else {
+            alert("Bid placed successfully!");
+            setOffer("");
+            setShowOfferInput(false);
+            }
+        } catch (err) {
+            console.error("Error while submitting offer:", err);
+            alert("Failed to submit offer. Try again later.");
         }
     };
 
@@ -403,9 +438,38 @@ export default function ProductPage() {
                                             </>
                                     ) : (
                                         <>
-                                            {product.saleType === "AUCTION" ? (
-                                                <button onClick={() => isLoggedIn ? navigate(`/offer/${product.id}`) : navigate("/login")} className="btn btn-primary">Make offer</button>
-                                            ) : (
+                                        {product.saleType === "AUCTION" ? (
+                                        <>
+                                            <button
+                                            onClick={() => {
+                                                if (!isLoggedIn) {
+                                                navigate("/login");
+                                                } else {
+                                                setShowOfferInput(!showOfferInput);
+                                                }
+                                            }}
+                                            className="btn btn-primary"
+                                            >
+                                            Make offer
+                                            </button>
+
+                                            {showOfferInput && (
+                                            <div className="mt-3">
+                                                <input
+                                                type="number"
+                                                value={offer}
+                                                onChange={(e) => setOffer(e.target.value)}
+                                                placeholder="Enter your bid"
+                                                className="form-control mb-2"
+                                                style={{ maxWidth: "250px", margin: "0 auto" }}
+                                                />
+                                                <button onClick={handleOfferSubmit} className="btn btn-success">
+                                                Submit offer
+                                                </button>
+                                            </div>
+                                            )}
+                                        </>
+                                        ) : (
                                                 <button onClick={() => isLoggedIn ? handleBuyClick() : navigate("/login")} className="btn btn-primary">Buy it now</button>                                            
                                             )}    
                                             <button onClick={() => isLoggedIn ? navigate("/offer") : navigate("/login")} className="btn btn-primary">Add to cart</button>
