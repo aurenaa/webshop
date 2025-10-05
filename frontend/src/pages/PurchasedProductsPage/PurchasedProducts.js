@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useProducts } from "../../contexts/ProductsContext";
 import { useProductsList } from "../../hooks/useProductsList";
 import { useAuthorize } from "../../contexts/AuthorizeContext";
@@ -10,122 +10,153 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 export default function PurchasePage() {
-  const { products, dispatch } = useProducts();
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const { user } = useUser();
   const productsList = useProductsList() || [];
   const navigate = useNavigate();
   const { isLoggedIn, setIsLoggedIn } = useAuthorize();
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await axios.get(`http://localhost:8080/WebShopAppREST/rest/mainpage/${id}`);
+        setProduct(res.data);
+      } catch (err) {
+        console.error(err);
+        alert("Product not found");
+      }
+    };
+    fetchProduct();
+  }, [id, navigate]);
+
+  if (!product) {
+    return <div className="text-center mt-5">Loading product...</div>;
+  }
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     navigate('/mainpage');
   };
 
-  const handleCancel = async (productId) => {
+  const handleCancel = async () => {
     try {
-      await axios.patch(`http://localhost:8080/WebShopAppREST/rest/mainpage/${productId}/cancel`
-        );
+      await axios.patch(`http://localhost:8080/WebShopAppREST/rest/purchases/${product.purchaseId}/cancel`);
 
-      dispatch({ type: "SET", payload: await productsList });
+      alert("Purchase canceled successfully!");
+      navigate("/purchasedpage");
     } catch (err) {
       alert(err.response?.data || "Error canceling purchase.");
     }
   };
 
-  useEffect(() => {
-    dispatch({ type: "SET", payload: productsList });
-  }, [productsList, dispatch]);
-
-  const purchasedProducts = isLoggedIn ? products.filter(p => p.buyerId === user.id) : [];
-
   return (
     <div className="main-page">
-      <nav className="navbar navbar-expand-lg navbar-light bg-light px-3 position-relative">
-        <span onClick={() => navigate("/mainpage")} className="navbar-brand">WebShop</span>
+                  <nav className="navbar navbar-expand-lg navbar-light bg-light px-3 position-relative">
+                <span onClick={() => navigate("/mainpage")} className="navbar-brand">WebShop</span>
 
-        <div className="position-absolute start-50 translate-middle-x d-flex">
-          <input className="form-control me-2"
-            type="search"
-            placeholder="Search"
-            aria-label="Search"
-          />
-          <button className="btn btn-outline-success" type="submit">Search</button>
-        </div>
+                <div className="position-absolute start-50 translate-middle-x d-flex">
+                    <input className="form-control me-2"
+                        type="search"
+                        placeholder="Search"
+                        aria-label="Search"
+                        style={{ width: "400px" }}                        
+                    />
+                    <button className="btn btn-outline-success" type="submit">Search</button>
+                </div>
 
-        <div className="d-flex align-items-center ms-auto">
-          {isLoggedIn ? (
-            <>
-              <img className="cart" src="/icons/shopping_cart.png" alt="Cart" onClick={() => navigate("/cart")} />
-              <div className="dropdown">
-                <button className="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                  <img className="menu" src="/icons/menu.png" alt="Menu" />
-                </button>
-                <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <li><a className="dropdown-item" onClick={() => navigate("/profile")}>My account</a></li>
-                  <li><a className="dropdown-item" onClick={() => navigate("/purchasedpage")}>My purchases</a></li>
-                  <li><a className="dropdown-item" onClick={handleLogout}>Log out</a></li>
-                </ul>
-              </div>
-            </>
-          ) : (
-            <>
-              <button onClick={() => navigate("/signup")} className="btn btn-outline-primary me-2">Sign Up</button>
-              <span onClick={() => navigate("/login")} className="nav-link" style={{ cursor: "pointer" }}>Log in</span>
-            </>
-          )}
-        </div>
-      </nav>
+                <div className="d-flex align-items-center ms-auto">
+                <button onClick={() => navigate("/add-product")} className="btn btn-success me-2">Add a Listing</button>
+                    {isLoggedIn ? (
+                    <>
+                        <img className="cart" src="/icons/shopping_cart.png" alt="Cart" onClick={() => navigate("/cart")}/>
+                        <div className="dropdown">
+                            <button className="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img className="menu" src="/icons/menu.png" alt="Menu"/>
+                            </button>
+                            <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <li>
+                                <a className="dropdown-item" onClick={() => navigate(`/profile/${user?.id}`)}>
+                                Account settings
+                                </a>
+                            </li>
+                            <li>
+                                <a className="dropdown-item" onClick={() => navigate(`/user/${user?.id}`)}>
+                                My profile
+                                </a>
+                            </li>
+                            <li>
+                                <a className="dropdown-item" onClick={handleLogout}>
+                                Log out
+                                </a>
+                            </li>
+                            </ul>
+                        </div>
+                    </>
+                    ) : (
+                    <>
+                        <button onClick={() => navigate("/signup")} className="btn btn-outline-primary me-2">
+                            Sign Up
+                        </button>
+                        <span onClick={() => navigate("/login")} className="nav-link" style={{ cursor: "pointer" }}>
+                            Log in
+                        </span>
+                    </>
+                    )}
+                </div>
+            </nav>
 
-      <div className="text-bg-light p-3 custom-box">
-        <div className="container text-center">
-          {purchasedProducts.length > 0 ? (
-            <>
-              <table className="table table-striped">
-                <thead>
-                  <tr>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Status</th>
-                    <th>More info</th>
-                    <th>Cancel</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {purchasedProducts.map((product) => (
-                    <tr key={product.id}>
-                      <td>{product.name}</td>
-                      <td>{product.price}</td>
-                      <td>{product.status}</td>
-                      
-                      <td>
-                        {product.status === "REJECTED" && product.rejectionReason && (
-                          <div className="text-danger"><small> {product.rejectionReason}</small></div>
-                        )}
-                      </td>
-                      <td>
-                        {product.status === "PROCESSING" && (
-                          <button
-                            className="btn btn-danger btn-sm"
-                            onClick={() => handleCancel(product.id)}
-                          >
-                            Yes
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </>
-          ) : (
-            <>
-              <h2>You have no purchases</h2>
-              <p>Browse products and buy something to see it here.</p>
-              <button onClick={() => navigate("/mainpage")} className="btn btn-success me-2">Go to shop</button>
-            </>
-          )}
+      <div className="container mt-5 text-center">
+        <h2>{product.name}</h2>
+        <img 
+          src={product.productPictures && product.productPictures.length > 0 
+               ? `http://localhost:8080/WebShopAppREST/images/products/${product.productPictures[0]}`
+               : "/icons/no_image.jpg"} 
+          alt={product.name} 
+          className="img-fluid mb-3" 
+          style={{ maxHeight: "300px" }}
+          onError={(e) => e.target.src = "/icons/no_image.jpg"}
+        />
+        <p>Price: {product.price} RSD</p>
+        <p>Status: {product.status}</p>
+        {product.status === "REJECTED" && product.rejectionReason && (
+          <p className="text-danger">Reason: {product.rejectionReason}</p>
+        )}
+
+        {product.status === "PROCESSING" && (
+          <button className="btn btn-danger mt-3" onClick={() => setShowModal(true)}>
+            Cancel Purchase
+          </button>
+        )}
+
+        <div className="mt-3">
+          <button className="btn btn-success" onClick={() => navigate("/mainpage")}>
+            Go to Shop
+          </button>
         </div>
       </div>
+
+      {showModal && (
+        <div className="modal show d-block" tabIndex="-1">
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Confirm Cancel</h5>
+                <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+              </div>
+              <div className="modal-body">
+                <p>Are you sure you want to cancel this purchase?</p>
+                <p className="text-danger"><small>This action cannot be undone!</small></p>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setShowModal(false)}>No</button>
+                <button className="btn btn-danger" onClick={handleCancel}>Yes, Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,16 +1,21 @@
 import "./ProductTable.css";
 import { useNavigate } from "react-router-dom";
 import { useUsersList } from "../../../hooks/useUsersList";
+import { useUser } from "../../../contexts/UserContext";
 export default function ProductTable({ products }) {
   const navigate = useNavigate();
   const users = useUsersList() || [];
-
+  const { user } = useUser();
   if (!products || products.length === 0) {
     return <div>No products found.</div>;
   }
 
   const handleClick = (id) => {
-    navigate(`/products/${id}`);
+    if (user.role === "BUYER") {
+        navigate(`/purchased-product/${id}`);
+    } else {
+        navigate(`/products/${id}`);
+    }
   };
 
   const filteredProducts = products;

@@ -129,12 +129,19 @@ public class PurchaseService {
     public Purchase cancelPurchase(@PathParam("purchaseId") String purchaseId) {
         PurchaseDAO purchaseDAO = (PurchaseDAO) ctx.getAttribute("purchaseDAO");
         ProductDAO productDAO = (ProductDAO) ctx.getAttribute("productDAO");
-
+        UserDAO userDAO = (UserDAO) ctx.getAttribute("userDAO");
+        
         Purchase purchase = purchaseDAO.findPurchase(purchaseId);
         Product product = productDAO.findProduct(purchase.getProductId());
 
         product.setStatus(Status.CANCELED);
         productDAO.editFileProduct(product, ctx.getRealPath(""));
+        
+        User buyer = userDAO.findById(purchase.getBuyerId());
+        if (buyer != null) {
+            userDAO.removePurchaseId(buyer, product.getId(), ctx.getRealPath(""));
+            userDAO.editFileUser(buyer, ctx.getRealPath(""));
+        }
 
         return purchase;
     }
